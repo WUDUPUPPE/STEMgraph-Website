@@ -354,9 +354,11 @@ export class Stemgraph3dComponent implements AfterViewInit, OnDestroy {
     this.intersectionObserver?.disconnect();
     this.controls?.dispose();
 
-    window.removeEventListener('pointermove', this.onPointerMove);
-    window.removeEventListener('scroll', this.onScroll);
-    window.removeEventListener('blur', this.onBlur);
+    if (typeof window !== 'undefined') {
+      window.removeEventListener('pointermove', this.onPointerMove);
+      window.removeEventListener('scroll', this.onScroll);
+      window.removeEventListener('blur', this.onBlur);
+    }
 
     this.logo.traverse(object => {
       if (!(object instanceof THREE.Mesh)) return;
