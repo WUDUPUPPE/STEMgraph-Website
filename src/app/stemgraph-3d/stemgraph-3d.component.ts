@@ -1,17 +1,10 @@
-import {
-  AfterViewInit,
-  Component,
-  ElementRef,
-  Input,
-  NgZone,
-  OnDestroy,
-  ViewChild,
-} from '@angular/core';
+import { AfterViewInit, Component, ElementRef, Input, NgZone, OnDestroy, ViewChild, inject, PLATFORM_ID } from '@angular/core';
 import * as THREE from 'three';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
 import { FontLoader } from 'three/examples/jsm/loaders/FontLoader.js';
 import { TextGeometry } from 'three/examples/jsm/geometries/TextGeometry.js';
+import { isPlatformBrowser } from '@angular/common';
 
 export interface StemgraphLogoConfig {
   textStem: string;
@@ -37,6 +30,8 @@ export interface StemgraphLogoConfig {
   styleUrl: './stemgraph-3d.component.css',
 })
 export class Stemgraph3dComponent implements AfterViewInit, OnDestroy {
+  private readonly platformId = inject(PLATFORM_ID);
+
   @ViewChild('canvas', { static: true })
   private canvasRef!: ElementRef<HTMLCanvasElement>;
 
@@ -83,6 +78,9 @@ export class Stemgraph3dComponent implements AfterViewInit, OnDestroy {
   constructor(private readonly zone: NgZone) {}
 
   ngAfterViewInit(): void {
+    if (!isPlatformBrowser(this.platformId)) {
+      return;
+    }
     this.zone.runOutsideAngular(() => {
       this.initScene();
       this.bindInteraction();
@@ -348,7 +346,10 @@ export class Stemgraph3dComponent implements AfterViewInit, OnDestroy {
   ngOnDestroy(): void {
     this.destroyed = true;
 
-    cancelAnimationFrame(this.animationId);
+    if (typeof cancelAnimationFrame !== 'undefined' && this.animationId) {
+      cancelAnimationFrame(this.animationId);
+    }
+
     this.resizeObserver?.disconnect();
     this.intersectionObserver?.disconnect();
     this.controls?.dispose();
