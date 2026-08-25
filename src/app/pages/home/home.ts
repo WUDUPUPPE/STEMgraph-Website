@@ -1,9 +1,10 @@
 import { Component } from '@angular/core';
+import { Stemgraph3dComponent } from '../../stemgraph-3d/stemgraph-3d.component';
 
 @Component({
-  imports: [],
   selector: 'app-home',
-  styleUrl: './home.css',
+  imports: [Stemgraph3dComponent],
   templateUrl: './home.html',
+  styleUrl: './home.css',
 })
 export class Home {}
