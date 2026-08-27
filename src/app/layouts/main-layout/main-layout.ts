@@ -1,10 +1,12 @@
 import { Component } from '@angular/core';
-import { RouterOutlet } from "../../../../node_modules/@angular/router/types/_router_module-chunk";
+import { RouterOutlet } from "@angular/router";
+import { Navbar } from "../../components/navbar/navbar";
 
 @Component({
-  imports: [RouterOutlet],
   selector: 'app-main-layout',
-  styleUrl: './main-layout.css',
+  imports: [RouterOutlet, Navbar],
   templateUrl: './main-layout.html',
+  styleUrl: './main-layout.css',
 })
-export class MainLayout {}
+export class MainLayout {
+}
