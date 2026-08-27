@@ -1,16 +1,8 @@
 .stemgraph-3d {
   position: relative;
   width: 100%;
-  height: clamp(280px, 42vw, 520px);
-  min-height: 280px;
+  min-height:px;
   overflow: hidden;
-
-  background: radial-gradient(
-    circle at 50% 45%,
-    var(--color-bg-light) 0%,
-    var(--color-bg-main) 45%,
-    var(--color-bg-dark) 82%
-  );
 }
 
 .stemgraph-3d canvas {
