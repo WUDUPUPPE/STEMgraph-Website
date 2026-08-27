@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import { Stemgraph3dComponent } from '../../stemgraph-3d/stemgraph-3d.component';
+import { Stemgraph3dComponent } from '../../components/stemgraph-3d/stemgraph-3d.component';
 
 @Component({
   selector: 'app-home',

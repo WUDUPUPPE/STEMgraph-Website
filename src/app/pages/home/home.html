@@ -1,6 +1,16 @@
-<app-stemgraph-3d
-  [glbUrl]="'/STEMgraph_website_w_lowlight.glb'"
-  [autoRotate]="true"
-  [mouseParallax]="true"
-  [scrollAnimation]="true">
-</app-stemgraph-3d>
+<section class="hero">
+  <div class="hero-content">
+    <h1>STEMgraph</h1>
+    <a routerLink="/keywords" class="hero_button">
+      Keywords
+    </a>
+  </div>
+
+  <app-stemgraph-3d
+    [glbUrl]="'/STEMgraph_website_w_lowlight.glb'"
+    [autoRotate]="true"
+    [mouseParallax]="true"
+    [scrollAnimation]="true">
+  </app-stemgraph-3d>
+
+</section>
