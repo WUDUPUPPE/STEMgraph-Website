@@ -4,8 +4,13 @@
   height: clamp(280px, 42vw, 520px);
   min-height: 280px;
   overflow: hidden;
-  background:
-    radial-gradient(circle at 50% 45%, #16243b 0%, #0a101b 45%, #05070b 82%);
+
+  background: radial-gradient(
+    circle at 50% 45%,
+    var(--color-bg-light) 0%,
+    var(--color-bg-main) 45%,
+    var(--color-bg-dark) 82%
+  );
 }
 
 .stemgraph-3d canvas {

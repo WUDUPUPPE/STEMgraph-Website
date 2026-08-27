@@ -1,1 +1,37 @@
 /* You can add global styles to this file, and also import other style files */
+:root {
+  --color-bg-dark: #0b0713;
+  --color-bg-main: #0a191b;
+  --color-bg-light: #2d163b;
+
+  --color-text: #f5f7fb;
+  --color-text-muted: #aeb8c8;
+
+  --color-border: rgba(255, 255, 255, 0.1);
+  --color-navbar: rgba(5, 7, 11, 0.78);
+}
+
+html{
+  min-height: 100%;
+  background: var(--color-bg-dark);
+}
+body {
+  min-width: 320px;
+  min-height: 100vh;
+  margin: 0;
+
+  color: var(--color-text);
+  font-family: Arial, sans-serif;
+
+  background:
+    radial-gradient(
+      circle at 50% 0%,
+      var(--color-purple) 0%,
+      var(--color-bg-main) 35%,
+      var(--color-bg-dark) 80%
+    );
+
+  background-attachment: fixed;
+  background-repeat: no-repeat;
+  background-size: cover;
+}
