@@ -1,7 +1,8 @@
 .stemgraph-3d {
   position: relative;
   width: 100%;
-  min-height:px;
+  min-width: 400px;
+  min-height: 1px;
   overflow: hidden;
 }
 

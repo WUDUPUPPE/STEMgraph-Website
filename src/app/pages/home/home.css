@@ -1,20 +1,28 @@
 :host {
   display: block;
-  padding-top: 72px;
 }
 
-.stemgraph-3d {
-  position: relative;
-  width: 100%;
-  height: 100%;
-  overflow: hidden;
-  background:
-    radial-gradient(circle at 50% 45%, #16243b 0%, #0a101b 45%, #05070b 82%);
+.hero {
+  min-height: 120px;
 }
 
-.stemgraph-3d canvas {
-  display: block;
-  width: 100%;
-  height: 100%;
-  touch-action: pan-y;
+.content-section {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 5% 30px;
+  color: var(--color-text);
+}
+
+.content-section h1,
+.content-section h2 {
+  color: #d0e3de;
+  font-size: 1.3rem;
+  margin-bottom: 10px;
+}
+
+.content-section p {
+  max-width: 750px;
+  color: var(--color-text-muted);
+  font-size: 0.76rem;
+  line-height: 1.2;
 }
