@@ -4,10 +4,23 @@
   --color-bg-main: #0a191b;
   --color-bg-light: #2d163b;
 
-  --color-text: #f5f7fb;
-  --color-text-muted: #aeb8c8;
+  --color-text: #d0e3de;
+  --color-text-muted: #c1b1d9;
 
   --color-border: rgba(255, 255, 255, 0.1);
+}
+@font-face {
+  font-family: 'Fugaz One';
+  src: url('/FugazOne-Regular.ttf')format('truetype');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: 'Fugaz One', sans-serif;
+  font-weight: 300;
+  letter-spacing: 0.06rem;
 }
 
 html{

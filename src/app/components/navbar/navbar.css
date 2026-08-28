@@ -6,12 +6,11 @@
   display: flex;
   align-items: center;
 
- min-height: 72px;
+  min-height: 35px;
   padding: 0 42px;
 
-  background: rgba(15, 4, 50, 0.264);
-  border-bottom: 1px solid var(--color-border);
-  backdrop-filter: blur(12px);
+  background: rgba(3, 25, 31, 0.264);
+  backdrop-filter: blur(2px);
 }
 
 .navbar-logo {
@@ -27,17 +26,22 @@
 
 .navbar-links {
   display: flex;
-  align-items: center;
-  gap: 28px;
+  justify-content: right;
+  gap: 35px;
 }
 
 .navbar-links a {
-  color: #5a15da7c;
+  color: #24b8b13b;
   font-size: 1rem;
   text-decoration: none;
-  transition: color 0.2s ease;
+  transition: color 0.4s ease;
 }
 
 .navbar-links a:hover {
-  color: #26af947c;
+  color: #da151f3c;;
+}
+
+.navbar-links a,
+.navbar-logo {
+  font-family: 'Fugaz One', sans-serif;
 }
