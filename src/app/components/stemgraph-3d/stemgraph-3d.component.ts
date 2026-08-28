@@ -54,7 +54,7 @@ export class Stemgraph3dComponent implements AfterViewInit, OnDestroy {
     metalness: 0.72,
     roughness: 0.20,
     clearcoat: 1,
-    rotationSpeed: 0.0025,
+    rotationSpeed: 0.00025,
     signatureLine: true,
   };
 
@@ -93,8 +93,8 @@ export class Stemgraph3dComponent implements AfterViewInit, OnDestroy {
 
     this.scene = new THREE.Scene();
 
-    this.camera = new THREE.PerspectiveCamera(35, 1, 0.1, 100);
-    this.camera.position.set(0, 0.1, 10.5);
+    this.camera = new THREE.PerspectiveCamera(30, 1, 0.1, 100);
+    this.camera.position.set(0, 0.8, 8);
 
     this.renderer = new THREE.WebGLRenderer({
       canvas,
@@ -110,7 +110,7 @@ export class Stemgraph3dComponent implements AfterViewInit, OnDestroy {
 
     this.scene.add(new THREE.HemisphereLight(0xdbeafe, 0x050912, 2.2));
 
-    const key = new THREE.DirectionalLight(0xffffff, 4);
+    const key = new THREE.DirectionalLight(0xffffff, 6);
     key.position.set(4, 5, 8);
     this.scene.add(key);
 
@@ -238,7 +238,7 @@ export class Stemgraph3dComponent implements AfterViewInit, OnDestroy {
         const size = box.getSize(new THREE.Vector3());
         const maxAxis = Math.max(size.x, size.y, size.z);
         if (maxAxis > 0) {
-          const scale = 5 / maxAxis;
+          const scale = 6 / maxAxis;
           gltf.scene.scale.setScalar(scale);
         }
       },
@@ -311,12 +311,12 @@ export class Stemgraph3dComponent implements AfterViewInit, OnDestroy {
     if (this.mouseParallax) {
       this.logo.rotation.x = THREE.MathUtils.lerp(
         this.logo.rotation.x,
-        -this.pointerY * 0.08,
+        -this.pointerY * 0.1,
         0.06
       );
       this.logo.rotation.y = THREE.MathUtils.lerp(
         this.logo.rotation.y,
-        this.pointerX * 0.14 +
+        this.pointerX * 0.03 +
           (this.autoRotate ? this.logo.rotation.y + this.config.rotationSpeed : 0),
         0.06
       );
