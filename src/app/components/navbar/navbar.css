@@ -13,6 +13,7 @@
   backdrop-filter: blur(2px);
 }
 
+/*Navbar-Logo*/
 .navbar-logo {
   display: inline-flex;
   align-items: center;
@@ -24,6 +25,8 @@
   object-fit: contain;
 }
 
+/*Navbar-Links*/
+.search-box,
 .navbar-links {
   display: flex;
   flex: 1;
@@ -46,4 +49,38 @@
 .navbar-links a,
 .navbar-logo {
   font-family: 'Fugaz One', sans-serif;
+}
+/*Search*/
+.search-box {
+  gap: 0px;
+}
+
+.search-icon {
+  color: #24b8b1;
+  font-size: clamp(1.2rem, 2vw, 2rem);
+  padding-top: 4px;
+  padding-right: 4px;
+}
+
+.search-box input,
+.search-box select {
+  min-width: 0;
+  padding: 0px 15px;
+
+  color: rgba(247, 251, 251, 0.752);
+  background: rgba(3, 25, 31, 0.6);
+  border: 0.1px solid rgba(36, 184, 177, 0.14);
+  border-radius: 8px;
+
+  font-family: 'Fugaz One', sans-serif;
+}
+
+.search-box input {
+  height: clamp(30px, 2.5vw, 40px);
+  width: clamp(100px, 12vw, 320px);
+}
+
+.search-box select {
+  height: clamp(30px, 2.5vw, 40px);
+  width: clamp(60px, 9vw, 70px);
 }

@@ -3,6 +3,18 @@
     <img src="/STEMgraph.ico" alt="STEMgraph Logo"/>
   </a>
 
+  <form class="search-box" (ngSubmit)="submitSearch()">
+    <span class="search-icon" aria-hidden="true">🔍</span>
+    <input type="search" name="searchTerm" [(ngModel)]="searchTerm" placeholder="Search..." aria-label="Search"/>
+
+    <select name="searchType" [(ngModel)]="searchType" aria-label="Search Filter">
+      <option value="all">All</option>
+      <option value="keywords">Keywords</option>
+      <option value="challenges">Challenges</option>
+      <option value="chall-by-key">Challenges by Keyword</option>
+    </select>
+  </form>
+
   <nav class="navbar-links" arial-label="Main navigation">
     <a routerLink="/keywords">Keywords</a>
     <a routerLink="/stats">Stats</a>
