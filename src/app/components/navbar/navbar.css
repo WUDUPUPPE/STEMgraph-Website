@@ -13,7 +13,6 @@
   backdrop-filter: blur(2px);
 }
 
-/*Navbar-Logo*/
 .navbar-logo {
   display: inline-flex;
   align-items: center;
@@ -25,8 +24,6 @@
   object-fit: contain;
 }
 
-/*Navbar-Links*/
-.search-box,
 .navbar-links {
   display: flex;
   flex: 1;
@@ -35,52 +32,132 @@
   margin-left: clamp(20px, 6vw, 80px);
 }
 
+.navbar-links a,
+.navbar-logo,
+.mobile-menu a {
+  font-family: 'Fugaz One', sans-serif;
+}
+
 .navbar-links a {
   color: #24b8b13b;
   font-size: clamp(0.95rem, 2.6vw, 1.4rem);
   text-decoration: none;
-  transition: color 0.4s ease;
 }
 
 .navbar-links a:hover {
-  color: #da151f3c;;
+  color: #da151f3c;
 }
 
-.navbar-links a,
-.navbar-logo {
-  font-family: 'Fugaz One', sans-serif;
-}
-/*Search*/
+/* Suchleiste */
 .search-box {
-  gap: 0px;
+  display: flex;
+  align-items: center;
+  gap: 0;
+  margin-left: clamp(20px, 6vw, 80px);
 }
 
 .search-icon {
+  padding-right: 4px;
   color: #24b8b1;
   font-size: clamp(1.2rem, 2vw, 2rem);
-  padding-top: 4px;
-  padding-right: 4px;
 }
 
 .search-box input,
 .search-box select {
   min-width: 0;
-  padding: 0px 15px;
+  height: clamp(30px, 2.5vw, 40px);
+  padding: 0 15px;
 
   color: rgba(247, 251, 251, 0.752);
   background: rgba(3, 25, 31, 0.6);
-  border: 0.1px solid rgba(36, 184, 177, 0.14);
+  border: 1px solid rgba(36, 184, 177, 0.14);
   border-radius: 8px;
 
   font-family: 'Fugaz One', sans-serif;
 }
 
 .search-box input {
-  height: clamp(30px, 2.5vw, 40px);
   width: clamp(100px, 12vw, 320px);
 }
 
 .search-box select {
-  height: clamp(30px, 2.5vw, 40px);
-  width: clamp(60px, 9vw, 70px);
+  width: 70px;
+}
+
+/* Menü-Button */
+
+.menu-toggle {
+  display: none;
+  margin-left: auto;
+  margin-right: -30px;
+  padding-left: 20px;
+
+  color: #24b8b13b;
+  background: transparent;
+  border: 0;
+
+  font-size: 1.8rem;
+  cursor: pointer;
+}
+
+/* Seitenleiste */
+.mobile-menu {
+  position: fixed;
+  top: 0;
+  right: 0;
+  z-index: 999;
+
+  width: min(80%, 280px);
+  height: 100vh;
+  padding: 90px 24px 24px;
+
+  background: #16726d28;
+  backdrop-filter: blur(2px);
+
+  transform: translateX(100%);
+  transition: transform 0.3s ease;
+}
+
+.mobile-menu.is-open {
+  transform: translateX(0);
+}
+
+.mobile-menu nav {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.mobile-menu a {
+  color: #ede3e2;
+  text-shadow: 0 0 10px #be0003, 0 0 20px #ea003e;
+  font-family: 'Fugaz One', sans-serif;
+  font-size: 1.2rem;
+  text-decoration: none;
+}
+
+/* Kleine Bildschirme */
+@media (max-width: 768px) {
+  .navbar-links {
+    display: none;
+  }
+
+  .menu-toggle {
+    display: block;
+  }
+}
+
+/* Große Bildschirme */
+@media (min-width: 769px) {
+  .navbar-links {
+    display: flex;
+  }
+
+  .menu-toggle {
+    display: none;
+  }
+
+  .mobile-menu {
+    transform: translateX(100%);
+  }
 }

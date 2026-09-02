@@ -4,7 +4,9 @@
   </a>
 
   <form class="search-box" (ngSubmit)="submitSearch()">
-    <span class="search-icon" aria-hidden="true">🔍</span>
+    <span class="search-icon" aria-hidden="true">
+      🔍
+    </span>
     <input type="search" name="searchTerm" [(ngModel)]="searchTerm" placeholder="Search..." aria-label="Search"/>
 
     <select name="searchType" [(ngModel)]="searchType" aria-label="Search Filter">
@@ -12,6 +14,7 @@
       <option value="keywords">Keywords</option>
       <option value="challenges">Challenges</option>
       <option value="chall-by-key">Challenges by Keyword</option>
+      <option value="lists">Lists</option>
     </select>
   </form>
 
@@ -19,4 +22,15 @@
     <a routerLink="/keywords">Keywords</a>
     <a routerLink="/stats">Stats</a>
   </nav>
+
+  <button class="menu-toggle" type="button" [attr.aria-expanded]="menuOpen" aria-controls="mobile-menu" aria-label="Toogle navigation menu" (click)="toggleMenu()">
+    ☰
+  </button>
 </header>
+
+<aside id="mobile-menu" class="mobile-menu" [class.is-open]="menuOpen">
+    <nav aria-label="Mobile navigation">
+      <a routerLink="/keywords" (click)="closeMenu()">Keywords</a>
+      <a routerLink="/stats" (click)="closeMenu()">Stats</a>
+    </nav>
+  </aside>

@@ -11,6 +11,7 @@ import { FormsModule } from '@angular/forms';
 export class Navbar {
   searchTerm = '';
   searchType = 'all';
+  menuOpen = false;
 
   constructor(private readonly router: Router) {}
 
@@ -27,5 +28,13 @@ export class Navbar {
         type: this.searchType
       }
     });
+  }
+
+  toggleMenu(): void{
+    this.menuOpen = !this.menuOpen;
+  }
+
+  closeMenu(): void {
+    this.menuOpen = false;
   }
 }
