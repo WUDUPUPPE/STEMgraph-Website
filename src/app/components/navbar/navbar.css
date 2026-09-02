@@ -7,7 +7,7 @@
   align-items: center;
 
   min-height: 35px;
-  padding: 0 32px;
+  padding: 0 47px;
 
   background: rgba(3, 25, 31, 0.264);
   backdrop-filter: blur(2px);
@@ -20,19 +20,21 @@
 
 .navbar-logo img {
   display: block;
-  width: 35%;
+  width: 36%;
   object-fit: contain;
 }
 
 .navbar-links {
   display: flex;
-  justify-content: right;
-  gap: 35px;
+  flex: 1;
+  justify-content: center;
+  gap: clamp(30px, 4vw, 60px);
+  margin-left: clamp(20px, 6vw, 80px);
 }
 
 .navbar-links a {
   color: #24b8b13b;
-  font-size: 1rem;
+  font-size: clamp(0.95rem, 2.6vw, 1.4rem);
   text-decoration: none;
   transition: color 0.4s ease;
 }
