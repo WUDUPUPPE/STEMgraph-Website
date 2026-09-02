@@ -11,11 +11,12 @@ export const routes: Routes = [
         loadComponent: () =>
           import('./pages/home/home').then(m => m.Home)
       },
+      /*
       {
         path: 'search',
         loadComponent: () =>
           import('./pages/search/search').then(m => m.Keywords)
-      },
+      },*/
       {
         path: 'keywords',
         loadComponent: () =>
