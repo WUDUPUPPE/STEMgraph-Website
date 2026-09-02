@@ -35,7 +35,7 @@ export class Stemgraph3dComponent implements AfterViewInit, OnDestroy {
   @ViewChild('canvas', { static: true })
   private canvasRef!: ElementRef<HTMLCanvasElement>;
 
-  @Input() autoRotate = true;
+  @Input() autoRotate = false;
   @Input() mouseParallax = true;
   @Input() scrollAnimation = true;
   @Input() interactive = false;
@@ -93,8 +93,9 @@ export class Stemgraph3dComponent implements AfterViewInit, OnDestroy {
 
     this.scene = new THREE.Scene();
 
-    this.camera = new THREE.PerspectiveCamera(30, 1, 0.1, 100);
-    this.camera.position.set(0, 0.8, 8);
+    this.camera = new THREE.PerspectiveCamera(35, 1, 0.1, 100);
+    this.camera.position.set(0, 0, 2.5);
+    this.camera.lookAt(0.091, 0.5, 0);
 
     this.renderer = new THREE.WebGLRenderer({
       canvas,
@@ -229,18 +230,25 @@ export class Stemgraph3dComponent implements AfterViewInit, OnDestroy {
       gltf => {
         if (this.destroyed) return;
 
-        this.logo.add(gltf.scene);
+        const model = gltf.scene;
 
-        const box = new THREE.Box3().setFromObject(gltf.scene);
-        const center = box.getCenter(new THREE.Vector3());
-        gltf.scene.position.sub(center);
+        this.logo.add(model);
 
+        const box = new THREE.Box3().setFromObject(model);
         const size = box.getSize(new THREE.Vector3());
+        const center = box.getCenter(new THREE.Vector3());
+
+        model.position.set(-center.x, -center.y, -center.z);
+
         const maxAxis = Math.max(size.x, size.y, size.z);
+
         if (maxAxis > 0) {
-          const scale = 6 / maxAxis;
-          gltf.scene.scale.setScalar(scale);
+          const scale = 4.2 / maxAxis;
+          model.scale.setScalar(scale);
         }
+
+        this.logo.position.set(0, 0, 0);
+        this.logo.rotation.set(0, 0, 0);
       },
       undefined,
       error => {
@@ -311,25 +319,24 @@ export class Stemgraph3dComponent implements AfterViewInit, OnDestroy {
     if (this.mouseParallax) {
       this.logo.rotation.x = THREE.MathUtils.lerp(
         this.logo.rotation.x,
-        -this.pointerY * 0.1,
+        -this.pointerY * 0.04,
         0.06
       );
+
       this.logo.rotation.y = THREE.MathUtils.lerp(
         this.logo.rotation.y,
-        this.pointerX * 0.03 +
-          (this.autoRotate ? this.logo.rotation.y + this.config.rotationSpeed : 0),
+        this.pointerX * 0.12,
         0.06
       );
-    } else if (this.autoRotate) {
-      this.logo.rotation.y += this.config.rotationSpeed;
     }
 
     if (this.scrollAnimation) {
       this.logo.position.y = THREE.MathUtils.lerp(
         this.logo.position.y,
-        (0.5 - this.scrollProgress) * 0.55,
+        0,
         0.04
       );
+
       this.logo.scale.setScalar(
         THREE.MathUtils.lerp(
           this.logo.scale.x,
