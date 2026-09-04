@@ -1,6 +1,7 @@
-import { Component } from '@angular/core';
-import { Router, RouterLink } from "@angular/router";
+import { Component, HostListener, inject, PLATFORM_ID } from '@angular/core';
+import { isPlatformBrowser } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { Router, RouterLink } from '@angular/router';
 
 @Component({
   selector: 'app-navbar',
@@ -9,6 +10,9 @@ import { FormsModule } from '@angular/forms';
   styleUrl: './navbar.css',
 })
 export class Navbar {
+
+  private readonly platformId = inject(PLATFORM_ID);
+
   searchTerm = '';
   searchType = 'all';
   menuOpen = false;
@@ -22,6 +26,8 @@ export class Navbar {
       return;
     }
 
+    this.menuOpen = false;
+
     this.router.navigate(['/search'], {
       queryParams: {
         q: query,
@@ -30,11 +36,30 @@ export class Navbar {
     });
   }
 
-  toggleMenu(): void{
+  toggleMenu(): void {
     this.menuOpen = !this.menuOpen;
   }
 
   closeMenu(): void {
     this.menuOpen = false;
   }
+
+  // closed sidebar only in desktop view
+  @HostListener('window:resize')
+  onWindowResize(): void {
+    if (
+      isPlatformBrowser(this.platformId) &&
+      window.innerWidth >= 769
+    ) {
+      this.menuOpen = false;
+    }
+  }
+
+  //closed the sidebar every time
+  /*@HostListener('window:resize')
+  onWindowResize(): void {
+    if (isPlatformBrowser(this.platformId)) {
+      this.menuOpen = false;
+    }
+  }*/
 }
