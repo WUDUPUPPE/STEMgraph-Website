@@ -3,9 +3,8 @@
     <a routerLink="/" class="navbar-logo" arial-label="Go to STEMgraph homepage">
       <img src="/STEMgraph.ico" alt="STEMgraph Logo"/>
     </a>
-  </div>
 
-  @if (router.url.startsWith('/admin')) {
+    @if (router.url.startsWith('/admin')) {
       <div class="api-status" [attr.aria-label]="'API-Status: ' + ApiStatus()" title="Status der STEMgraph-API">
         <span class="api-status__led"
         [class.api-status__led--checking]="ApiStatus() === 'checking'"
@@ -23,6 +22,8 @@
         </span>
       </div>
     }
+    
+  </div>
 
   <div class="navbar-center">
     <form class="search-box" (ngSubmit)="submitSearch()">
