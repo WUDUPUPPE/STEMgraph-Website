@@ -3,7 +3,7 @@ import { MainLayout } from './layouts/main-layout/main-layout';
 
 export const routes: Routes = [
   {
-    path: '',
+    path: 'admin',
     component: MainLayout,
     children: [
       {
