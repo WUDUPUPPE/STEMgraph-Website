@@ -1,7 +1,8 @@
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit, inject, signal } from '@angular/core';
 import { Stemgraph3dComponent } from '../../components/stemgraph-3d/stemgraph-3d.component';
 import { STEMgraphApiService } from '../../service/stemgraph-api.service';
 
+type ApiStatus = 'checking' | 'online' | 'offline';
 
 @Component({
   selector: 'app-admin-home',
@@ -9,16 +10,19 @@ import { STEMgraphApiService } from '../../service/stemgraph-api.service';
   templateUrl: './admin-home.html',
   styleUrl: './admin-home.css',
 })
+
 export class AdminHome implements OnInit {
   private readonly stemgraphApi = inject(STEMgraphApiService);
 
+  protected readonly apiStatus = signal<ApiStatus>('checking')
+
   ngOnInit(): void {
     this.stemgraphApi.healthcheck().subscribe({
-      next: (response) => {
-        console.log('API erreichbar:', response.body);
+      next: () => {
+        this.apiStatus.set('online')
       },
-      error: (error) => {
-        console.error('API nicht erreichbar:', error);
+      error: () => {
+        this.apiStatus.set('offline')
       },
     });
   }
