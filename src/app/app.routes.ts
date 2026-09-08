@@ -3,13 +3,18 @@ import { MainLayout } from './layouts/main-layout/main-layout';
 
 export const routes: Routes = [
   {
-    path: 'admin',
+    path: '',
     component: MainLayout,
     children: [
       {
-        path: '',
+        path: 'admin',
         loadComponent: () =>
           import('./pages/admin-home/admin-home').then(m => m.AdminHome)
+      },
+      {
+        path: '',
+        redirectTo: 'admin',
+        pathMatch: 'full',
       },
       /*
       {

@@ -3,7 +3,8 @@
   top: 0;
   z-index: 1000;
 
-  display: grid; grid-template-columns: minmax(180px, 1fr) auto minmax(300px, 1fr);
+  display: grid;
+  grid-template-columns: minmax(180px, 1fr) auto minmax(300px, 1fr);
   align-items: center;
   gap: clamp(20px, 4vw, 60px);
 
@@ -191,7 +192,7 @@
 /* --Desktop-- */
 @media (min-width: 769px) {
   .navbar {
-    grid-template-columns: minmax(180px, 1fr) auto minmax(300px, 1fr);
+    grid-template-columns: 1fr 1fr 1fr;
   }
 
   .navbar-links {
@@ -233,13 +234,13 @@
 }
 
 .api-status__led--online {
-  color: #22c55e;
-  background: #22c55e;
+  color: #1ed260;
+  background: #1ed260;
 }
 
 .api-status__led--offline {
-  color: #ef4444;
-  background: #ef4444;
+  color: #ec2d2d;
+  background: #ec2d2d;
 }
 
 @media (max-width: 900px) {
