@@ -1,7 +1,9 @@
-import { Component, HostListener, inject, PLATFORM_ID } from '@angular/core';
+import { Component, HostListener, inject, PLATFORM_ID, input } from '@angular/core';
 import { isPlatformBrowser } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
+
+type ApiStatus = 'checking' | 'online' | 'offline';
 
 @Component({
   selector: 'app-navbar',
@@ -10,6 +12,9 @@ import { Router, RouterLink } from '@angular/router';
   styleUrl: './navbar.css',
 })
 export class Navbar {
+
+  readonly isAdmin = input(false);
+  readonly apiStatus = input<ApiStatus>('checking')
 
   private readonly platformId = inject(PLATFORM_ID);
 
