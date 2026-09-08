@@ -1,9 +1,8 @@
-import { Component, HostListener, inject, PLATFORM_ID, input } from '@angular/core';
+import { ApiStatusService } from './../../service/api-status.service';
+import { Component, HostListener, inject, PLATFORM_ID} from '@angular/core';
 import { isPlatformBrowser } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
-
-type ApiStatus = 'checking' | 'online' | 'offline';
 
 @Component({
   selector: 'app-navbar',
@@ -13,8 +12,8 @@ type ApiStatus = 'checking' | 'online' | 'offline';
 })
 export class Navbar {
 
-  readonly isAdmin = input(false);
-  readonly apiStatus = input<ApiStatus>('checking')
+  readonly ApiStatusService = inject(ApiStatusService);
+  readonly ApiStatus = this.ApiStatusService.status;
 
   private readonly platformId = inject(PLATFORM_ID);
 
@@ -22,7 +21,9 @@ export class Navbar {
   searchType = 'all';
   menuOpen = false;
 
-  constructor(private readonly router: Router) {}
+  constructor(private readonly router: Router) {
+    this.ApiStatusService.check();
+  }
 
   submitSearch(): void {
     const query = this.searchTerm.trim();
