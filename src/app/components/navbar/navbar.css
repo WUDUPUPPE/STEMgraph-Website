@@ -51,7 +51,7 @@
   object-fit: contain;
 }
 
-/* Suchleiste */
+/* --Searchbar-- */
 .search-box {
   display: flex;
   align-items: center;
@@ -182,7 +182,7 @@
   .navbar-logo img {
   min-width: clamp(30px, 2vw, 80px);
   }
-  
+
   .api-status__text {
     display: none;
   }
@@ -212,36 +212,38 @@
   min-width: 92px;
   }
 }
-
+ /* --API-Status LED--*/
 .api-status {
-  display: inline-flex;
+  display: flex;
   align-items: center;
   gap: 8px;
-  color: #ede3e2;
-  font-family: 'Fugaz One', sans-serif;
-  font-size: clamp(0.75rem, 1.2vw, 1rem);
   white-space: nowrap;
 }
 
 .api-status__led {
-  display: inline-block;
-  width: 11px;
-  height: 11px;
+  width: 12px;
+  height: 12px;
   border-radius: 50%;
-  box-shadow: 0 0 8px currentColor;
+  box-shadow: 0 0 10px currentColor;
 }
 
 .api-status__led--checking {
   color: #facc15;
-  background-color: #facc15;
+  background: #facc15;
 }
 
 .api-status__led--online {
   color: #22c55e;
-  background-color: #22c55e;
+  background: #22c55e;
 }
 
 .api-status__led--offline {
   color: #ef4444;
-  background-color: #ef4444;
+  background: #ef4444;
+}
+
+@media (max-width: 900px) {
+  .api-status__text {
+    display: none;
+  }
 }
