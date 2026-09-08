@@ -5,24 +5,15 @@
     </a>
 
     @if (router.url.startsWith('/admin')) {
-      <div class="api-status" [attr.aria-label]="'API-Status: ' + ApiStatus()" title="Status der STEMgraph-API">
-        <span class="api-status__led"
+      <div class="api-status" [attr.aria-label]="'API-Status: ' + ApiStatus()" title="'API-Status: ' + ApiStatus()">
+        <span class="api-status__led" aria-hidden="true"
         [class.api-status__led--checking]="ApiStatus() === 'checking'"
         [class.api-status__led--online]="ApiStatus() === 'online'"
         [class.api-status__led--offline]="ApiStatus() === 'offline'">
         </span>
-        <span class="api-status__text">
-          @if (ApiStatus() === 'checking') {
-            API wird geprüft
-          }@else if (ApiStatus() === 'online') {
-            API verbunden
-          } @else {
-            API nicht erreichbar
-          }
-        </span>
       </div>
     }
-    
+
   </div>
 
   <div class="navbar-center">
