@@ -23,6 +23,24 @@
   </div>
 
   <div class="navbar-right">
+    @if (isAdmin()) {
+      <div class="api-status" [attr.aria-label]="'API-Status: ' + apiStatus()" title="Status der STEMgraph-API">
+        <span class="api-status__led"
+        [class.api-status__led--checking]="apiStatus() === 'checking'"
+        [class.api-status__led--online]="apiStatus() === 'online'"
+        [class.api-status__led--offline]="apiStatus() === 'offline'">
+        </span>
+        <span class="api-status__text">
+          @if (apiStatus() === 'checking') {
+            API wird geprüft
+          }@else if (apiStatus() === 'online') {
+            API verbunden
+          } @else {
+            API nicht erreichbar
+          }
+        </span>
+      </div>
+    }
     <nav class="navbar-links" arial-label="Main navigation">
       <a routerLink="/keywords">Keywords</a>
       <a routerLink="/lists">Lists</a>
