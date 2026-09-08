@@ -21,7 +21,7 @@ export class Navbar {
   searchType = 'all';
   menuOpen = false;
 
-  constructor(private readonly router: Router) {
+  constructor(readonly router: Router) {
     this.ApiStatusService.check();
   }
 
