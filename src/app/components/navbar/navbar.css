@@ -4,7 +4,7 @@
   z-index: 1000;
 
   display: grid;
-  grid-template-columns: 1fr 1fr 1fr;
+  grid-template-columns: 1fr auto 1fr;
   align-items: center;
 
   min-height: 35px;
@@ -22,12 +22,17 @@
 
 /* --Container Position-- */
 .navbar-left {
+  display: flex;
+  align-items: center;
   justify-self: start;
+  gap: clamp(12px, 2vw, 28px);
+  gap: 24px;
 }
 
 .navbar-center {
   display: flex;
   justify-content: center;
+  justify-self: center;
   min-width: 0;
 }
 
@@ -35,6 +40,7 @@
   display: flex;
   align-items: center;
   justify-content: flex-end;
+  justify-self: end;
   min-width: 0;
 }
 
