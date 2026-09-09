@@ -1,12 +1,12 @@
 import { Component, OnInit, inject, signal } from '@angular/core';
-import { Stemgraph3dComponent } from '../../components/stemgraph-3d/stemgraph-3d.component';
+import { Stemgraph3d } from '../../components/stemgraph-3d/stemgraph-3d';
 import { STEMgraphApiService } from '../../service/stemgraph-api.service';
 
 type ApiStatus = 'checking' | 'online' | 'offline';
 
 @Component({
   selector: 'app-admin-home',
-  imports: [Stemgraph3dComponent],
+  imports: [Stemgraph3d],
   templateUrl: './admin-home.html',
   styleUrl: './admin-home.css',
 })
