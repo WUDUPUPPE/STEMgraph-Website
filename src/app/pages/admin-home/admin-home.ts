@@ -17,9 +17,17 @@ export class AdminHome implements OnInit {
   protected readonly apiStatus = signal<ApiStatus>('checking')
 
   ngOnInit(): void {
-    this.stemgraphApi.healthcheck().subscribe({
+    this.stemgraphApi.Healthcheck().subscribe({
       next: () => this.apiStatus.set('online'),
       error: () => this.apiStatus.set('offline'),
+    });
+    this.stemgraphApi.MainGraph().subscribe({
+      next: (response) => {
+        console.log('Main graph:', response.body);
+      },
+      error: (error) => {
+        console.error('Main graph could not be loaded:', error)
+      }
     });
   }
 }

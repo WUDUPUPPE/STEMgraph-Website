@@ -11,11 +11,11 @@ export class STEMgraphApiService {
   private readonly http = inject(HttpClient);
   private readonly rootUrl = 'http://localhost:8000';
 
-  healthcheck() {
+  Healthcheck() {
     return healthcheckHealthcheckGet(this.http, this.rootUrl);
   }
 
-  getMainGraph() {
+  MainGraph() {
     return getGraphGraphGet(this.http, this.rootUrl);
   }
 }
