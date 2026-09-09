@@ -1,5 +1,5 @@
 import { ApiStatusService } from './../../service/api-status.service';
-import { Component, HostListener, inject, PLATFORM_ID} from '@angular/core';
+import { Component, HostListener, inject, PLATFORM_ID, ElementRef, ViewChild} from '@angular/core';
 import { isPlatformBrowser } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
@@ -12,8 +12,8 @@ import { Router, RouterLink } from '@angular/router';
 })
 export class Navbar {
 
-  readonly ApiStatusService = inject(ApiStatusService);
-  readonly ApiStatus = this.ApiStatusService.status;
+  readonly apiStatusService = inject(ApiStatusService);
+  readonly apiStatus = this.apiStatusService.status;
 
   private readonly platformId = inject(PLATFORM_ID);
 
@@ -22,7 +22,7 @@ export class Navbar {
   menuOpen = false;
 
   constructor(readonly router: Router) {
-    this.ApiStatusService.check();
+    this.apiStatusService.check();
   }
 
   submitSearch(): void {
@@ -68,4 +68,24 @@ export class Navbar {
       this.menuOpen = false;
     }
   }*/
+  // close sidebar by click outside the menu
+  @ViewChild('menuButton')
+  private menuButton?: ElementRef<HTMLElement>;
+
+  @ViewChild('mobileMenu')
+  private mobileMenu?: ElementRef<HTMLElement>;
+
+  @HostListener('document:click', ['$event.target'])
+  onDocumentClick(target: EventTarget | null): void {
+    if (!this.menuOpen || !(target instanceof Node)) {
+      return;
+    }
+
+    const clickMenu = this.mobileMenu?.nativeElement.contains(target);
+    const clickButton = this.menuButton?.nativeElement.contains(target);
+
+    if (!clickMenu && !clickButton) {
+      this.closeMenu();
+    }
+  }
 }

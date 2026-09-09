@@ -1,23 +1,23 @@
 <header class="navbar">
   <div class="navbar-left">
-    <a routerLink="/" class="navbar-logo" arial-label="Go to STEMgraph homepage">
+    <a routerLink="/" class="navbar-logo" aria-label="Go to STEMgraph homepage" (click)="closeMenu()">
       <img src="/STEMgraph.ico" alt="STEMgraph Logo"/>
     </a>
 
     @if (router.url.startsWith('/admin')) {
       <div class="api-status">
-        <button class="api-status__trigger" type="button" aria-describedby="api-status-tooltip" [attr.api-label]="'API-Status: ' + ApiStatus()">
+        <button class="api-status__trigger" type="button" aria-describedby="api-status-tooltip" [attr.aria-label]="'API-Status: ' + apiStatus()">
           <span class="api-status__led" aria-hidden="true"
-            [class.api-status__led--checking]="ApiStatus() === 'checking'"
-            [class.api-status__led--online]="ApiStatus() === 'online'"
-            [class.api-status__led--offline]="ApiStatus() === 'offline'">
+            [class.api-status__led--checking]="apiStatus() === 'checking'"
+            [class.api-status__led--online]="apiStatus() === 'online'"
+            [class.api-status__led--offline]="apiStatus() === 'offline'">
           </span>
         </button>
 
         <span id="api-status-tooltip" class="api-status__tooltip" role="tooltip">
-          @if (ApiStatus() === 'checking') {
+          @if (apiStatus() === 'checking') {
             Check API
-          } @else if (ApiStatus() === 'online') {
+          } @else if (apiStatus() === 'online') {
             API connected
           } @else {
             API unreachable
@@ -46,19 +46,19 @@
   </div>
 
   <div class="navbar-right">
-    <nav class="navbar-links" arial-label="Main navigation">
+    <nav class="navbar-links" aria-label="Main navigation">
       <a routerLink="/keywords">Keywords</a>
       <a routerLink="/lists">Lists</a>
       <a routerLink="/stats">Stats</a>
     </nav>
 
-    <button class="menu-toggle" type="button" [attr.aria-expanded]="menuOpen" aria-controls="mobile-menu" aria-label="Toogle navigation menu" (click)="toggleMenu()">
+    <button #menuButton class="menu-toggle" type="button" [attr.aria-expanded]="menuOpen" aria-controls="mobile-menu" aria-label="Toogle navigation menu" (click)="toggleMenu()">
       ☰
     </button>
   </div>
 </header>
 
-<aside id="mobile-menu" class="mobile-menu" [class.is-open]="menuOpen">
+<aside #mobileMenu id="mobile-menu" class="mobile-menu" [class.is-open]="menuOpen">
     <nav aria-label="Mobile navigation">
       <a routerLink="/keywords" (click)="closeMenu()">Keywords</a>
       <a routerLink="/lists" (click)="closeMenu()">Lists</a>
