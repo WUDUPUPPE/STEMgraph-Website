@@ -10,7 +10,7 @@
   min-height: 35px;
   padding-inline: clamp(20px, 4vw, 47px);
 
-  background: rgba(3, 25, 31, 0.264);
+  background: #03191f43;
   backdrop-filter: blur(2px);
 }
 
@@ -78,9 +78,9 @@
   height: clamp(25px, 2.5vw, 35px);
   padding: 0 15px;
 
-  color: rgba(247, 251, 251, 0.752);
-  background: rgba(3, 25, 31, 0.6);
-  border: 1px solid rgba(36, 184, 177, 0.14);
+  color: #f7fbfbc0;
+  background: #03191f99;
+  border: 1px solid #24b8b124;
   border-radius: 8px;
 
   font-family: 'Fugaz One', sans-serif;
@@ -154,7 +154,7 @@
 
 .mobile-menu a {
   color: #ede3e2;
-  text-shadow: 0 0 10px #be0003, 0 0 20px #ea003e;
+  text-shadow: 0 0 8px #9f0003, 0 0 10px #ea003e;
   font-family: 'Fugaz One', sans-serif;
   font-size: 1.2rem;
   text-decoration: none;
@@ -245,12 +245,30 @@
 }
  /* --API-Status LED--*/
 .api-status {
+  position: relative;
   display: flex;
   align-items: center;
   justify-content: center;
   width: 18px;
   height: 18px;
   margin-left: 8px;
+}
+
+.api-status__trigger {
+  display: grid;
+  place-items: center;
+  width: 28px;
+  height: 28px;
+  padding: 0;
+  background: transparent;
+  border: 0;
+  border-radius: 50%;
+  cursor: help;
+}
+
+.api-status__trigger:focus-visible {
+  outline: 2px solid #f7fbfb;
+  outline-offset: 3px;
 }
 
 .api-status__led {
@@ -274,4 +292,37 @@
 .api-status__led--offline {
   color: #ec2d2d;
   background: #ec2d2d;
+}
+
+.api-status__tooltip {
+  position: absolute;
+  top: calc(100% + 10px);
+  left: 50%;
+  z-index: 1100;
+
+  width: max-content;
+  max-width: 190px;
+  padding: 7px 10px;
+
+  color: #9f2832;
+  background: #03191faf;
+  border: 1px solid #24b8b135;
+  border-radius: 6px;
+  box-shadow: 0 4px 12px #00000059;
+
+  font-family: 'Fugaz One', sans-serif;
+  font-size: 0.75rem;
+  text-align: center;
+  white-space: nowrap;
+
+  opacity: 0;
+  pointer-events: none;
+  transform: translate(-50%, -4px);
+  transition: opacity 0.2s ease, transform 0.2s ease;
+}
+
+.api-status:hover .api-status__tooltip,
+.api-status:focus-within .api-status__tooltip {
+  opacity: 1;
+  transform: translate(-50%, 0);
 }

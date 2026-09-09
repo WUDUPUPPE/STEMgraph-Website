@@ -5,11 +5,23 @@
     </a>
 
     @if (router.url.startsWith('/admin')) {
-      <div class="api-status" [attr.aria-label]="'API-Status: ' + ApiStatus()" title="'API-Status: ' + ApiStatus()">
-        <span class="api-status__led" aria-hidden="true"
-        [class.api-status__led--checking]="ApiStatus() === 'checking'"
-        [class.api-status__led--online]="ApiStatus() === 'online'"
-        [class.api-status__led--offline]="ApiStatus() === 'offline'">
+      <div class="api-status">
+        <button class="api-status__trigger" type="button" aria-describedby="api-status-tooltip" [attr.api-label]="'API-Status: ' + ApiStatus()">
+          <span class="api-status__led" aria-hidden="true"
+            [class.api-status__led--checking]="ApiStatus() === 'checking'"
+            [class.api-status__led--online]="ApiStatus() === 'online'"
+            [class.api-status__led--offline]="ApiStatus() === 'offline'">
+          </span>
+        </button>
+
+        <span id="api-status-tooltip" class="api-status__tooltip" role="tooltip">
+          @if (ApiStatus() === 'checking') {
+            Check API
+          } @else if (ApiStatus() === 'online') {
+            API connected
+          } @else {
+            API unreachable
+          }
         </span>
       </div>
     }
