@@ -15,7 +15,7 @@ export class ApiStatusService {
   check(): void {
     this.status.set('checking');
 
-    this.stemgraphApi.healthcheck().subscribe({
+    this.stemgraphApi.Healthcheck().subscribe({
       next: () => this.status.set('online'),
       error: () => this.status.set('offline'),
     });
