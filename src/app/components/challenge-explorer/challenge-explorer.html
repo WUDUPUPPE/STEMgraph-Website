@@ -33,10 +33,10 @@
 
   @if (viewMode() === 'list') {
   <section class="list-view">
-    <h2>Alle Challenges</h2>
+    <h2>All Challenges</h2>
 
     @if (isLoading()) {
-      <p>Challenges werden geladen …</p>
+      <p>Loading Challenges …</p>
     }
 
     @if (errorMessage(); as error) {
@@ -44,7 +44,7 @@
     }
 
     @if (!isLoading() && !errorMessage() && challenges().length === 0) {
-      <p>Es wurden keine Challenges gefunden.</p>
+      <p>Challenges are not loaded.</p>
     }
 
     <div class="challenge-list">

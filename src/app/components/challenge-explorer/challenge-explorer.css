@@ -14,7 +14,7 @@
 
 .eyebrow {
   margin: 0;
-  color: #a855f7;
+  color: #b82b24ee;
   font-size: 0.8rem;
   letter-spacing: 0.1em;
   text-transform: uppercase;
@@ -35,7 +35,7 @@ p {
 }
 
 button {
-  border: 1px solid #9333ea;
+  border: 1px solid #21a19b9b;
   border-radius: 0.5rem;
   background: transparent;
   color: inherit;
@@ -44,11 +44,11 @@ button {
 }
 
 button.active {
-  background: #9333ea;
+  background: #1b8983d9;
   color: white;
 }
 
-..challenge-list {
+.challenge-list {
   display: flex;
   flex-direction: column;
   gap: 0.45rem;
