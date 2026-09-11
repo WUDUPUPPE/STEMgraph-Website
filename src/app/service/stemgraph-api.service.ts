@@ -20,7 +20,7 @@ export class STEMgraphApiService {
     return from(this.api.invoke(getGraphGraphGet));
   }
 
-  MainLists() {
+  MainList() {
     return from(this.api.invoke(getListListGet));
   }
 }
