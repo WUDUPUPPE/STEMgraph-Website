@@ -49,40 +49,47 @@
 
     <div class="challenge-list">
       @for (challenge of challenges(); track challenge.id) {
-        <article class="challenge-row">
-          <h3 class="challenge-title">
+        <article class="challenge-row" [class.is-open]="openedChallengeId() === challenge.id">
+          <button
+            type="button"
+            class="challenge-title"
+            (click)="toggleChallenge(challenge.id)"
+            [attr.aria-expanded]="openedChallengeId() === challenge.id">
+
             {{ challenge.teaches || challenge.id }}
-          </h3>
+          </button>
 
-          <div class="challenge-hover-info">
-            <p class="challenge-id">ID: {{ challenge.id }}</p>
+          @if (openedChallengeId() === challenge.id) {
+            <div class="challenge-details">
+              <p class="challenge-id">ID: {{ challenge.id }}</p>
 
-            @if (challenge.keywords?.length) {
-              <div class="keyword-list">
-                @for (keyword of challenge.keywords; track keyword) {
-                  <span class="keyword">{{ keyword }}</span>
-                }
-              </div>
-            }
+              @if (challenge.keywords?.length) {
+                <div class="keyword-list">
+                  @for (keyword of challenge.keywords; track keyword) {
+                    <span class="keyword">{{ keyword }}</span>
+                  }
+                </div>
+              }
 
-            @if (isAdmin()) {
-              <div class="admin-information">
-                <p>
-                  <strong>Autor:</strong>
-                  {{ challenge.author || 'Nicht vorhanden' }}
-                </p>
+              @if (isAdmin()) {
+                <div class="admin-information">
+                  <p>
+                    <strong>Autor:</strong>
+                    {{ challenge.author || 'Nicht vorhanden' }}
+                  </p>
 
-                <p>
-                  <strong>Erstmals verwendet:</strong>
-                  {{ challenge.firstused || 'Nicht vorhanden' }}
-                </p>
-              </div>
-            }
+                  <p>
+                    <strong>Erstmals verwendet:</strong>
+                    {{ challenge.firstused || 'Nicht vorhanden' }}
+                  </p>
+                </div>
+              }
 
-            <button type="button" class="open-button">
-              Öffnen
-            </button>
-          </div>
+              <button type="button" class="open-button">
+                Öffnen
+              </button>
+            </div>
+          }
         </article>
       }
     </div>

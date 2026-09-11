@@ -34,7 +34,7 @@ export class ChallengeExplorer implements OnInit {
     this.viewMode.set('graph');
   }
 
-  protected toogleChallenge(challengeId: string): void {
+  protected toggleChallenge(challengeId: string): void {
     this.openedChallengeId.update((currentId) =>
     currentId === challengeId ? null : challengeId);
   }
