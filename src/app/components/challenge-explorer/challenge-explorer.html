@@ -32,25 +32,29 @@
   }
 
   @if (viewMode() === 'list') {
-    <section class="list-view">
+  <section class="list-view">
+    <h2>Alle Challenges</h2>
 
-      @if (isLoading()) {
-        <p>Loading challenges …</p>
-      }
+    @if (isLoading()) {
+      <p>Challenges werden geladen …</p>
+    }
 
-      @if (errorMessage(); as error) {
-        <p class="error-message">{{ error }}</p>
-      }
+    @if (errorMessage(); as error) {
+      <p class="error-message">{{ error }}</p>
+    }
 
-      @if (!isLoading() && !errorMessage() && challenges().length === 0) {
-        <p>No challenges were found.</p>
-      }
+    @if (!isLoading() && !errorMessage() && challenges().length === 0) {
+      <p>Es wurden keine Challenges gefunden.</p>
+    }
 
-      <div class="challenge-list">
-        @for (challenge of challenges(); track challenge.id) {
-          <article class="challenge-card">
-            <h3>{{ challenge.teaches || challenge.id }}</h3>
+    <div class="challenge-list">
+      @for (challenge of challenges(); track challenge.id) {
+        <article class="challenge-row">
+          <h3 class="challenge-title">
+            {{ challenge.teaches || challenge.id }}
+          </h3>
 
+          <div class="challenge-hover-info">
             <p class="challenge-id">ID: {{ challenge.id }}</p>
 
             @if (challenge.keywords?.length) {
@@ -69,14 +73,19 @@
                 </p>
 
                 <p>
-                  <strong>Creation date:</strong>
+                  <strong>Erstmals verwendet:</strong>
                   {{ challenge.firstused || 'Nicht vorhanden' }}
                 </p>
               </div>
             }
-          </article>
-        }
-      </div>
-    </section>
+
+            <button type="button" class="open-button">
+              Öffnen
+            </button>
+          </div>
+        </article>
+      }
+    </div>
+  </section>
   }
 </section>
