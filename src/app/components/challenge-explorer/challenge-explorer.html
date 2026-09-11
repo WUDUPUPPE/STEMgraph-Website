@@ -1,8 +1,7 @@
 <section class="challenge-explorer">
   <header class="explorer-header">
     <div>
-      <p class="eyebrow">STEMgraph</p>
-      <h1>Challenges</h1>
+      <h1 class="eyebrow">STEMgraph</h1>
     </div>
 
     <div class="view-switcher" aria-label="Ansicht auswählen">
@@ -34,7 +33,6 @@
 
   @if (viewMode() === 'list') {
     <section class="list-view">
-      <h2>All Challenges</h2>
 
       @if (isLoading()) {
         <p>Loading challenges …</p>
