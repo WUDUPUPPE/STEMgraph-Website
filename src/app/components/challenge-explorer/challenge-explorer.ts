@@ -19,6 +19,7 @@ export class ChallengeExplorer implements OnInit {
   protected readonly challenges = signal<ChallengeListResponse[]>([]);
   protected readonly isLoading = signal(false);
   protected readonly errorMessage = signal<string | null>(null);
+  protected readonly openedChallengeId = signal<string | null>(null);
 
   ngOnInit(): void {
     this.loadList();
@@ -31,6 +32,11 @@ export class ChallengeExplorer implements OnInit {
 
   protected showGraph(): void {
     this.viewMode.set('graph');
+  }
+
+  protected toogleChallenge(challengeId: string): void {
+    this.openedChallengeId.update((currentId) =>
+    currentId === challengeId ? null : challengeId);
   }
 
   private loadList(): void{
