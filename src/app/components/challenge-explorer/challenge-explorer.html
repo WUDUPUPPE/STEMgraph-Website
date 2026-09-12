@@ -22,18 +22,42 @@
   </header>
 
   @if (viewMode() === 'graph') {
-    <div class="graph-placeholder">
-      <h2>Graphview</h2>
+  <section class="graph-view">
+    <h2>Graphview</h2>
 
-      <button type="button" (click)="showList()">
-        Go to Listview
-      </button>
-    </div>
+    @if (isLoading()) {
+      <p>Loading graph …</p>
+    } @else if (errorMessage(); as error) {
+      <p class="error-message">{{ error }}</p>
+    } @else if (graph(); as graphData) {
+      <p>
+        Loaded: {{ graphData.nodes.length }} Nodes,
+        {{ graphData.edges.length }} connected.
+      </p>
+
+      <div class="graph-debug-data">
+        <h3>Nodes</h3>
+
+        @for (node of graphData.nodes; track node.id) {
+          <p>
+            {{ node.teaches || node.id }}
+          </p>
+        }
+
+        <h3>Connections</h3>
+
+        @for (edge of graphData.edges; track $index) {
+          <p>
+            {{ edge.source }} → {{ edge.target }}
+          </p>
+        }
+      </div>
+    }
+  </section>
   }
 
   @if (viewMode() === 'list') {
   <section class="list-view">
-    <h2>All Challenges</h2>
 
     @if (isLoading()) {
       <p>Loading Challenges …</p>
@@ -43,12 +67,12 @@
       <p class="error-message">{{ error }}</p>
     }
 
-    @if (!isLoading() && !errorMessage() && challenges().length === 0) {
+    @if (!isLoading() && !errorMessage() && list().length === 0) {
       <p>Challenges are not loaded.</p>
     }
 
     <div class="challenge-list">
-      @for (challenge of challenges(); track challenge.id) {
+      @for (challenge of list(); track challenge.id) {
         <article class="challenge-row" [class.is-open]="openedChallengeId() === challenge.id">
           <button
             type="button"
