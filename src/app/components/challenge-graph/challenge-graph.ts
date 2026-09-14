@@ -1,4 +1,5 @@
-import { AfterViewInit, Component, ElementRef, OnChanges, OnDestroy, SimpleChanges, ViewChild, input } from '@angular/core';
+import { AfterViewInit, Component, ElementRef, OnDestroy, ViewChild, input, inject, PLATFORM_ID } from '@angular/core';
+import { isPlatformBrowser } from '@angular/common';
 import cytoscape, { Core, ElementDefinition } from 'cytoscape';
 import { GraphResponse } from '../../api/models';
 
@@ -8,31 +9,33 @@ import { GraphResponse } from '../../api/models';
   templateUrl: './challenge-graph.html',
   styleUrl: './challenge-graph.css',
 })
-export class ChallengeGraph implements AfterViewInit, OnChanges, OnDestroy {
+export class ChallengeGraph implements AfterViewInit, OnDestroy {
   readonly graph = input<GraphResponse | null>(null);
 
-  @ViewChild('garphContainer')
+  @ViewChild('graphContainer')
   private graphContainer?: ElementRef<HTMLDivElement>;
 
+  private readonly platformId = inject(PLATFORM_ID);
   private cy?: Core;
 
   ngAfterViewInit(): void {
-    this.renderGraph();
-  }
-
-  ngOnChanges(changes: SimpleChanges): void {
-    if (changes['graph'] && this.graphContainer) {
-      this.renderGraph();
+    if (!isPlatformBrowser(this.platformId)) {
+      return;
     }
+
+    queueMicrotask(() => this.drawGraph());
   }
 
   ngOnDestroy(): void {
     this.cy?.destroy();
   }
 
-  private renderGraph(): void {
+  private drawGraph(): void {
     const container = this.graphContainer?.nativeElement;
     const graphData = this.graph();
+
+    console.log('Graph-Container:', container);
+    console.log('Graph-Daten:', graphData);
 
     if (!container || !graphData) {
       return;
@@ -43,19 +46,18 @@ export class ChallengeGraph implements AfterViewInit, OnChanges, OnDestroy {
     const elements: ElementDefinition[] = [
       ...graphData.nodes.map((node) => ({
         data: {
-          id: node.id, label: node.teaches || node.id, keywords: node.keywords || []
+          id: node.id, label: node.teaches || node.id, keywords: node.keywords || [],
         },
       })),
       ...graphData.edges.map((edges, index) => ({
         data: {
-          id: 'edge-${index}-${edge.source}-${edge.target}', source: edges.source, target: edges.target
+          id: `edge-${index}`, source: edges.source, target: edges.target,
         },
       })),
     ];
 
     this.cy = cytoscape({
       container, elements,
-
       style: [
         {
           selector: 'node',
@@ -63,7 +65,7 @@ export class ChallengeGraph implements AfterViewInit, OnChanges, OnDestroy {
             'background-color': '#9333ea',
             label: 'data(label)',
             color: '#f5f3ff',
-            'font-size': '10px',
+            'font-size': 10,
             'text-wrap': 'wrap',
             'text-max-width': '110px',
             'text-valign': 'center',
@@ -94,7 +96,6 @@ export class ChallengeGraph implements AfterViewInit, OnChanges, OnDestroy {
           },
         },
       ],
-
       layout: {
         name: 'cose',
         animate: false,
@@ -103,8 +104,7 @@ export class ChallengeGraph implements AfterViewInit, OnChanges, OnDestroy {
     });
 
     this.cy.on('tap', 'node', (event) => {
-      const node = event.target;
-      console.log('Selected node:', node.data());
+      console.log('Selected node:', event.target.data());
     });
   }
 }
