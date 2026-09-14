@@ -22,45 +22,31 @@
   </header>
 
   @if (viewMode() === 'graph') {
-  <section class="graph-view">
-    <h2>Graphview</h2>
+    <section class="graph-view">
+      <h2>GRAPH TEST SICHTBAR</h2>
 
-    @if (isLoading()) {
-      <p>Loading graph …</p>
-    } @else if (errorMessage(); as error) {
-      <p class="error-message">{{ error }}</p>
-    } @else if (graph(); as graphData) {
-      <p>
-        Loaded: {{ graphData.nodes.length }} Nodes,
-        {{ graphData.edges.length }} Edges.
-      </p>
+      @if (isLoading()) {
+        <p>Loading Graph …</p>
+      } @else if (errorMessage(); as error) {
+        <p class="error-message">{{ error }}</p>
+      } @else if (graph(); as graphData) {
+        <p>
+          Data: {{ graphData.nodes.length }} Nodes,
+          {{ graphData.edges.length }} Edges
+        </p>
 
-      <div class="graph-debug-data">
-        <h3>Nodes</h3>
-
-        @for (node of graphData.nodes; track node.id) {
-          <p>
-            {{ node.teaches || node.id }}
-          </p>
-        }
-
-        <h3>Edges</h3>
-
-        @for (edge of graphData.edges; track $index) {
-          <p>
-            {{ edge.source }} → {{ edge.target }}
-          </p>
-        }
-      </div>
-    }
-  </section>
+        <app-challenge-graph [graph]="graphData" />
+      } @else {
+        <p>Graph did not loading.</p>
+      }
+    </section>
   }
 
   @if (viewMode() === 'list') {
   <section class="list-view">
 
     @if (isLoading()) {
-      <p>Loading Challenges …</p>
+      <p>Loading List…</p>
     }
 
     @if (errorMessage(); as error) {

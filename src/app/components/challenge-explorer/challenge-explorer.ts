@@ -1,12 +1,13 @@
 import { Component, OnInit, inject, input, signal } from '@angular/core';
 import { STEMgraphApiService } from '../../service/stemgraph-api.service';
 import { ChallengeListResponse, GraphResponse } from '../../api/models';
+import { ChallengeGraph } from '../challenge-graph/challenge-graph';
 
 type ExplorerView = 'graph' | 'list';
 
 @Component({
   selector: 'app-challenge-explorer',
-  imports: [],
+  imports: [ChallengeGraph],
   templateUrl: './challenge-explorer.html',
   styleUrl: './challenge-explorer.css',
 })
