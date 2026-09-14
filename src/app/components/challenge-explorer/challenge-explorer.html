@@ -32,7 +32,7 @@
     } @else if (graph(); as graphData) {
       <p>
         Loaded: {{ graphData.nodes.length }} Nodes,
-        {{ graphData.edges.length }} connected.
+        {{ graphData.edges.length }} Edges.
       </p>
 
       <div class="graph-debug-data">
@@ -44,7 +44,7 @@
           </p>
         }
 
-        <h3>Connections</h3>
+        <h3>Edges</h3>
 
         @for (edge of graphData.edges; track $index) {
           <p>
@@ -110,7 +110,7 @@
               }
 
               <button type="button" class="open-button">
-                Öffnen
+                Open
               </button>
             </div>
           }
