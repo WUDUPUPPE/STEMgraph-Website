@@ -243,7 +243,7 @@ export class Stemgraph3d implements AfterViewInit, OnDestroy {
         const maxAxis = Math.max(size.x, size.y, size.z);
 
         if (maxAxis > 0) {
-          const scale = 4.2 / maxAxis;
+          const scale = 4.7 / maxAxis;
           model.scale.setScalar(scale);
         }
 
@@ -340,7 +340,7 @@ export class Stemgraph3d implements AfterViewInit, OnDestroy {
       this.logo.scale.setScalar(
         THREE.MathUtils.lerp(
           this.logo.scale.x,
-          0.92 + this.scrollProgress * 0.08,
+          1.10 + this.scrollProgress * 0.1,
           0.04
         )
       );
