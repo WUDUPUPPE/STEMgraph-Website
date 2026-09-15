@@ -1,13 +1,13 @@
 .stemgraph-3d {
   position: relative;
-  width: 100%;
-  height: clamp(80px, 24vw, 300px);
+  width: 75%;
+  height: clamp(80px, 24vw, 230px);
   overflow: hidden;
 }
 
 .stemgraph-3d canvas {
   display: block;
   width: 100%;
-  height: 100%;
+  height: clamp(80px, 24vw, 210px);
   touch-action: pan-y;
 }
