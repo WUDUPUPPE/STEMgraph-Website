@@ -274,8 +274,8 @@ export class Stemgraph3d implements AfterViewInit, OnDestroy {
   }
 
   private onPointerMove = (event: PointerEvent): void => {
-    this.targetX = (event.clientX / window.innerWidth - 0.5) * 2;
-    this.targetY = (event.clientY / window.innerHeight - 0.5) * 2;
+    this.targetX = (event.clientX / window.innerWidth - 0.4) * 2;
+    this.targetY = (event.clientY / window.innerHeight - 0.4) * 2;
   };
 
   private onScroll = (): void => {
