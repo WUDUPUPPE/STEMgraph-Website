@@ -1,13 +1,20 @@
 .stemgraph-3d {
   position: relative;
-  width: 75%;
-  height: clamp(80px, 24vw, 230px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  width: min(60vw, 1100px);
+  height: clamp(60px, 16vw, 260px);
+
+  margin: 0 auto;
   overflow: hidden;
 }
 
 .stemgraph-3d canvas {
   display: block;
   width: 100%;
-  height: clamp(80px, 24vw, 210px);
+  height: 100%;
+  margin: 0 auto;
   touch-action: pan-y;
 }

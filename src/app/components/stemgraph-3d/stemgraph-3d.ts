@@ -306,6 +306,17 @@ export class Stemgraph3d implements AfterViewInit, OnDestroy {
     this.camera.updateProjectionMatrix();
   }
 
+  private berechneLogoSkalierung(): number {
+    const canvas = this.canvasRef.nativeElement;
+    const breite = canvas.getBoundingClientRect().width;
+
+    return THREE.MathUtils.clamp(
+      breite / 900,
+      0.55,
+      1.1
+    );
+  }
+
   private animate = (): void => {
     if (this.destroyed) return;
 
@@ -337,11 +348,19 @@ export class Stemgraph3d implements AfterViewInit, OnDestroy {
         0.04
       );
 
+      const breite = window.innerWidth;
+
+      const logoScale = THREE.MathUtils.clamp(
+        breite / 350,
+        0.50,
+        1.10
+      );
+
       this.logo.scale.setScalar(
         THREE.MathUtils.lerp(
           this.logo.scale.x,
-          1.10 + this.scrollProgress * 0.1,
-          0.04
+          logoScale,
+          0.1
         )
       );
     }
