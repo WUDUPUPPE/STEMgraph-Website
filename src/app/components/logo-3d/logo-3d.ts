@@ -24,12 +24,12 @@ export interface StemgraphLogoConfig {
 }
 
 @Component({
-  selector: 'app-stemgraph-3d',
+  selector: 'app-logo-3d',
   standalone: true,
-  templateUrl: './stemgraph-3d.html',
-  styleUrl: './stemgraph-3d.css',
+  templateUrl: './logo-3d.html',
+  styleUrl: './logo-3d.css',
 })
-export class Stemgraph3d implements AfterViewInit, OnDestroy {
+export class Logo3d implements AfterViewInit, OnDestroy {
   private readonly platformId = inject(PLATFORM_ID);
 
   @ViewChild('canvas', { static: true })
