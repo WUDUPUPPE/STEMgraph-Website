@@ -1,10 +1,7 @@
 <section class="challenge-explorer">
   <header class="explorer-header">
-    <div>
-      <h1 class="eyebrow">STEMgraph</h1>
-    </div>
 
-    <div class="view-switcher" aria-label="Ansicht auswählen">
+    <div class="view-switcher" aria-label="Set view">
       <button
         type="button"
         [class.active]="viewMode() === 'graph'"
@@ -23,21 +20,15 @@
 
   @if (viewMode() === 'graph') {
     <section class="graph-view">
-      <h2>GRAPH TEST SICHTBAR</h2>
 
       @if (isLoading()) {
         <p>Loading Graph …</p>
       } @else if (errorMessage(); as error) {
         <p class="error-message">{{ error }}</p>
       } @else if (graph(); as graphData) {
-        <p>
-          Data: {{ graphData.nodes.length }} Nodes,
-          {{ graphData.edges.length }} Edges
-        </p>
-
         <app-challenge-graph [graph]="graphData" />
       } @else {
-        <p>Graph did not loading.</p>
+        <p>Graph can´t load.</p>
       }
     </section>
   }
@@ -46,7 +37,7 @@
   <section class="list-view">
 
     @if (isLoading()) {
-      <p>Loading List…</p>
+      <p>Loading List …</p>
     }
 
     @if (errorMessage(); as error) {
@@ -54,7 +45,7 @@
     }
 
     @if (!isLoading() && !errorMessage() && list().length === 0) {
-      <p>Challenges are not loaded.</p>
+      <p>List can´tt loaded.</p>
     }
 
     <div class="challenge-list">
@@ -84,13 +75,13 @@
               @if (isAdmin()) {
                 <div class="admin-information">
                   <p>
-                    <strong>Autor:</strong>
-                    {{ challenge.author || 'Nicht vorhanden' }}
+                    <strong>Author:</strong>
+                    {{ challenge.author || 'Not available' }}
                   </p>
 
                   <p>
-                    <strong>Erstmals verwendet:</strong>
-                    {{ challenge.firstused || 'Nicht vorhanden' }}
+                    <strong>First used:</strong>
+                    {{ challenge.firstused || 'Not available' }}
                   </p>
                 </div>
               }
