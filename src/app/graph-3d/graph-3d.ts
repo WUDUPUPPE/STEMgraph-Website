@@ -155,8 +155,8 @@ export class Graph3d implements AfterViewInit, OnDestroy {
 
       const mesh = new THREE.Mesh(geometry, material);
       mesh.position.set(x, y, z);
-      mesh.userData.nodeId = node.id;
-      mesh.userData.nodeData = node;
+      mesh.userData['nodeId'] = node.id;
+      mesh.userData['nodeData'] = node;
 
       this.graph.add(mesh);
       this.nodes.set(node.id, mesh);
@@ -224,7 +224,7 @@ export class Graph3d implements AfterViewInit, OnDestroy {
 
   private onClick = (): void => {
     if (this.hoveredNode) {
-      const nodeData = this.hoveredNode.userData.nodeData as GraphNode;
+      const nodeData = this.hoveredNode.userData['nodeData'] as GraphNode;
       this.selectedNode = nodeData;
       // Hier könntest du ein Event emitieren oder eine Service-Methode aufrufen
       console.log('Selected node:', nodeData);
