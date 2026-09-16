@@ -131,9 +131,9 @@
   right: 0;
   z-index: 999;
 
-  width: min(80%, 280px);
-  height: 100vh;
-  padding: 90px 24px 24px;
+  width: min(80px);
+  height: 35%;
+  padding: 90px 24px;
 
   background: #16726d28;
   backdrop-filter: blur(2px);
@@ -149,14 +149,14 @@
 .mobile-menu nav {
   display: flex;
   flex-direction: column;
-  gap: 24px;
+  gap: 14px;
 }
 
 .mobile-menu a {
   color: #ede3e2;
-  text-shadow: 0 0 8px #9f0003, 0 0 10px #ea003e;
+  text-shadow: 0 0 4px #9f0003, 0 0 5px #ea003e;
   font-family: 'Fugaz One', sans-serif;
-  font-size: 1.2rem;
+  font-size: 0.95rem;
   text-decoration: none;
 }
 
