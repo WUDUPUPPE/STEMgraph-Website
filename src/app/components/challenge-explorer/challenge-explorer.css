@@ -1,6 +1,7 @@
 .challenge-explorer {
   width: min(1200px, 100%);
   margin: 0 auto;
+  z-index: 10;
 }
 
 .graph-view {
@@ -36,6 +37,7 @@ button {
   text-shadow: 0 0 4px #9f0003, 0 0 5px #ea003e;
   cursor: pointer;
   width: clamp(40px, 16vw, 70px);
+  z-index: 11;
 }
 
 button.active {
