@@ -38,7 +38,6 @@ export class Stemgraph3d implements AfterViewInit, OnDestroy {
   @Input() autoRotate = false;
   @Input() mouseParallax = true;
   @Input() scrollAnimation = true;
-  @Input() interactive = false;
   @Input() glbUrl?: string;
 
   readonly config: StemgraphLogoConfig = {
@@ -71,9 +70,7 @@ export class Stemgraph3d implements AfterViewInit, OnDestroy {
   private pointerY = 0;
   private targetX = 0;
   private targetY = 0;
-  private scrollProgress = 0;
   private visible = true;
-  private destroyed = false;
 
   constructor(private readonly zone: NgZone) {}
 
@@ -131,14 +128,6 @@ export class Stemgraph3d implements AfterViewInit, OnDestroy {
       this.buildProceduralLogo();
     }
 
-    if (this.interactive) {
-      this.controls = new OrbitControls(this.camera, canvas);
-      this.controls.enableDamping = true;
-      this.controls.dampingFactor = 0.065;
-      this.controls.minDistance = 5;
-      this.controls.maxDistance = 15;
-    }
-
     this.resizeObserver = new ResizeObserver(() => this.resize());
     this.resizeObserver.observe(canvas);
     this.resize();
@@ -158,8 +147,6 @@ export class Stemgraph3d implements AfterViewInit, OnDestroy {
     loader.load(
       '/assets/stemgraph/helvetiker_bold.typeface.json',
       font => {
-        if (this.destroyed) return;
-
         const stem = this.createText(font, this.config.textStem, this.config.stemColor);
         const graph = this.createText(font, this.config.textGraph, this.config.graphColor);
 
@@ -228,8 +215,6 @@ export class Stemgraph3d implements AfterViewInit, OnDestroy {
     loader.load(
       url,
       gltf => {
-        if (this.destroyed) return;
-
         const model = gltf.scene;
 
         this.logo.add(model);
@@ -281,12 +266,6 @@ export class Stemgraph3d implements AfterViewInit, OnDestroy {
   private onScroll = (): void => {
     const rect = this.canvasRef.nativeElement.getBoundingClientRect();
     const viewport = window.innerHeight;
-
-    this.scrollProgress = THREE.MathUtils.clamp(
-      (viewport - rect.top) / (viewport + rect.height),
-      0,
-      1
-    );
   };
 
   private onBlur = (): void => {
@@ -318,8 +297,6 @@ export class Stemgraph3d implements AfterViewInit, OnDestroy {
   }
 
   private animate = (): void => {
-    if (this.destroyed) return;
-
     this.animationId = requestAnimationFrame(this.animate);
 
     if (!this.visible) return;
@@ -330,13 +307,13 @@ export class Stemgraph3d implements AfterViewInit, OnDestroy {
     if (this.mouseParallax) {
       this.logo.rotation.x = THREE.MathUtils.lerp(
         this.logo.rotation.x,
-        -this.pointerY * 0.04,
+        this.pointerY * 0.04,
         0.06
       );
 
       this.logo.rotation.y = THREE.MathUtils.lerp(
         this.logo.rotation.y,
-        this.pointerX * 0.12,
+        this.pointerX * 0.04,
         0.06
       );
     }
@@ -370,8 +347,6 @@ export class Stemgraph3d implements AfterViewInit, OnDestroy {
   };
 
   ngOnDestroy(): void {
-    this.destroyed = true;
-
     if (typeof cancelAnimationFrame !== 'undefined' && this.animationId) {
       cancelAnimationFrame(this.animationId);
     }
