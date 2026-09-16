@@ -1,9 +1,10 @@
 import { Component } from '@angular/core';
 
 @Component({
+  selector: 'app-graph-3d',
   imports: [],
-  selector: 'app-graph3d',
-  styleUrl: './graph3d.css',
-  templateUrl: './graph3d.html',
+  templateUrl: './graph-3d.html',
+  styleUrl: './graph-3d.css',
 })
+
 export class Graph3d {}

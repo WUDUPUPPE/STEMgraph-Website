@@ -1,5 +1,5 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { Graph3d } from './graph3d';
+import { Graph3d } from './graph-3d';
 
 describe('Graph3d', () => {
   let component: Graph3d;
