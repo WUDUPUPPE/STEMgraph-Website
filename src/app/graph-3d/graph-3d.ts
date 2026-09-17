@@ -253,18 +253,30 @@ export class Graph3d implements AfterViewInit, OnDestroy {
 
   ngOnDestroy(): void {
     this.destroyed = true;
+
     if (typeof cancelAnimationFrame !== 'undefined' && this.animationId) {
       cancelAnimationFrame(this.animationId);
     }
+
     this.resizeObserver?.disconnect();
     this.controls?.dispose();
-    window.removeEventListener('pointermove', this.onPointerMove);
-    window.removeEventListener('click', this.onClick);
 
+    if (isPlatformBrowser(this.platformId)) {
+      window.removeEventListener('pointermove', this.onPointerMove);
+      window.removeEventListener('click', this.onClick);
+      document.body.style.cursor = 'default';
+    }
+    
     this.nodes.forEach(mesh => {
       mesh.geometry.dispose();
-      (mesh.material as THREE.Material).dispose();
+
+      if (Array.isArray(mesh.material)) {
+        mesh.material.forEach(material => material.dispose());
+      } else {
+        mesh.material.dispose();
+      }
     });
+    
     this.edges.forEach(edge => edge.geometry.dispose());
     this.renderer?.dispose();
   }
