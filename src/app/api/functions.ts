@@ -25,6 +25,8 @@ export type { GetChallengesByKeywordGraphKeywordsChallengesGraphGet$Params as Ge
 export { getChallengesByKeywordGraphKeywordsChallengesGraphGet as getChallengesByKeywordGraphKeywordsChallengesGraphGet } from './fn/keyword-info/get-challenges-by-keyword-graph-keywords-challenges-graph-get';
 export type { GetUpdateStatusAdminUpdateStatusGet$Params as GetUpdateStatusAdminUpdateStatusGet$Params } from './fn/admin-health-check/get-update-status-admin-update-status-get';
 export { getUpdateStatusAdminUpdateStatusGet as getUpdateStatusAdminUpdateStatusGet } from './fn/admin-health-check/get-update-status-admin-update-status-get';
+export type { GetDataApiStatusAdminDataApiStatusGet$Params as GetDataApiStatusAdminDataApiStatusGet$Params } from './fn/admin-health-check/get-data-api-status-admin-data-api-status-get';
+export { getDataApiStatusAdminDataApiStatusGet as getDataApiStatusAdminDataApiStatusGet } from './fn/admin-health-check/get-data-api-status-admin-data-api-status-get';
 export type { GetScheduleAdminScheduleGet$Params as GetScheduleAdminScheduleGet$Params } from './fn/admin-health-check/get-schedule-admin-schedule-get';
 export { getScheduleAdminScheduleGet as getScheduleAdminScheduleGet } from './fn/admin-health-check/get-schedule-admin-schedule-get';
 export type { UpdateScheduleAdminSchedulePut$Params as UpdateScheduleAdminSchedulePut$Params } from './fn/admin-health-check/update-schedule-admin-schedule-put';

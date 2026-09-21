@@ -7,6 +7,7 @@ export type { ChallengeListResponse } from './models/challenge-list-response';
 export type { ChallengeNode } from './models/challenge-node';
 export type { ChallengesByKeywordGraphResponse } from './models/challenges-by-keyword-graph-response';
 export type { ChallengesByKeywordListResponse } from './models/challenges-by-keyword-list-response';
+export type { DataApiStatusResponse } from './models/data-api-status-response';
 export type { DependencyGraphResponse } from './models/dependency-graph-response';
 export type { DependencyResponse } from './models/dependency-response';
 export type { Edge } from './models/edge';
