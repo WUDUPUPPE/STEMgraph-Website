@@ -1,6 +1,7 @@
 .challenge-explorer {
   width: min(1200px, 100%);
   margin: 0 auto;
+  position: relative;
   z-index: 10;
 }
 
@@ -143,7 +144,10 @@ button.active {
 }
 
 .error-message {
+  display: flex;
+  justify-content: center;
   color: #ed3312;
+  font-size: 0.8rem;
 }
 
 @media (max-width: 1230px) {
