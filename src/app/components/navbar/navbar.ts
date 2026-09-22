@@ -14,6 +14,7 @@ export class Navbar {
 
   readonly apiStatusService = inject(ApiStatusService);
   readonly apiStatus = this.apiStatusService.status;
+  readonly apiStatusMessage = this.apiStatusService.message;
 
   private readonly platformId = inject(PLATFORM_ID);
 

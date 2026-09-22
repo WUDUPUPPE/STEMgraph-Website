@@ -6,22 +6,19 @@
 
     @if (router.url.startsWith('/admin')) {
       <div class="api-status">
-        <button class="api-status__trigger" type="button" aria-describedby="api-status-tooltip" [attr.aria-label]="'API-Status: ' + apiStatus()">
+        <button class="api-status__trigger" type="button" aria-describedby="api-status-tooltip"
+          [attr.aria-label]="'API-Status: ' + apiStatus()">
+
           <span class="api-status__led" aria-hidden="true"
             [class.api-status__led--checking]="apiStatus() === 'checking'"
             [class.api-status__led--online]="apiStatus() === 'online'"
+            [class.api-status__led--degraded]="apiStatus() === 'degraded'"
             [class.api-status__led--offline]="apiStatus() === 'offline'">
           </span>
         </button>
 
         <span id="api-status-tooltip" class="api-status__tooltip" role="tooltip">
-          @if (apiStatus() === 'checking') {
-            Check API
-          } @else if (apiStatus() === 'online') {
-            API connected
-          } @else {
-            API unreachable
-          }
+          {{ apiStatusMessage() }}
         </span>
       </div>
     }
@@ -51,7 +48,8 @@
       <a routerLink="/stats">Stats</a>
     </nav>
 
-    <button #menuButton class="menu-toggle" type="button" [attr.aria-expanded]="menuOpen" aria-controls="mobile-menu" aria-label="Toogle navigation menu" (click)="toggleMenu()">
+    <button #menuButton class="menu-toggle" type="button" [attr.aria-expanded]="menuOpen" 
+      aria-controls="mobile-menu" aria-label="Toogle navigation menu" (click)="toggleMenu()">
       ☰
     </button>
   </div>

@@ -284,6 +284,11 @@
   background: #facc15;
 }
 
+.api-status__led--degraded {
+  color: #fa7415;
+  background: #fa7415;
+}
+
 .api-status__led--online {
   color: #1ed260;
   background: #1ed260;
