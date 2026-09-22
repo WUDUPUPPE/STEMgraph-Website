@@ -1,22 +1,29 @@
 .challenge-explorer {
-  width: min(1200px, 100%);
-  margin: 0 auto;
   position: relative;
+  width: 100%;
+  height: 100%;
+  margin: 0;
   z-index: 10;
 }
 
-.graph-view {
-  width: 100;
-  padding: 0 1rem 1rem;
-  box-sizing: border-box;
-}
-
 .explorer-header {
+  position: relative;
+  z-index: 5;
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 1rem;
-  margin-bottom: 1rem;
+  margin: 0;
+  padding: 0.5rem clamp(16px, 4vw, 48px);
+}
+
+.graph-view {
+  position: absolute;
+  top: calc(-1 * clamp(100px, 38vh, 380px));
+  left: calc(50% - 50vw);
+  right: calc(50% - 50vw);
+  bottom: 20px;
+  z-index: 1;
 }
 
 p {

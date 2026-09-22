@@ -1,12 +1,11 @@
-<section class="hero">
-
+<section class="admin-graph-hero">
   <app-logo-3d
     [glbUrl]="'/STEMgraph_website_w_lowlight.glb'"
     [autoRotate]="true"
     [mouseParallax]="true"
     [scrollAnimation]="true">
   </app-logo-3d>
-
+  
+  <app-challenge-explorer [isAdmin]="true"></app-challenge-explorer>
 </section>
 
-<app-challenge-explorer [isAdmin]="true" />
