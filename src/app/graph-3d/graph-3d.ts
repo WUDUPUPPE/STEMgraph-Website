@@ -2,6 +2,7 @@ import { AfterViewInit, Component, ElementRef, Input, NgZone, OnDestroy, ViewChi
 import * as THREE from 'three';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
 import { isPlatformBrowser } from '@angular/common';
+import { Timer } from 'three';
 
 export interface GraphNode {
   id: string;
@@ -21,6 +22,45 @@ export interface GraphData {
   edges: GraphEdge[];
 }
 
+export interface Graph3dConfig {
+
+  nodeBaseRadius: number;
+  nodeDegreeScale: number;
+  nodeMaxRadius: number;
+
+  nodeColor: number;
+  nodeHoverColor: number;
+  nodeHoverEmissive: number;
+  nodeMetalness: number;
+  nodeRoughness: number;
+  nodeClearcoat: number;
+  nodeClearcoatRoughness: number;
+  nodeSegments: number;
+
+  edgeColor: number;
+  edgeOpacity: number;
+  edgeHoverColor: number;
+  edgeHoverOpacity: number;
+
+  layoutRadius: number;
+
+  nodePulseEnabled: boolean;
+  nodePulseSpeed: number;
+  nodePulseStrength: number;
+  nodeHoverScale: number;
+  nodeHoverTransitionSpeed: number;
+
+   edgeFlowEnabled: boolean;
+  edgeFlowSpeed: number;
+  edgeFlowSize: number;
+  edgeFlowColor: number;
+  edgeFlowOpacity: number;
+
+  autoRotateSpeed: number;
+  minZoom: number;
+  maxZoom: number;
+}
+
 @Component({
   selector: 'app-graph-3d',
   imports: [],
@@ -38,18 +78,73 @@ export class Graph3d implements AfterViewInit, OnDestroy {
   @Input() autoRotate = true;
   @Input() interactive = true;
 
+  /**
+   * Alle visuellen Werte an einer Stelle.
+   */
+  readonly config: Graph3dConfig = {
+    nodeBaseRadius: 0.14,
+    nodeDegreeScale: 0.03,
+    nodeMaxRadius: 0.2,
+
+    nodeColor: 0xc104ff,
+    nodeHoverColor: 0x1a918c,
+    nodeHoverEmissive: 0x2a1b3d,
+    nodeMetalness: 0.8,
+    nodeRoughness: 0.25,
+    nodeClearcoat: 0.5,
+    nodeClearcoatRoughness: 0.1,
+    nodeSegments: 32,
+
+    edgeColor: 0x1a918c,
+    edgeOpacity: 0.35,
+    edgeHoverColor: 0xa855f7,
+    edgeHoverOpacity: 0.85,
+
+    layoutRadius: 3.5,
+
+    nodePulseEnabled: false,
+    nodePulseSpeed: 0.5,
+    nodePulseStrength: 0.06,
+    nodeHoverScale: 1.15,
+    nodeHoverTransitionSpeed: 0.15,
+
+    edgeFlowEnabled: true,
+    edgeFlowSpeed: 0.22,
+    edgeFlowSize: 0.035,
+    edgeFlowColor: 0x9ffcff,
+    edgeFlowOpacity: 0.95,
+
+    autoRotateSpeed: 0.1,
+    minZoom: 6,
+    maxZoom: 22.8,
+  };
+
   private renderer!: THREE.WebGLRenderer;
   private scene!: THREE.Scene;
   private camera!: THREE.PerspectiveCamera;
   private graph = new THREE.Group();
   private controls?: OrbitControls;
+
   private nodes = new Map<string, THREE.Mesh>();
+  private nodeBaseScale = new Map<string, number>();
   private edges: THREE.Line[] = [];
+  private edgeMaterials: THREE.LineBasicMaterial[] = [];
+  private edgeFlows: THREE.Mesh[] = [];
+  private edgeFlowPaths = new Map<THREE.Mesh, {
+    source: THREE.Vector3;
+    target: THREE.Vector3;
+    offset: number;
+  }>();
+
+  private edgeFlowGeometry?: THREE.SphereGeometry;
+  private edgeFlowMaterial?: THREE.MeshBasicMaterial;
+
   private raycaster = new THREE.Raycaster();
   private mouse = new THREE.Vector2();
   private hoveredNode: THREE.Mesh | null = null;
   private selectedNode: GraphNode | null = null;
 
+  private timer = new Timer();
   private animationId = 0;
   private resizeObserver?: ResizeObserver;
   private destroyed = false;
@@ -107,10 +202,10 @@ export class Graph3d implements AfterViewInit, OnDestroy {
       this.controls = new OrbitControls(this.camera, canvas);
       this.controls.enableDamping = true;
       this.controls.dampingFactor = 0.08;
-      this.controls.minDistance = 4;
-      this.controls.maxDistance = 20;
+      this.controls.minDistance = this.config.minZoom;
+      this.controls.maxDistance = this.config.maxZoom;
       this.controls.autoRotate = this.autoRotate;
-      this.controls.autoRotateSpeed = 0.6;
+      this.controls.autoRotateSpeed = this.config.autoRotateSpeed;
     }
 
     this.resizeObserver = new ResizeObserver(() => this.resize());
@@ -119,7 +214,6 @@ export class Graph3d implements AfterViewInit, OnDestroy {
   }
 
   private buildGraph(data: GraphData): void {
-    // Clear existing
     while (this.graph.children.length > 0) {
       const child = this.graph.children[0];
       this.graph.remove(child);
@@ -129,46 +223,78 @@ export class Graph3d implements AfterViewInit, OnDestroy {
       }
     }
     this.nodes.clear();
+    this.nodeBaseScale.clear();
     this.edges.forEach(edge => edge.geometry.dispose());
+    this.edgeMaterials.forEach(material => material.dispose());
     this.edges = [];
+    this.edgeMaterials = [];
+    this.edgeFlows.forEach(flow => {
+    this.graph.remove(flow);
+    });
 
-    // Create nodes as spheres
+    this.edgeFlows = [];
+    this.edgeFlowPaths.clear();
+
+    this.edgeFlowGeometry?.dispose();
+    this.edgeFlowMaterial?.dispose();
+    this.edgeFlowGeometry = undefined;
+    this.edgeFlowMaterial = undefined;
+
+    const degreeById = new Map<string, number>();
+    data.nodes.forEach(node => degreeById.set(node.id, 0));
+    if (this.config.edgeFlowEnabled) {
+      this.edgeFlowGeometry = new THREE.SphereGeometry(
+        this.config.edgeFlowSize,
+        12,
+        12
+      );
+
+      this.edgeFlowMaterial = new THREE.MeshBasicMaterial({
+        color: this.config.edgeFlowColor,
+        transparent: true,
+        opacity: this.config.edgeFlowOpacity,
+      });
+    }
+    data.edges.forEach(edge => {
+      degreeById.set(edge.source, (degreeById.get(edge.source) ?? 0) + 1);
+      degreeById.set(edge.target, (degreeById.get(edge.target) ?? 0) + 1);
+    });
+
     const nodePositions = new Map<string, THREE.Vector3>();
-    const radius = 0.18;
+    const { layoutRadius } = this.config;
 
     data.nodes.forEach((node, index) => {
       const phi = Math.acos(-1 + (2 * index) / data.nodes.length);
       const theta = Math.sqrt(data.nodes.length * Math.PI) * phi;
 
-      const x = 3.5 * Math.sin(phi) * Math.cos(theta);
-      const y = 3.5 * Math.sin(phi) * Math.sin(theta);
-      const z = 3.5 * Math.cos(phi);
+      const x = layoutRadius * Math.sin(phi) * Math.cos(theta);
+      const y = layoutRadius * Math.sin(phi) * Math.sin(theta);
+      const z = layoutRadius * Math.cos(phi);
 
-      const geometry = new THREE.SphereGeometry(radius, 32, 32);
+      const degree = degreeById.get(node.id) ?? 0;
+      const radius = Math.min(this.config.nodeBaseRadius + degree * this.config.nodeDegreeScale, this.config.nodeMaxRadius);
+
+      const geometry = new THREE.SphereGeometry(
+        radius, this.config.nodeSegments, this.config.nodeSegments);
+
       const material = new THREE.MeshPhysicalMaterial({
-        color: 0x78a8ff,
-        metalness: 0.6,
-        roughness: 0.25,
-        clearcoat: 0.8,
-        clearcoatRoughness: 0.1,
+        color: this.config.nodeColor,
+        metalness: this.config.nodeMetalness,
+        roughness: this.config.nodeRoughness,
+        clearcoat: this.config.nodeClearcoat,
+        clearcoatRoughness: this.config.nodeClearcoatRoughness,
       });
 
       const mesh = new THREE.Mesh(geometry, material);
       mesh.position.set(x, y, z);
       mesh.userData['nodeId'] = node.id;
       mesh.userData['nodeData'] = node;
+      mesh.scale.setScalar(1);
 
       this.graph.add(mesh);
       this.nodes.set(node.id, mesh);
+      this.nodeBaseScale.set(node.id, 1);
       nodePositions.set(node.id, mesh.position.clone());
-    });
-
-    // Create edges as lines
-    const edgeMaterial = new THREE.LineBasicMaterial({
-      color: 0x4f8cff,
-      transparent: true,
-      opacity: 0.35,
-      linewidth: 1,
     });
 
     data.edges.forEach(edge => {
@@ -176,11 +302,37 @@ export class Graph3d implements AfterViewInit, OnDestroy {
       const targetPos = nodePositions.get(edge.target);
 
       if (sourcePos && targetPos) {
+        const edgeMaterial = new THREE.LineBasicMaterial({
+          color: this.config.edgeColor,
+          transparent: true,
+          opacity: this.config.edgeOpacity,
+        });
+
         const points = [sourcePos, targetPos];
         const geometry = new THREE.BufferGeometry().setFromPoints(points);
         const line = new THREE.Line(geometry, edgeMaterial);
+
         this.graph.add(line);
         this.edges.push(line);
+        this.edgeMaterials.push(edgeMaterial);
+
+        if (this.config.edgeFlowEnabled && this.edgeFlowGeometry && this.edgeFlowMaterial) {
+          const flow = new THREE.Mesh(
+            this.edgeFlowGeometry,
+            this.edgeFlowMaterial
+          );
+
+          flow.position.copy(sourcePos);
+
+          this.graph.add(flow);
+          this.edgeFlows.push(flow);
+
+          this.edgeFlowPaths.set(flow, {
+            source: sourcePos.clone(),
+            target: targetPos.clone(),
+            offset: Math.random(),
+          });
+        }
       }
     });
   }
@@ -203,32 +355,36 @@ export class Graph3d implements AfterViewInit, OnDestroy {
     if (intersects.length > 0) {
       const hovered = intersects[0].object as THREE.Mesh;
       if (this.hoveredNode !== hovered) {
-        if (this.hoveredNode) {
-          (this.hoveredNode.material as THREE.MeshPhysicalMaterial).color.setHex(0x78a8ff);
-          (this.hoveredNode.material as THREE.MeshPhysicalMaterial).emissive.setHex(0x000000);
-        }
+        this.setHoverState(this.hoveredNode, false);
         this.hoveredNode = hovered;
-        (hovered.material as THREE.MeshPhysicalMaterial).color.setHex(0xa855f7);
-        (hovered.material as THREE.MeshPhysicalMaterial).emissive.setHex(0x2a1b3d);
+        this.setHoverState(hovered, true);
         document.body.style.cursor = 'pointer';
       }
     } else {
       if (this.hoveredNode) {
-        (this.hoveredNode.material as THREE.MeshPhysicalMaterial).color.setHex(0x78a8ff);
-        (this.hoveredNode.material as THREE.MeshPhysicalMaterial).emissive.setHex(0x000000);
+        this.setHoverState(this.hoveredNode, false);
         this.hoveredNode = null;
       }
       document.body.style.cursor = 'default';
     }
   };
 
+  private setHoverState(mesh: THREE.Mesh | null, isHovered: boolean): void {
+    if (!mesh) return;
+
+    const material = mesh.material as THREE.MeshPhysicalMaterial;
+    material.color.setHex(isHovered ? this.config.nodeHoverColor : this.config.nodeColor);
+    material.emissive.setHex(isHovered ? this.config.nodeHoverEmissive : 0x000000);
+
+    const nodeId = mesh.userData['nodeId'] as string;
+    this.nodeBaseScale.set(nodeId, isHovered ? this.config.nodeHoverScale : 1);
+  }
+
   private onClick = (): void => {
     if (this.hoveredNode) {
       const nodeData = this.hoveredNode.userData['nodeData'] as GraphNode;
       this.selectedNode = nodeData;
-      // Hier könntest du ein Event emitieren oder eine Service-Methode aufrufen
       console.log('Selected node:', nodeData);
-      // Beispiel: this.challengeSelected.emit(nodeData);
     }
   };
 
@@ -244,12 +400,71 @@ export class Graph3d implements AfterViewInit, OnDestroy {
   }
 
   private animate = (): void => {
-    if (this.destroyed) return;
+  if (this.destroyed) return;
 
-    this.animationId = requestAnimationFrame(this.animate);
-    this.controls?.update();
-    this.renderer.render(this.scene, this.camera);
-  };
+  this.animationId = requestAnimationFrame(this.animate);
+  this.timer.update();
+
+  if (!this.destroyed) {
+    this.updateNodeAnimation();
+    this.updateEdgeFlows();
+  }
+
+  this.controls?.update();
+  this.renderer.render(this.scene, this.camera);
+};
+
+  private updateNodeAnimation(): void {
+    const elapsed = this.timer.getElapsed();
+
+    this.nodes.forEach((mesh, nodeId) => {
+      const baseScale = this.nodeBaseScale.get(nodeId) ?? 1;
+      const isHovered = mesh === this.hoveredNode;
+
+      let targetScale = baseScale;
+
+      if (this.config.nodePulseEnabled && !isHovered) {
+        const pulse =
+          1 +
+          Math.sin(elapsed * this.config.nodePulseSpeed + mesh.position.x) *
+            this.config.nodePulseStrength;
+        targetScale = baseScale * pulse;
+      }
+
+      mesh.scale.setScalar(
+        THREE.MathUtils.lerp(
+          mesh.scale.x,
+          targetScale,
+          this.config.nodeHoverTransitionSpeed
+        )
+      );
+    });
+  }
+
+  private updateEdgeFlows(): void {
+    if (!this.config.edgeFlowEnabled) {
+      return;
+    }
+
+    const elapsed = this.timer.getElapsed();
+
+    this.edgeFlows.forEach(flow => {
+      const path = this.edgeFlowPaths.get(flow);
+
+      if (!path) {
+        return;
+      }
+
+      const progress =
+        (elapsed * this.config.edgeFlowSpeed + path.offset) % 1;
+
+      flow.position.lerpVectors(
+        path.source,
+        path.target,
+        progress
+      );
+    });
+  }
 
   ngOnDestroy(): void {
     this.destroyed = true;
@@ -266,7 +481,7 @@ export class Graph3d implements AfterViewInit, OnDestroy {
       window.removeEventListener('click', this.onClick);
       document.body.style.cursor = 'default';
     }
-    
+
     this.nodes.forEach(mesh => {
       mesh.geometry.dispose();
 
@@ -276,8 +491,12 @@ export class Graph3d implements AfterViewInit, OnDestroy {
         mesh.material.dispose();
       }
     });
-    
+
     this.edges.forEach(edge => edge.geometry.dispose());
+    this.edgeMaterials.forEach(material => material.dispose());
+    this.edgeFlowGeometry?.dispose();
+    this.edgeFlowMaterial?.dispose();
+
     this.renderer?.dispose();
   }
 }
