@@ -157,7 +157,7 @@ button.active {
   font-size: 0.8rem;
 }
 
-@media (max-width: 1230px) {
+@media (max-width: 2560px) {
   .challenge-list {
     display: flex;
     flex-direction: column;
