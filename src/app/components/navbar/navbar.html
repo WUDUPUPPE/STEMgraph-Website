@@ -18,7 +18,9 @@
         </button>
 
         <span id="api-status-tooltip" class="api-status__tooltip" role="tooltip">
-          {{ apiStatusMessage() }}
+          <span>{{ apiStatusMessage() }}</span>
+          <span>{{ databaseStatusMessage() }}</span>
+
         </span>
       </div>
     }

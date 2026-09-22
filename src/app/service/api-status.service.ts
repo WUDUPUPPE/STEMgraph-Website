@@ -11,17 +11,23 @@ export class ApiStatusService {
   private readonly stemgraphApi = inject(STEMgraphApiService);
 
   readonly status = signal<ApiStatus>('checking');
-  readonly message = signal('Checking API status ...');
+  readonly apiMessage = signal('Checking API status ...');
+  readonly databaseMessage = signal('Checking Database status ...');
 
   check(): void {
     this.status.set('checking');
-    this.message.set('Checking API and database status ...');
+    this.apiMessage.set('Checking API status ...');
+    this.databaseMessage.set('Checking Database status ...');
 
     this.stemgraphApi.Healthcheck().subscribe({
-      next: () => this.checkDatabase(),
+      next: () => {
+        this.apiMessage.set('API is running');
+        this.checkDatabase();
+      },
       error: () => {
         this.status.set('offline');
-        this.message.set('API unreachable');
+        this.apiMessage.set('API unreachable');
+        this.databaseMessage.set('Database status unavailable');
       },
     });
   }
@@ -31,16 +37,16 @@ export class ApiStatusService {
       next: response => {
         if (response.status === 'online') {
           this.status.set('online');
-          this.message.set(response.message ?? 'API and Neo4j database are reachable');
+          this.databaseMessage.set(response.message ?? 'API and Neo4j database are reachable');
           return;
         }
 
         this.status.set('degraded');
-        this.message.set(response.message ?? 'API is reachable, but the Neo4j database is unavailable');
+        this.databaseMessage.set(response.message ?? 'API is reachable, but the Neo4j database is unavailable');
       },
       error: () => {
         this.status.set('degraded');
-        this.message.set('API is reachable, but the database status could´nt be checked');
+        this.databaseMessage.set('API is reachable, but the database status could´nt be checked');
       },
     });
   }
