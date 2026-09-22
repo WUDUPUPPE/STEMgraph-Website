@@ -64,13 +64,6 @@ export class Navbar {
     }
   }
 
-  //closed the sidebar every time
-  /*@HostListener('window:resize')
-  onWindowResize(): void {
-    if (isPlatformBrowser(this.platformId)) {
-      this.menuOpen = false;
-    }
-  }*/
   // close sidebar by click outside the menu
   @ViewChild('menuButton')
   private menuButton?: ElementRef<HTMLElement>;
