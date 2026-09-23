@@ -3,7 +3,7 @@ import { STEMgraphApiService } from '../../service/stemgraph-api.service';
 import { ChallengeListResponse, GraphResponse } from '../../api/models';
 import { ChallengeGraph } from '../challenge-graph/challenge-graph';
 
-type ExplorerView = 'graph' | 'list';
+type ExplorerView = 'sphere' | 'graph' | 'list';
 
 @Component({
   selector: 'app-challenge-explorer',
@@ -16,7 +16,7 @@ export class ChallengeExplorer implements OnInit {
 
   readonly isAdmin = input(false);
 
-  protected readonly viewMode = signal<ExplorerView>('graph');
+  protected readonly viewMode = signal<ExplorerView>('sphere');
   protected readonly isLoading = signal(false);
   protected readonly errorMessage = signal<string | null>(null);
   protected readonly openedChallengeId = signal<string | null>(null);
@@ -29,17 +29,25 @@ export class ChallengeExplorer implements OnInit {
     this.loadGraph();
   }
 
-  protected showList(): void {
-    this.viewMode.set('list');
-    this.loadList();
+  protected showSphere(): void {
+    this.viewMode.set('sphere');
+
+    if (this.graph() === null) {
+      this.loadGraph();
+    }
   }
 
   protected showGraph(): void {
     this.viewMode.set('graph');
 
     if (this.graph() === null) {
-    this.loadGraph();
+      this.loadGraph();
     }
+  }
+
+  protected showList(): void {
+    this.viewMode.set('list');
+    this.loadList();
   }
 
   protected toggleChallenge(challengeId: string): void {

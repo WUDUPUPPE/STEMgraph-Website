@@ -62,6 +62,21 @@ export interface Graph3dConfig {
   maxZoom: number;
 }
 
+export interface GraphClusterConfig {
+  nodeSpacing: number;
+  desiredDistance: number;
+  repulsion: number;
+  attraction: number;
+  centerForce: number;
+  damping: number;
+  iterations: number;
+  edgeOpacity: number;
+  edgeFlowOpacity: number;
+  edgeFlowSegmentsPerEdge: number;
+}
+
+export type GraphLayoutMode = 'sphere' | 'cluster';
+
 @Component({
   selector: 'app-graph-3d',
   imports: [],
@@ -78,6 +93,7 @@ export class Graph3d implements AfterViewInit, OnDestroy {
   @Input() graphData?: GraphData;
   @Input() autoRotate = true;
   @Input() interactive = true;
+  @Input() layoutMode: GraphLayoutMode = 'sphere';
 
   /**
    * Alle visuellen Werte an einer Stelle.
@@ -119,6 +135,19 @@ export class Graph3d implements AfterViewInit, OnDestroy {
     autoRotateSpeed: 0.1,
     minZoom: 5,
     maxZoom: 19.8,
+  };
+
+  readonly clusterConfig: GraphClusterConfig = {
+    nodeSpacing: 1.35,
+    desiredDistance: 1.35,
+    repulsion: 0.025,
+    attraction: 0.012,
+    centerForce: 0.004,
+    damping: 0.82,
+    iterations: 180,
+    edgeOpacity: 0.55,
+    edgeFlowOpacity: 0.45,
+    edgeFlowSegmentsPerEdge: 10,
   };
 
   private renderer!: THREE.WebGLRenderer;
@@ -249,18 +278,20 @@ export class Graph3d implements AfterViewInit, OnDestroy {
       degreeById.set(edge.target, (degreeById.get(edge.target) ?? 0) + 1);
     });
 
-    const nodePositions = new Map<string, THREE.Vector3>();
-    const { layoutRadius } = this.config;
+    const nodePositions =
+      this.layoutMode === 'sphere'
+        ? this.computeSpherePositions(data)
+      : this.computeClusterPositions(data);
 
-    data.nodes.forEach((node, index) => {
-      const phi = Math.acos(-1 + (2 * index) / data.nodes.length);
-      const theta = Math.sqrt(data.nodes.length * Math.PI) * phi;
+    data.nodes.forEach(node => {
+      const position = nodePositions.get(node.id);
 
-      const x = layoutRadius * Math.sin(phi) * Math.cos(theta);
-      const y = layoutRadius * Math.sin(phi) * Math.sin(theta);
-      const z = layoutRadius * Math.cos(phi);
+      if (!position) {
+        return;
+      }
 
       const degree = degreeById.get(node.id) ?? 0;
+
       const radius = Math.min(
         this.config.nodeBaseRadius + degree * this.config.nodeDegreeScale,
         this.config.nodeMaxRadius
@@ -281,7 +312,7 @@ export class Graph3d implements AfterViewInit, OnDestroy {
       });
 
       const mesh = new THREE.Mesh(geometry, material);
-      mesh.position.set(x, y, z);
+      mesh.position.copy(position);
       mesh.userData['nodeId'] = node.id;
       mesh.userData['nodeData'] = node;
       mesh.scale.setScalar(1);
@@ -289,7 +320,6 @@ export class Graph3d implements AfterViewInit, OnDestroy {
       this.graph.add(mesh);
       this.nodes.set(node.id, mesh);
       this.nodeBaseScale.set(node.id, 1);
-      nodePositions.set(node.id, mesh.position.clone());
     });
 
     data.edges.forEach((edge, edgeIndex) => {
@@ -309,7 +339,10 @@ export class Graph3d implements AfterViewInit, OnDestroy {
       const edgeMaterial = new THREE.LineBasicMaterial({
         color: this.config.edgeColor,
         transparent: true,
-        opacity: this.config.edgeOpacity,
+        opacity:
+          this.layoutMode === 'cluster'
+            ? this.clusterConfig.edgeOpacity
+            : this.config.edgeOpacity,
       });
 
       const line = new THREE.Line(edgeGeometry, edgeMaterial);
@@ -319,8 +352,10 @@ export class Graph3d implements AfterViewInit, OnDestroy {
       this.edgeMaterials.push(edgeMaterial);
 
       if (this.config.edgeFlowEnabled) {
-        const flowCount = this.config.edgeFlowSegmentsPerEdge;
-        const edgeOffset = edgeIndex / Math.max(1, data.edges.length);
+      const flowCount =
+        this.layoutMode === 'cluster'
+          ? this.clusterConfig.edgeFlowSegmentsPerEdge
+          : this.config.edgeFlowSegmentsPerEdge;        const edgeOffset = edgeIndex / Math.max(1, data.edges.length);
 
         for (let index = 0; index < flowCount; index++) {
           const flowGeometry = new THREE.BufferGeometry();
@@ -334,7 +369,10 @@ export class Graph3d implements AfterViewInit, OnDestroy {
           const flowMaterial = new THREE.LineBasicMaterial({
             color: this.config.edgeFlowColor,
             transparent: true,
-            opacity: this.config.edgeFlowOpacity,
+            opacity:
+              this.layoutMode === 'cluster'
+                ? this.clusterConfig.edgeFlowOpacity
+                : this.config.edgeFlowOpacity,
           });
 
           const flowLine = new THREE.Line(flowGeometry, flowMaterial);
@@ -350,6 +388,150 @@ export class Graph3d implements AfterViewInit, OnDestroy {
         }
       }
     });
+  }
+
+  private computeSpherePositions(
+    data: GraphData
+  ): Map<string, THREE.Vector3> {
+    const positions = new Map<string, THREE.Vector3>();
+    const { layoutRadius } = this.config;
+
+    data.nodes.forEach((node, index) => {
+      const phi = Math.acos(
+        -1 + (2 * index) / data.nodes.length
+      );
+
+      const theta =
+        Math.sqrt(data.nodes.length * Math.PI) * phi;
+
+      const x =
+        layoutRadius * Math.sin(phi) * Math.cos(theta);
+
+      const y =
+        layoutRadius * Math.sin(phi) * Math.sin(theta);
+
+      const z = layoutRadius * Math.cos(phi);
+
+      positions.set(
+        node.id,
+        new THREE.Vector3(x, y, z)
+      );
+    });
+
+    return positions;
+  }
+
+  private computeClusterPositions(
+    data: GraphData
+  ): Map<string, THREE.Vector3> {
+    const positions = new Map<string, THREE.Vector3>();
+    const velocities = new Map<string, THREE.Vector3>();
+
+    data.nodes.forEach(node => {
+      positions.set(
+        node.id,
+        new THREE.Vector3(
+          (Math.random() - 0.5) * this.clusterConfig.nodeSpacing * 4,
+          (Math.random() - 0.5) * this.clusterConfig.nodeSpacing * 4,
+          (Math.random() - 0.5) * this.clusterConfig.nodeSpacing * 4
+        )
+      );
+
+      velocities.set(node.id, new THREE.Vector3());
+    });
+
+    const {iterations, repulsion, attraction, centerForce, damping, desiredDistance} = this.clusterConfig;
+
+    for (let step = 0; step < iterations; step++) {
+      data.nodes.forEach(nodeA => {
+        const positionA = positions.get(nodeA.id);
+        const velocityA = velocities.get(nodeA.id);
+
+        if (!positionA || !velocityA) {
+          return;
+        }
+
+        data.nodes.forEach(nodeB => {
+          if (nodeA.id === nodeB.id) {
+            return;
+          }
+
+          const positionB = positions.get(nodeB.id);
+
+          if (!positionB) {
+            return;
+          }
+
+          const difference = positionA.clone().sub(positionB);
+          const distance = Math.max(difference.length(), 0.1);
+
+          velocityA.add(
+            difference
+              .normalize()
+              .multiplyScalar(
+                repulsion / (distance * distance)
+              )
+          );
+        });
+
+        velocityA.add(
+          positionA.clone().multiplyScalar(-centerForce)
+        );
+      });
+
+      data.edges.forEach(edge => {
+        const sourcePosition = positions.get(edge.source);
+        const targetPosition = positions.get(edge.target);
+        const sourceVelocity = velocities.get(edge.source);
+        const targetVelocity = velocities.get(edge.target);
+
+        if (
+          !sourcePosition ||
+          !targetPosition ||
+          !sourceVelocity ||
+          !targetVelocity
+        ) {
+          return;
+        }
+
+        const difference = targetPosition
+          .clone()
+          .sub(sourcePosition);
+
+        const distance = difference.length();
+
+        if (distance === 0) {
+          return;
+        }
+
+        const force =
+          (distance - desiredDistance) * attraction;
+
+        const direction = difference.normalize();
+
+        sourceVelocity.add(
+          direction.clone().multiplyScalar(force)
+        );
+
+        targetVelocity.add(
+          direction.clone().multiplyScalar(-force)
+        );
+      });
+
+      data.nodes.forEach(node => {
+        const position = positions.get(node.id);
+        const velocity = velocities.get(node.id);
+
+        if (!position || !velocity) {
+          return;
+        }
+
+        velocity.multiplyScalar(damping);
+        position.add(velocity);
+      });
+    }
+
+    return positions;
   }
 
   private bindInteraction(): void {

@@ -11,6 +11,13 @@
 
       <button
         type="button"
+        [class.active]="viewMode() === 'sphere'"
+        (click)="showSphere()">
+        Sphere
+      </button>
+
+      <button
+        type="button"
         [class.active]="viewMode() === 'list'"
         (click)="showList()">
         List
@@ -26,9 +33,23 @@
       } @else if (errorMessage(); as error) {
         <p class="error-message">{{ error }}</p>
       } @else if (graph(); as graphData) {
-        <app-challenge-graph [graph]="graphData" />
+        <app-challenge-graph [graph]="graphData" [layoutMode]="'cluster'"/>
       } @else {
         <p>Graph can´t load.</p>
+      }
+    </section>
+  }
+
+  @if (viewMode() === 'sphere') {
+    <section class="graph-view">
+      @if (isLoading()) {
+        <p>Loading Sphere …</p>
+      } @else if (errorMessage(); as error) {
+        <p class="error-message">{{ error }}</p>
+      } @else if (graph(); as graphData) {
+        <app-challenge-graph [graph]="graphData" [layoutMode]="'sphere'" />
+      } @else {
+        <p>Sphere can´t load.</p>
       }
     </section>
   }
@@ -38,14 +59,10 @@
 
     @if (isLoading()) {
       <p>Loading List …</p>
-    }
-
-    @if (errorMessage(); as error) {
+    } @else if (errorMessage(); as error) {
       <p class="error-message">{{ error }}</p>
-    }
-
-    @if (!isLoading() && !errorMessage() && list().length === 0) {
-      <p>List can´tt loaded.</p>
+    } @else if (!isLoading() && !errorMessage() && list().length === 0) {
+      <p>List can´t load.</p>
     }
 
     <div class="challenge-list">

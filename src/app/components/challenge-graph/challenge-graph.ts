@@ -1,7 +1,6 @@
-import { AfterViewInit, Component, ElementRef, OnDestroy, ViewChild, input, inject, PLATFORM_ID } from '@angular/core';
-import { isPlatformBrowser } from '@angular/common';
+import { Component, input, Input } from '@angular/core';
 import { GraphResponse } from '../../api/models';
-import { Graph3d, GraphData } from '../../graph-3d/graph-3d';
+import { Graph3d, GraphData, GraphLayoutMode } from '../../graph-3d/graph-3d';
 
 @Component({
   selector: 'app-challenge-graph',
@@ -11,10 +10,14 @@ import { Graph3d, GraphData } from '../../graph-3d/graph-3d';
 })
 export class ChallengeGraph {
   readonly graph = input<GraphResponse | null>(null);
+  
+  @Input()
+  layoutMode: GraphLayoutMode = 'sphere';
 
   get graphData3D(): GraphData | null {
     const data = this.graph();
-    if (!data) return null;
+    if (!data) 
+      return null;
 
     return {
       nodes: data.nodes.map(n => ({
