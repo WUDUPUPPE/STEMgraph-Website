@@ -50,9 +50,10 @@ export interface Graph3dConfig {
   nodeHoverScale: number;
   nodeHoverTransitionSpeed: number;
 
-   edgeFlowEnabled: boolean;
+  edgeFlowEnabled: boolean;
   edgeFlowSpeed: number;
-  edgeFlowSize: number;
+  edgeFlowSegmentLength: number;
+  edgeFlowSegmentsPerEdge: number;
   edgeFlowColor: number;
   edgeFlowOpacity: number;
 
@@ -82,9 +83,9 @@ export class Graph3d implements AfterViewInit, OnDestroy {
    * Alle visuellen Werte an einer Stelle.
    */
   readonly config: Graph3dConfig = {
-    nodeBaseRadius: 0.14,
+    nodeBaseRadius: 0.10,
     nodeDegreeScale: 0.03,
-    nodeMaxRadius: 0.2,
+    nodeMaxRadius: 0.15,
 
     nodeColor: 0xc104ff,
     nodeHoverColor: 0x1a918c,
@@ -100,7 +101,7 @@ export class Graph3d implements AfterViewInit, OnDestroy {
     edgeHoverColor: 0xa855f7,
     edgeHoverOpacity: 0.85,
 
-    layoutRadius: 3.5,
+    layoutRadius: 3,
 
     nodePulseEnabled: false,
     nodePulseSpeed: 0.5,
@@ -109,14 +110,15 @@ export class Graph3d implements AfterViewInit, OnDestroy {
     nodeHoverTransitionSpeed: 0.15,
 
     edgeFlowEnabled: true,
-    edgeFlowSpeed: 0.22,
-    edgeFlowSize: 0.035,
-    edgeFlowColor: 0x9ffcff,
-    edgeFlowOpacity: 0.95,
+    edgeFlowSpeed: 0.06,
+    edgeFlowSegmentLength: 0.02,
+    edgeFlowSegmentsPerEdge: 15,
+    edgeFlowColor: 0xffffff,
+    edgeFlowOpacity: 0.3,
 
     autoRotateSpeed: 0.1,
-    minZoom: 6,
-    maxZoom: 22.8,
+    minZoom: 5,
+    maxZoom: 19.8,
   };
 
   private renderer!: THREE.WebGLRenderer;
@@ -129,15 +131,16 @@ export class Graph3d implements AfterViewInit, OnDestroy {
   private nodeBaseScale = new Map<string, number>();
   private edges: THREE.Line[] = [];
   private edgeMaterials: THREE.LineBasicMaterial[] = [];
-  private edgeFlows: THREE.Mesh[] = [];
-  private edgeFlowPaths = new Map<THREE.Mesh, {
-    source: THREE.Vector3;
-    target: THREE.Vector3;
-    offset: number;
-  }>();
+  private edgeFlows: THREE.Line[] = [];
 
-  private edgeFlowGeometry?: THREE.SphereGeometry;
-  private edgeFlowMaterial?: THREE.MeshBasicMaterial;
+  private edgeFlowPaths = new Map<
+    THREE.Line,
+    {
+      source: THREE.Vector3;
+      target: THREE.Vector3;
+      offset: number;
+    }
+  >();
 
   private raycaster = new THREE.Raycaster();
   private mouse = new THREE.Vector2();
@@ -222,39 +225,25 @@ export class Graph3d implements AfterViewInit, OnDestroy {
         (child.material as THREE.Material).dispose();
       }
     }
+
     this.nodes.clear();
     this.nodeBaseScale.clear();
+
     this.edges.forEach(edge => edge.geometry.dispose());
     this.edgeMaterials.forEach(material => material.dispose());
-    this.edges = [];
-    this.edgeMaterials = [];
+
     this.edgeFlows.forEach(flow => {
-    this.graph.remove(flow);
+      flow.geometry.dispose();
+      (flow.material as THREE.Material).dispose();
     });
 
+    this.edges = [];
+    this.edgeMaterials = [];
     this.edgeFlows = [];
     this.edgeFlowPaths.clear();
 
-    this.edgeFlowGeometry?.dispose();
-    this.edgeFlowMaterial?.dispose();
-    this.edgeFlowGeometry = undefined;
-    this.edgeFlowMaterial = undefined;
-
     const degreeById = new Map<string, number>();
     data.nodes.forEach(node => degreeById.set(node.id, 0));
-    if (this.config.edgeFlowEnabled) {
-      this.edgeFlowGeometry = new THREE.SphereGeometry(
-        this.config.edgeFlowSize,
-        12,
-        12
-      );
-
-      this.edgeFlowMaterial = new THREE.MeshBasicMaterial({
-        color: this.config.edgeFlowColor,
-        transparent: true,
-        opacity: this.config.edgeFlowOpacity,
-      });
-    }
     data.edges.forEach(edge => {
       degreeById.set(edge.source, (degreeById.get(edge.source) ?? 0) + 1);
       degreeById.set(edge.target, (degreeById.get(edge.target) ?? 0) + 1);
@@ -272,10 +261,16 @@ export class Graph3d implements AfterViewInit, OnDestroy {
       const z = layoutRadius * Math.cos(phi);
 
       const degree = degreeById.get(node.id) ?? 0;
-      const radius = Math.min(this.config.nodeBaseRadius + degree * this.config.nodeDegreeScale, this.config.nodeMaxRadius);
+      const radius = Math.min(
+        this.config.nodeBaseRadius + degree * this.config.nodeDegreeScale,
+        this.config.nodeMaxRadius
+      );
 
       const geometry = new THREE.SphereGeometry(
-        radius, this.config.nodeSegments, this.config.nodeSegments);
+        radius,
+        this.config.nodeSegments,
+        this.config.nodeSegments
+      );
 
       const material = new THREE.MeshPhysicalMaterial({
         color: this.config.nodeColor,
@@ -297,40 +292,60 @@ export class Graph3d implements AfterViewInit, OnDestroy {
       nodePositions.set(node.id, mesh.position.clone());
     });
 
-    data.edges.forEach(edge => {
+    data.edges.forEach((edge, edgeIndex) => {
       const sourcePos = nodePositions.get(edge.source);
       const targetPos = nodePositions.get(edge.target);
 
-      if (sourcePos && targetPos) {
-        const edgeMaterial = new THREE.LineBasicMaterial({
-          color: this.config.edgeColor,
-          transparent: true,
-          opacity: this.config.edgeOpacity,
-        });
+      if (!sourcePos || !targetPos) {
+        return;
+      }
 
-        const points = [sourcePos, targetPos];
-        const geometry = new THREE.BufferGeometry().setFromPoints(points);
-        const line = new THREE.Line(geometry, edgeMaterial);
+      const edgePoints = [sourcePos, targetPos];
 
-        this.graph.add(line);
-        this.edges.push(line);
-        this.edgeMaterials.push(edgeMaterial);
+      const edgeGeometry = new THREE.BufferGeometry().setFromPoints(
+        edgePoints
+      ) as THREE.BufferGeometry;
 
-        if (this.config.edgeFlowEnabled && this.edgeFlowGeometry && this.edgeFlowMaterial) {
-          const flow = new THREE.Mesh(
-            this.edgeFlowGeometry,
-            this.edgeFlowMaterial
+      const edgeMaterial = new THREE.LineBasicMaterial({
+        color: this.config.edgeColor,
+        transparent: true,
+        opacity: this.config.edgeOpacity,
+      });
+
+      const line = new THREE.Line(edgeGeometry, edgeMaterial);
+
+      this.graph.add(line);
+      this.edges.push(line);
+      this.edgeMaterials.push(edgeMaterial);
+
+      if (this.config.edgeFlowEnabled) {
+        const flowCount = this.config.edgeFlowSegmentsPerEdge;
+        const edgeOffset = edgeIndex / Math.max(1, data.edges.length);
+
+        for (let index = 0; index < flowCount; index++) {
+          const flowGeometry = new THREE.BufferGeometry();
+          const positions = new Float32Array(6);
+
+          flowGeometry.setAttribute(
+            'position',
+            new THREE.BufferAttribute(positions, 3)
           );
 
-          flow.position.copy(sourcePos);
+          const flowMaterial = new THREE.LineBasicMaterial({
+            color: this.config.edgeFlowColor,
+            transparent: true,
+            opacity: this.config.edgeFlowOpacity,
+          });
 
-          this.graph.add(flow);
-          this.edgeFlows.push(flow);
+          const flowLine = new THREE.Line(flowGeometry, flowMaterial);
 
-          this.edgeFlowPaths.set(flow, {
+          this.graph.add(flowLine);
+          this.edgeFlows.push(flowLine);
+
+          this.edgeFlowPaths.set(flowLine, {
             source: sourcePos.clone(),
             target: targetPos.clone(),
-            offset: Math.random(),
+            offset: edgeOffset + index / flowCount,
           });
         }
       }
@@ -458,11 +473,46 @@ export class Graph3d implements AfterViewInit, OnDestroy {
       const progress =
         (elapsed * this.config.edgeFlowSpeed + path.offset) % 1;
 
-      flow.position.lerpVectors(
-        path.source,
-        path.target,
-        progress
+      const direction = new THREE.Vector3()
+        .subVectors(path.target, path.source);
+
+      const edgeLength = direction.length();
+
+      if (edgeLength === 0) {
+        return;
+      }
+
+      direction.normalize();
+
+      const start = new THREE.Vector3()
+        .lerpVectors(path.source, path.target, progress);
+
+      const end = start
+        .clone()
+        .addScaledVector(
+          direction,
+          this.config.edgeFlowSegmentLength
+        );
+
+      const positionAttribute = flow.geometry.getAttribute(
+        'position'
+      ) as THREE.BufferAttribute;
+
+      positionAttribute.setXYZ(
+        0,
+        start.x,
+        start.y,
+        start.z
       );
+
+      positionAttribute.setXYZ(
+        1,
+        end.x,
+        end.y,
+        end.z
+      );
+
+      positionAttribute.needsUpdate = true;
     });
   }
 
@@ -494,8 +544,10 @@ export class Graph3d implements AfterViewInit, OnDestroy {
 
     this.edges.forEach(edge => edge.geometry.dispose());
     this.edgeMaterials.forEach(material => material.dispose());
-    this.edgeFlowGeometry?.dispose();
-    this.edgeFlowMaterial?.dispose();
+    this.edgeFlows.forEach(flow => {
+      flow.geometry.dispose();
+      (flow.material as THREE.Material).dispose();
+    });
 
     this.renderer?.dispose();
   }
