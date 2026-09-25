@@ -37,9 +37,13 @@ export interface Graph3dConfig {
   nodeClearcoatRoughness: number;
   nodeSegments: number;
 
+  nodeShadowEnabled: boolean;
+  nodeShadowScale: number;
+  nodeShadowColor: number;
+  nodeShadowOpacity: number;
+
   edgeColor: number;
   edgeOpacity: number;
-  edgeHoverColor: number;
   edgeHoverOpacity: number;
 
   layoutRadius: number;
@@ -70,9 +74,15 @@ export interface GraphClusterConfig {
   centerForce: number;
   damping: number;
   iterations: number;
+
   edgeOpacity: number;
+  edgeFlowSpeed: number;
   edgeFlowOpacity: number;
   edgeFlowSegmentsPerEdge: number;
+  edgeFlowSegmentLength: number;
+
+  minZoom: number;
+  maxZoom: number;
 }
 
 export type GraphLayoutMode = 'sphere' | 'cluster';
@@ -99,9 +109,9 @@ export class Graph3d implements AfterViewInit, OnDestroy {
    * Alle visuellen Werte an einer Stelle.
    */
   readonly config: Graph3dConfig = {
-    nodeBaseRadius: 0.10,
-    nodeDegreeScale: 0.03,
-    nodeMaxRadius: 0.15,
+    nodeBaseRadius: 0.08,
+    nodeDegreeScale: 0.01,
+    nodeMaxRadius: 0.12,
 
     nodeColor: 0xc104ff,
     nodeHoverColor: 0x1a918c,
@@ -110,27 +120,31 @@ export class Graph3d implements AfterViewInit, OnDestroy {
     nodeRoughness: 0.25,
     nodeClearcoat: 0.5,
     nodeClearcoatRoughness: 0.1,
-    nodeSegments: 32,
+    nodeSegments: 20,
 
-    edgeColor: 0x1a918c,
-    edgeOpacity: 0.35,
-    edgeHoverColor: 0xa855f7,
+    nodeShadowEnabled: true,
+    nodeShadowScale: 1.03,
+    nodeShadowColor: 0x572368,
+    nodeShadowOpacity: 0.77,
+
+    edgeColor: 0xffffff,
+    edgeOpacity: 0.15,
     edgeHoverOpacity: 0.85,
 
     layoutRadius: 3,
 
     nodePulseEnabled: false,
-    nodePulseSpeed: 0.5,
+    nodePulseSpeed: 0.3,
     nodePulseStrength: 0.06,
     nodeHoverScale: 1.15,
     nodeHoverTransitionSpeed: 0.15,
 
     edgeFlowEnabled: true,
-    edgeFlowSpeed: 0.06,
-    edgeFlowSegmentLength: 0.02,
-    edgeFlowSegmentsPerEdge: 15,
-    edgeFlowColor: 0xffffff,
-    edgeFlowOpacity: 0.3,
+    edgeFlowSpeed: 0.05,
+    edgeFlowSegmentLength: 0.04,
+    edgeFlowSegmentsPerEdge: 8,
+    edgeFlowColor: 0x1a918c,
+    edgeFlowOpacity: 0.50,
 
     autoRotateSpeed: 0.1,
     minZoom: 5,
@@ -138,16 +152,22 @@ export class Graph3d implements AfterViewInit, OnDestroy {
   };
 
   readonly clusterConfig: GraphClusterConfig = {
-    nodeSpacing: 1.35,
-    desiredDistance: 1.35,
-    repulsion: 0.025,
-    attraction: 0.012,
-    centerForce: 0.004,
-    damping: 0.82,
-    iterations: 180,
-    edgeOpacity: 0.55,
-    edgeFlowOpacity: 0.45,
-    edgeFlowSegmentsPerEdge: 10,
+    nodeSpacing: 0.35,
+    desiredDistance: 0.8,
+    repulsion: 0.015,
+    attraction: 0.1,
+    centerForce: 0.003,
+    damping: 0.92,
+    iterations: 220,
+
+    edgeOpacity: 0.15,
+    edgeFlowSpeed: 0.14,
+    edgeFlowOpacity: 0.70,
+    edgeFlowSegmentsPerEdge: 5,
+    edgeFlowSegmentLength: 0.06,
+
+    minZoom: 16,
+    maxZoom: 62,
   };
 
   private renderer!: THREE.WebGLRenderer;
@@ -313,6 +333,30 @@ export class Graph3d implements AfterViewInit, OnDestroy {
 
       const mesh = new THREE.Mesh(geometry, material);
       mesh.position.copy(position);
+
+      if (this.config.nodeShadowEnabled) {
+        const shadowGeometry = new THREE.SphereGeometry(
+          radius * this.config.nodeShadowScale,
+          this.config.nodeSegments,
+          this.config.nodeSegments
+        );
+
+        const shadowMaterial = new THREE.MeshBasicMaterial({
+          color: this.config.nodeShadowColor,
+          transparent: true,
+          opacity: this.config.nodeShadowOpacity,
+          side: THREE.BackSide,
+          depthWrite: false,
+        });
+
+        const shadowMesh = new THREE.Mesh(
+          shadowGeometry, shadowMaterial
+        );
+
+        shadowMesh.position.copy(position);
+
+        this.graph.add(shadowMesh);
+      }
       mesh.userData['nodeId'] = node.id;
       mesh.userData['nodeData'] = node;
       mesh.scale.setScalar(1);
@@ -388,6 +432,19 @@ export class Graph3d implements AfterViewInit, OnDestroy {
         }
       }
     });
+    if (this.controls) {
+      this.controls.minDistance =
+        this.layoutMode === 'cluster'
+          ? this.clusterConfig.minZoom
+          : this.config.minZoom;
+
+      this.controls.maxDistance =
+        this.layoutMode === 'cluster'
+          ? this.clusterConfig.maxZoom
+          : this.config.maxZoom;
+
+      this.controls.update();
+    }
   }
 
   private computeSpherePositions(
@@ -652,8 +709,13 @@ export class Graph3d implements AfterViewInit, OnDestroy {
         return;
       }
 
+      const flowSpeed =
+        this.layoutMode === 'cluster'
+          ? this.clusterConfig.edgeFlowSpeed
+          : this.config.edgeFlowSpeed;
+
       const progress =
-        (elapsed * this.config.edgeFlowSpeed + path.offset) % 1;
+        (elapsed * flowSpeed + path.offset) % 1;
 
       const direction = new THREE.Vector3()
         .subVectors(path.target, path.source);
@@ -669,12 +731,14 @@ export class Graph3d implements AfterViewInit, OnDestroy {
       const start = new THREE.Vector3()
         .lerpVectors(path.source, path.target, progress);
 
+      const segmentLength =
+        this.layoutMode === 'cluster'
+          ? this.clusterConfig.edgeFlowSegmentLength
+          : this.config.edgeFlowSegmentLength;
+
       const end = start
         .clone()
-        .addScaledVector(
-          direction,
-          this.config.edgeFlowSegmentLength
-        );
+        .addScaledVector(direction, segmentLength);
 
       const positionAttribute = flow.geometry.getAttribute(
         'position'
