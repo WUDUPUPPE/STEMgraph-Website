@@ -11,8 +11,8 @@ import { Graph3d, GraphData, GraphLayoutMode } from '../../graph-3d/graph-3d';
 export class ChallengeGraph {
   readonly graph = input<GraphResponse | null>(null);
   
-  @Input()
-  layoutMode: GraphLayoutMode = 'sphere';
+  @Input() layoutMode: GraphLayoutMode = 'sphere';
+  @Input() isAdmin = false;
 
   get graphData3D(): GraphData | null {
     const data = this.graph();

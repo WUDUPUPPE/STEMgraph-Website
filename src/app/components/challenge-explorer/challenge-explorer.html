@@ -33,7 +33,7 @@
       } @else if (errorMessage(); as error) {
         <p class="error-message">{{ error }}</p>
       } @else if (graph(); as graphData) {
-        <app-challenge-graph [graph]="graphData" [layoutMode]="'cluster'"/>
+        <app-challenge-graph [graph]="graphData" [layoutMode]="'cluster'" [isAdmin]="isAdmin"/>
       } @else {
         <p>Graph can´t load.</p>
       }
@@ -47,7 +47,7 @@
       } @else if (errorMessage(); as error) {
         <p class="error-message">{{ error }}</p>
       } @else if (graph(); as graphData) {
-        <app-challenge-graph [graph]="graphData" [layoutMode]="'sphere'" />
+        <app-challenge-graph [graph]="graphData" [layoutMode]="'sphere'" [isAdmin]="isAdmin" />
       } @else {
         <p>Sphere can´t load.</p>
       }
@@ -89,7 +89,7 @@
                 </div>
               }
 
-              @if (isAdmin()) {
+              @if (isAdmin) {
                 <div class="admin-information">
                   <p>
                     <strong>Author:</strong>

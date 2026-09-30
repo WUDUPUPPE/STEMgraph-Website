@@ -1,4 +1,4 @@
-import { AfterViewInit, Component, ElementRef, Input, NgZone, OnDestroy, ViewChild, inject, PLATFORM_ID } from '@angular/core';
+import { AfterViewInit, ChangeDetectorRef, Component, ElementRef, Input, NgZone, OnDestroy, ViewChild, inject, PLATFORM_ID } from '@angular/core';
 import * as THREE from 'three';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
 import { isPlatformBrowser } from '@angular/common';
@@ -104,6 +104,7 @@ export type GraphLayoutMode = 'sphere' | 'cluster';
 
 @Component({
   selector: 'app-graph-3d',
+  standalone: true,
   imports: [],
   templateUrl: './graph-3d.html',
   styleUrl: './graph-3d.css',
@@ -119,6 +120,8 @@ export class Graph3d implements AfterViewInit, OnDestroy {
   @Input() autoRotate = true;
   @Input() interactive = true;
   @Input() layoutMode: GraphLayoutMode = 'sphere';
+
+  @Input() isAdmin = false;
 
   readonly config: Graph3dConfig = {
     nodeBaseRadius: 0.08,
@@ -206,6 +209,14 @@ export class Graph3d implements AfterViewInit, OnDestroy {
   private nodes = new Map<string, THREE.Mesh>();
   private nodeShadows = new Map<string, THREE.Mesh>();
   private nodeBaseScale = new Map<string, number>();
+
+  readonly hoverTooltip = {
+    visible: false,
+    x: 0,
+    y: 0,
+    node: null as GraphNode | null,
+  };
+
   private edges: THREE.Line[] = [];
   private edgeMaterials: THREE.LineBasicMaterial[] = [];
   private edgeFlows: THREE.Line[] = [];
@@ -229,9 +240,12 @@ export class Graph3d implements AfterViewInit, OnDestroy {
 
   private raycaster = new THREE.Raycaster();
   private mouse = new THREE.Vector2();
+
   private hoveredNode: THREE.Mesh | null = null;
+
   private selectedNode: GraphNode | null = null;
   private selectedRing: THREE.Mesh | null = null;
+
   private draggedNode: THREE.Mesh | null = null;
   private dragPlane = new THREE.Plane();
   private dragIntersection = new THREE.Vector3();
@@ -248,7 +262,10 @@ export class Graph3d implements AfterViewInit, OnDestroy {
   private resizeObserver?: ResizeObserver;
   private destroyed = false;
 
-  constructor(private readonly zone: NgZone) {}
+  constructor(
+    private readonly zone: NgZone,
+    private readonly cdr: ChangeDetectorRef
+  ) {}
 
   ngAfterViewInit(): void {
     if (!isPlatformBrowser(this.platformId)) {
@@ -664,6 +681,7 @@ export class Graph3d implements AfterViewInit, OnDestroy {
 
     this.raycaster.setFromCamera(this.mouse, this.camera);
     if (this.draggedNode) {
+      this.updateHoverTooltip(null);
       if (
         this.raycaster.ray.intersectPlane(
           this.dragPlane,
@@ -702,17 +720,25 @@ export class Graph3d implements AfterViewInit, OnDestroy {
 
     if (intersects.length > 0) {
       const hovered = intersects[0].object as THREE.Mesh;
+
       if (this.hoveredNode !== hovered) {
         this.setHoverState(this.hoveredNode, false);
         this.hoveredNode = hovered;
         this.setHoverState(hovered, true);
         document.body.style.cursor = 'pointer';
       }
+
+      this.updateHoverTooltip(
+        hovered.userData['nodeData'] as GraphNode,
+        event
+      );
     } else {
       if (this.hoveredNode) {
         this.setHoverState(this.hoveredNode, false);
         this.hoveredNode = null;
       }
+
+      this.updateHoverTooltip(null);
       document.body.style.cursor = 'default';
     }
   };
@@ -782,6 +808,7 @@ export class Graph3d implements AfterViewInit, OnDestroy {
 
   private onPointerUp = (event: PointerEvent): void => {
     if (!this.draggedNode) {
+
       return;
     }
 
@@ -878,9 +905,31 @@ export class Graph3d implements AfterViewInit, OnDestroy {
     this.selectedRing.lookAt(this.camera.position);
   };
 
+  private updateHoverTooltip(
+    node: GraphNode | null,
+    event?: PointerEvent
+  ): void {
+    if (!node || !event) {
+      this.hoverTooltip.visible = false;
+      this.hoverTooltip.node = null;
+      this.cdr.detectChanges();
+      return;
+    }
+
+    const rect = this.canvasRef.nativeElement.getBoundingClientRect();
+
+    this.hoverTooltip.visible = true;
+    this.hoverTooltip.node = node;
+    this.hoverTooltip.x = event.clientX - rect.left + 16;
+    this.hoverTooltip.y = event.clientY - rect.top + 16;
+
+    this.cdr.detectChanges();
+  };
+
   private resize(): void {
     const canvas = this.canvasRef.nativeElement;
     const rect = canvas.getBoundingClientRect();
+    
     const width = Math.max(1, Math.floor(rect.width));
     const height = Math.max(1, Math.floor(rect.height));
 

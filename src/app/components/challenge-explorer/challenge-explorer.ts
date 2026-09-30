@@ -1,4 +1,4 @@
-import { Component, OnInit, inject, input, signal } from '@angular/core';
+import { Component, OnInit, inject, Input, signal } from '@angular/core';
 import { STEMgraphApiService } from '../../service/stemgraph-api.service';
 import { ChallengeListResponse, GraphResponse } from '../../api/models';
 import { ChallengeGraph } from '../challenge-graph/challenge-graph';
@@ -14,7 +14,7 @@ type ExplorerView = 'sphere' | 'graph' | 'list';
 export class ChallengeExplorer implements OnInit {
   private readonly stemgraphApi = inject(STEMgraphApiService);
 
-  readonly isAdmin = input(false);
+  @Input() isAdmin = false;
 
   protected readonly viewMode = signal<ExplorerView>('sphere');
   protected readonly isLoading = signal(false);
