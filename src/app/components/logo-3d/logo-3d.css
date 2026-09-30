@@ -5,7 +5,7 @@
   justify-content: center;
 
   width: min(60vw, 1100px);
-  height: clamp(60px, 16vw, 260px);
+  height: clamp(60px, 16vw, 240px);
 
   margin: 0 auto;
   overflow: hidden;
