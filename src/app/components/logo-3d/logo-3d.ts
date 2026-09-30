@@ -1,26 +1,24 @@
 import { AfterViewInit, Component, ElementRef, Input, NgZone, OnDestroy, ViewChild, inject, PLATFORM_ID } from '@angular/core';
 import * as THREE from 'three';
-import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
-import { FontLoader } from 'three/examples/jsm/loaders/FontLoader.js';
-import { TextGeometry } from 'three/examples/jsm/geometries/TextGeometry.js';
 import { isPlatformBrowser } from '@angular/common';
 
-export interface StemgraphLogoConfig {
-  textStem: string;
-  textGraph: string;
-  size: number;
-  depth: number;
-  bevelThickness: number;
-  bevelSize: number;
-  bevelSegments: number;
-  stemColor: number;
-  graphColor: number;
-  metalness: number;
-  roughness: number;
-  clearcoat: number;
-  rotationSpeed: number;
-  signatureLine: boolean;
+export type Vec3 = [number, number, number];
+
+export interface Logo3dLight {
+  color: number;
+  intensity: number;
+  ground?: number;
+  position?: Vec3;
+}
+
+export interface Logo3dLightConfig {
+  ambient: Logo3dLight;
+  key: Logo3dLight;
+  rimLeft: Logo3dLight;
+  rimRight: Logo3dLight;
+  rimTop: Logo3dLight;
+  exposure: number;
 }
 
 @Component({
@@ -29,39 +27,30 @@ export interface StemgraphLogoConfig {
   templateUrl: './logo-3d.html',
   styleUrl: './logo-3d.css',
 })
+
 export class Logo3d implements AfterViewInit, OnDestroy {
   private readonly platformId = inject(PLATFORM_ID);
 
   @ViewChild('canvas', { static: true })
   private canvasRef!: ElementRef<HTMLCanvasElement>;
 
-  @Input() autoRotate = false;
   @Input() mouseParallax = true;
   @Input() scrollAnimation = true;
   @Input() glbUrl?: string;
 
-  readonly config: StemgraphLogoConfig = {
-    textStem: 'STEM',
-    textGraph: 'graph',
-    size: 1.28,
-    depth: 0.30,
-    bevelThickness: 0.045,
-    bevelSize: 0.035,
-    bevelSegments: 5,
-    stemColor: 0xf7faff,
-    graphColor: 0x78a8ff,
-    metalness: 0.72,
-    roughness: 0.20,
-    clearcoat: 1,
-    rotationSpeed: 0.00025,
-    signatureLine: true,
+  readonly lightConfig: Logo3dLightConfig = {
+    ambient:   { color: 0x1a918c, ground: 0x1a918c, intensity: 5 },
+    key:       { color: 0xffffff, intensity: 2.5, position: [0.6, -0.2, 0.7] },
+    rimLeft:   { color: 0x2ac2bb, intensity: 30, position: [-4, -2, -4] },
+    rimRight:  { color: 0x772093, intensity: 40, position: [4, 2, -4] },
+    rimTop:    { color: 0xffffff, intensity: 7, position: [0, 4, -3] },
+    exposure: 1.2,
   };
 
   private renderer!: THREE.WebGLRenderer;
   private scene!: THREE.Scene;
   private camera!: THREE.PerspectiveCamera;
   private logo = new THREE.Group();
-  private controls?: OrbitControls;
 
   private animationId = 0;
   private resizeObserver?: ResizeObserver;
@@ -83,7 +72,7 @@ export class Logo3d implements AfterViewInit, OnDestroy {
       this.bindInteraction();
       this.animate();
     });
-  }
+  };
 
   private initScene(): void {
     const canvas = this.canvasRef.nativeElement;
@@ -104,28 +93,13 @@ export class Logo3d implements AfterViewInit, OnDestroy {
     this.renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
     this.renderer.outputColorSpace = THREE.SRGBColorSpace;
     this.renderer.toneMapping = THREE.ACESFilmicToneMapping;
-    this.renderer.toneMappingExposure = 1.1;
 
-    this.scene.add(new THREE.HemisphereLight(0xdbeafe, 0x050912, 2.2));
-
-    const key = new THREE.DirectionalLight(0xffffff, 6);
-    key.position.set(4, 5, 8);
-    this.scene.add(key);
-
-    const blue = new THREE.PointLight(0x4f8cff, 14, 18);
-    blue.position.set(-4, 1, -2);
-    this.scene.add(blue);
-
-    const violet = new THREE.PointLight(0xa855f7, 7, 16);
-    violet.position.set(5, -1, -2);
-    this.scene.add(violet);
+    this.setupLights();
 
     this.scene.add(this.logo);
 
     if (this.glbUrl) {
       this.loadGlb(this.glbUrl);
-    } else {
-      this.buildProceduralLogo();
     }
 
     this.resizeObserver = new ResizeObserver(() => this.resize());
@@ -139,75 +113,23 @@ export class Logo3d implements AfterViewInit, OnDestroy {
       { threshold: 0.01 }
     );
     this.intersectionObserver.observe(canvas);
-  }
+  };
 
-  private buildProceduralLogo(): void {
-    const loader = new FontLoader();
+  private setupLights(): void {
+    const { ambient, key, rimLeft, rimRight, rimTop, exposure } = this.lightConfig;
 
-    loader.load(
-      '/assets/stemgraph/helvetiker_bold.typeface.json',
-      font => {
-        const stem = this.createText(font, this.config.textStem, this.config.stemColor);
-        const graph = this.createText(font, this.config.textGraph, this.config.graphColor);
+    this.renderer.toneMappingExposure = exposure;
 
-        const gap = 0.08;
-        const total = stem.width + gap + graph.width;
-
-        stem.mesh.position.x = -total / 2 + stem.width / 2;
-        graph.mesh.position.x =
-          -total / 2 + stem.width + gap + graph.width / 2;
-        graph.mesh.position.z = 0.035;
-
-        this.logo.add(stem.mesh, graph.mesh);
-
-        if (this.config.signatureLine) {
-          const line = new THREE.Mesh(
-            new THREE.BoxGeometry(total * 0.72, 0.018, 0.018),
-            new THREE.MeshBasicMaterial({
-              color: this.config.graphColor,
-              transparent: true,
-              opacity: 0.85,
-            })
-          );
-          line.position.set(total * 0.13, -0.72, 0.15);
-          this.logo.add(line);
-        }
-      }
+    this.scene.add(
+      new THREE.HemisphereLight(ambient.color, ambient.ground, ambient.intensity)
     );
-  }
 
-  private createText(font: any, text: string, color: number) {
-    const geometry = new TextGeometry(text, {
-      font,
-      size: this.config.size,
-      depth: this.config.depth,
-      curveSegments: 16,
-      bevelEnabled: true,
-      bevelThickness: this.config.bevelThickness,
-      bevelSize: this.config.bevelSize,
-      bevelSegments: this.config.bevelSegments,
+    [key, rimLeft, rimRight, rimTop].forEach(config => {
+      const light = new THREE.DirectionalLight(config.color, config.intensity);
+      light.position.set(...config.position!);
+      this.scene.add(light);
     });
-
-    geometry.computeBoundingBox();
-
-    const width =
-      geometry.boundingBox!.max.x - geometry.boundingBox!.min.x;
-
-    geometry.translate(-width / 2, -0.55, 0);
-
-    const material = new THREE.MeshPhysicalMaterial({
-      color,
-      metalness: this.config.metalness,
-      roughness: this.config.roughness,
-      clearcoat: this.config.clearcoat,
-      clearcoatRoughness: 0.08,
-    });
-
-    const mesh = new THREE.Mesh(geometry, material);
-    mesh.castShadow = true;
-
-    return { mesh, width };
-  }
+  };
 
   private loadGlb(url: string): void {
     const loader = new GLTFLoader();
@@ -240,7 +162,7 @@ export class Logo3d implements AfterViewInit, OnDestroy {
         console.error('STEMgraph GLB could not be loaded:', error);
       }
     );
-  }
+  };
 
   private bindInteraction(): void {
     if (this.mouseParallax) {
@@ -249,23 +171,12 @@ export class Logo3d implements AfterViewInit, OnDestroy {
       });
     }
 
-    if (this.scrollAnimation) {
-      window.addEventListener('scroll', this.onScroll, {
-        passive: true,
-      });
-    }
-
     window.addEventListener('blur', this.onBlur);
-  }
+  };
 
   private onPointerMove = (event: PointerEvent): void => {
     this.targetX = (event.clientX / window.innerWidth - 0.4) * 2;
     this.targetY = (event.clientY / window.innerHeight - 0.4) * 2;
-  };
-
-  private onScroll = (): void => {
-    const rect = this.canvasRef.nativeElement.getBoundingClientRect();
-    const viewport = window.innerHeight;
   };
 
   private onBlur = (): void => {
@@ -283,18 +194,7 @@ export class Logo3d implements AfterViewInit, OnDestroy {
     this.renderer.setSize(width, height, false);
     this.camera.aspect = width / height;
     this.camera.updateProjectionMatrix();
-  }
-
-  private berechneLogoSkalierung(): number {
-    const canvas = this.canvasRef.nativeElement;
-    const breite = canvas.getBoundingClientRect().width;
-
-    return THREE.MathUtils.clamp(
-      breite / 900,
-      0.55,
-      1.1
-    );
-  }
+  };
 
   private animate = (): void => {
     this.animationId = requestAnimationFrame(this.animate);
@@ -342,7 +242,6 @@ export class Logo3d implements AfterViewInit, OnDestroy {
       );
     }
 
-    this.controls?.update();
     this.renderer.render(this.scene, this.camera);
   };
 
@@ -353,11 +252,9 @@ export class Logo3d implements AfterViewInit, OnDestroy {
 
     this.resizeObserver?.disconnect();
     this.intersectionObserver?.disconnect();
-    this.controls?.dispose();
 
     if (typeof window !== 'undefined') {
       window.removeEventListener('pointermove', this.onPointerMove);
-      window.removeEventListener('scroll', this.onScroll);
       window.removeEventListener('blur', this.onBlur);
     }
 
@@ -374,5 +271,5 @@ export class Logo3d implements AfterViewInit, OnDestroy {
     });
 
     this.renderer?.dispose();
-  }
+  };
 }
