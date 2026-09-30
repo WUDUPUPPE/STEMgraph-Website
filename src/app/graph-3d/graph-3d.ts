@@ -37,22 +37,26 @@ export interface Graph3dConfig {
   nodeClearcoatRoughness: number;
   nodeSegments: number;
 
+  nodeHoverScale: number;
+  nodeHoverTransitionSpeed: number;
+
   nodeShadowEnabled: boolean;
   nodeShadowScale: number;
   nodeShadowColor: number;
   nodeShadowOpacity: number;
+
+  selectedRingEnabled: boolean;
+  selectedRingColor: number;
+  selectedRingOpacity: number;
+  selectedRingScale: number;
+  selectedRingPulseSpeed: number;
+  selectedRingPulseStrength: number;
 
   edgeColor: number;
   edgeOpacity: number;
   edgeHoverOpacity: number;
 
   layoutRadius: number;
-
-  nodePulseEnabled: boolean;
-  nodePulseSpeed: number;
-  nodePulseStrength: number;
-  nodeHoverScale: number;
-  nodeHoverTransitionSpeed: number;
 
   edgeFlowEnabled: boolean;
   edgeFlowSpeed: number;
@@ -74,6 +78,17 @@ export interface GraphClusterConfig {
   centerForce: number;
   damping: number;
   iterations: number;
+
+  livePhysicsEnabled: boolean;
+  livePhysicsStrength: number;
+  livePhysicsDamping: number;
+  livePhysicsMaxDistance: number;
+
+  physicsFramesRemaining: number;
+
+  liveSpringStrength: number;
+  liveSpringDistance: number;
+  liveNeighborPull: number;
 
   edgeOpacity: number;
   edgeFlowSpeed: number;
@@ -105,9 +120,6 @@ export class Graph3d implements AfterViewInit, OnDestroy {
   @Input() interactive = true;
   @Input() layoutMode: GraphLayoutMode = 'sphere';
 
-  /**
-   * Alle visuellen Werte an einer Stelle.
-   */
   readonly config: Graph3dConfig = {
     nodeBaseRadius: 0.08,
     nodeDegreeScale: 0.01,
@@ -122,22 +134,26 @@ export class Graph3d implements AfterViewInit, OnDestroy {
     nodeClearcoatRoughness: 0.1,
     nodeSegments: 20,
 
+    nodeHoverScale: 1.12,
+    nodeHoverTransitionSpeed: 0.15,
+
     nodeShadowEnabled: true,
     nodeShadowScale: 1.03,
     nodeShadowColor: 0x572368,
     nodeShadowOpacity: 0.77,
+
+    selectedRingEnabled: true,
+    selectedRingColor: 0x1a918c,
+    selectedRingOpacity: 0.45,
+    selectedRingScale: 1.1,
+    selectedRingPulseSpeed: 2,
+    selectedRingPulseStrength: 0.15,
 
     edgeColor: 0xffffff,
     edgeOpacity: 0.15,
     edgeHoverOpacity: 0.85,
 
     layoutRadius: 3,
-
-    nodePulseEnabled: false,
-    nodePulseSpeed: 0.3,
-    nodePulseStrength: 0.06,
-    nodeHoverScale: 1.15,
-    nodeHoverTransitionSpeed: 0.15,
 
     edgeFlowEnabled: true,
     edgeFlowSpeed: 0.05,
@@ -160,13 +176,24 @@ export class Graph3d implements AfterViewInit, OnDestroy {
     damping: 0.92,
     iterations: 220,
 
+    livePhysicsEnabled: true,
+    livePhysicsStrength: 0.18,
+    livePhysicsDamping: 0.28,
+    livePhysicsMaxDistance: 600,
+
+    physicsFramesRemaining: 240,
+
+    liveSpringStrength: 0.05,
+    liveSpringDistance: 0.4,
+    liveNeighborPull: 0.08,
+
     edgeOpacity: 0.15,
     edgeFlowSpeed: 0.14,
     edgeFlowOpacity: 0.70,
     edgeFlowSegmentsPerEdge: 5,
     edgeFlowSegmentLength: 0.06,
 
-    minZoom: 16,
+    minZoom: 12,
     maxZoom: 62,
   };
 
@@ -177,16 +204,25 @@ export class Graph3d implements AfterViewInit, OnDestroy {
   private controls?: OrbitControls;
 
   private nodes = new Map<string, THREE.Mesh>();
+  private nodeShadows = new Map<string, THREE.Mesh>();
   private nodeBaseScale = new Map<string, number>();
   private edges: THREE.Line[] = [];
   private edgeMaterials: THREE.LineBasicMaterial[] = [];
   private edgeFlows: THREE.Line[] = [];
 
+  private edgeConnections = new Map<
+    THREE.Line,
+    {
+      sourceId: string;
+      targetId: string;
+    }
+  >();
+
   private edgeFlowPaths = new Map<
     THREE.Line,
     {
-      source: THREE.Vector3;
-      target: THREE.Vector3;
+      sourceId: string;
+      targetId: string;
       offset: number;
     }
   >();
@@ -195,6 +231,17 @@ export class Graph3d implements AfterViewInit, OnDestroy {
   private mouse = new THREE.Vector2();
   private hoveredNode: THREE.Mesh | null = null;
   private selectedNode: GraphNode | null = null;
+  private selectedRing: THREE.Mesh | null = null;
+  private draggedNode: THREE.Mesh | null = null;
+  private dragPlane = new THREE.Plane();
+  private dragIntersection = new THREE.Vector3();
+  private dragOffset = new THREE.Vector3();
+  private dragStartPosition = new THREE.Vector3();
+  private dragEdgeLengths = new Map<THREE.Line, number>();
+
+  private physicsFramesRemaining = 0;
+
+  private liveVelocities = new Map<string, THREE.Vector3>();
 
   private timer = new Timer();
   private animationId = 0;
@@ -215,7 +262,7 @@ export class Graph3d implements AfterViewInit, OnDestroy {
       }
       this.animate();
     });
-  }
+  };
 
   private initScene(): void {
     const canvas = this.canvasRef.nativeElement;
@@ -263,7 +310,7 @@ export class Graph3d implements AfterViewInit, OnDestroy {
     this.resizeObserver = new ResizeObserver(() => this.resize());
     this.resizeObserver.observe(canvas);
     this.resize();
-  }
+  };
 
   private buildGraph(data: GraphData): void {
     while (this.graph.children.length > 0) {
@@ -276,7 +323,9 @@ export class Graph3d implements AfterViewInit, OnDestroy {
     }
 
     this.nodes.clear();
+    this.nodeShadows.clear();
     this.nodeBaseScale.clear();
+    this.liveVelocities.clear();
 
     this.edges.forEach(edge => edge.geometry.dispose());
     this.edgeMaterials.forEach(material => material.dispose());
@@ -290,6 +339,7 @@ export class Graph3d implements AfterViewInit, OnDestroy {
     this.edgeMaterials = [];
     this.edgeFlows = [];
     this.edgeFlowPaths.clear();
+    this.edgeConnections.clear();
 
     const degreeById = new Map<string, number>();
     data.nodes.forEach(node => degreeById.set(node.id, 0));
@@ -356,6 +406,7 @@ export class Graph3d implements AfterViewInit, OnDestroy {
         shadowMesh.position.copy(position);
 
         this.graph.add(shadowMesh);
+        this.nodeShadows.set(node.id, shadowMesh);
       }
       mesh.userData['nodeId'] = node.id;
       mesh.userData['nodeData'] = node;
@@ -363,6 +414,10 @@ export class Graph3d implements AfterViewInit, OnDestroy {
 
       this.graph.add(mesh);
       this.nodes.set(node.id, mesh);
+      this.liveVelocities.set(
+        node.id,
+        new THREE.Vector3()
+      );
       this.nodeBaseScale.set(node.id, 1);
     });
 
@@ -394,6 +449,10 @@ export class Graph3d implements AfterViewInit, OnDestroy {
       this.graph.add(line);
       this.edges.push(line);
       this.edgeMaterials.push(edgeMaterial);
+      this.edgeConnections.set(line, {
+        sourceId: edge.source,
+        targetId: edge.target,
+      });
 
       if (this.config.edgeFlowEnabled) {
       const flowCount =
@@ -425,8 +484,8 @@ export class Graph3d implements AfterViewInit, OnDestroy {
           this.edgeFlows.push(flowLine);
 
           this.edgeFlowPaths.set(flowLine, {
-            source: sourcePos.clone(),
-            target: targetPos.clone(),
+            sourceId: edge.source,
+            targetId: edge.target,
             offset: edgeOffset + index / flowCount,
           });
         }
@@ -445,7 +504,7 @@ export class Graph3d implements AfterViewInit, OnDestroy {
 
       this.controls.update();
     }
-  }
+  };
 
   private computeSpherePositions(
     data: GraphData
@@ -476,7 +535,7 @@ export class Graph3d implements AfterViewInit, OnDestroy {
     });
 
     return positions;
-  }
+  };
 
   private computeClusterPositions(
     data: GraphData
@@ -589,12 +648,14 @@ export class Graph3d implements AfterViewInit, OnDestroy {
     }
 
     return positions;
-  }
+  };
 
   private bindInteraction(): void {
-    window.addEventListener('pointermove', this.onPointerMove, { passive: true });
     window.addEventListener('click', this.onClick, { passive: true });
-  }
+    window.addEventListener('pointermove', this.onPointerMove, { passive: true });
+    window.addEventListener('pointerdown', this.onPointerDown, { passive: false });
+    window.addEventListener('pointerup', this.onPointerUp, { passive: true });
+  };
 
   private onPointerMove = (event: PointerEvent): void => {
     const rect = this.canvasRef.nativeElement.getBoundingClientRect();
@@ -602,6 +663,39 @@ export class Graph3d implements AfterViewInit, OnDestroy {
     this.mouse.y = -((event.clientY - rect.top) / rect.height) * 2 + 1;
 
     this.raycaster.setFromCamera(this.mouse, this.camera);
+    if (this.draggedNode) {
+      if (
+        this.raycaster.ray.intersectPlane(
+          this.dragPlane,
+          this.dragIntersection
+        )
+      ) {
+        const previousPosition = this.draggedNode.position.clone();
+
+          this.draggedNode.position.copy(
+            this.dragIntersection.clone().add(this.dragOffset)
+          );
+
+          const draggedNodeId =
+            this.draggedNode.userData['nodeId'] as string;
+
+          const movement = this.draggedNode.position
+            .clone()
+            .sub(previousPosition);
+
+          this.updateNodeShadow(draggedNodeId);
+
+          this.applyLiveClusterPhysics(
+            draggedNodeId,
+            movement
+          );
+
+          this.updateConnectedEdges();
+      }
+
+      return;
+    }
+
     const intersects = this.raycaster.intersectObjects(
       Array.from(this.nodes.values())
     );
@@ -623,6 +717,89 @@ export class Graph3d implements AfterViewInit, OnDestroy {
     }
   };
 
+  private onPointerDown = (event: PointerEvent): void => {
+    if (
+      this.layoutMode !== 'cluster' ||
+      !this.hoveredNode
+    ) {
+      return;
+    }
+
+    const rect = this.canvasRef.nativeElement.getBoundingClientRect();
+
+    this.mouse.x =
+      ((event.clientX - rect.left) / rect.width) * 2 - 1;
+
+    this.mouse.y =
+      -((event.clientY - rect.top) / rect.height) * 2 + 1;
+
+    this.raycaster.setFromCamera(this.mouse, this.camera);
+
+    this.draggedNode = this.hoveredNode;
+    this.dragStartPosition.copy(this.draggedNode.position);
+    this.dragEdgeLengths.clear();
+
+    this.edgeConnections.forEach((connection, line) => {
+      const source = this.nodes.get(connection.sourceId);
+      const target = this.nodes.get(connection.targetId);
+
+      if (!source || !target) {
+        return;
+      }
+
+      this.dragEdgeLengths.set(
+        line,
+        source.position.distanceTo(target.position)
+      );
+    });
+
+    const cameraDirection = new THREE.Vector3();
+    this.camera.getWorldDirection(cameraDirection);
+
+    this.dragPlane.setFromNormalAndCoplanarPoint(
+      cameraDirection,
+      this.draggedNode.position
+    );
+
+    if (
+      this.raycaster.ray.intersectPlane(
+        this.dragPlane,
+        this.dragIntersection
+      )
+    ) {
+      this.dragOffset.copy(this.draggedNode.position)
+        .sub(this.dragIntersection);
+    }
+
+    this.controls!.enabled = false;
+
+    this.canvasRef.nativeElement.setPointerCapture(
+      event.pointerId
+    );
+
+    document.body.style.cursor = 'grabbing';
+  };
+
+  private onPointerUp = (event: PointerEvent): void => {
+    if (!this.draggedNode) {
+      return;
+    }
+
+    this.canvasRef.nativeElement.releasePointerCapture(
+      event.pointerId
+    );
+
+    this.draggedNode = null;
+    this.physicsFramesRemaining = this.clusterConfig.physicsFramesRemaining;
+    this.dragEdgeLengths.clear();
+
+    if (this.controls) {
+      this.controls.enabled = true;
+    }
+
+    document.body.style.cursor = 'default';
+  };
+
   private setHoverState(mesh: THREE.Mesh | null, isHovered: boolean): void {
     if (!mesh) return;
 
@@ -632,14 +809,73 @@ export class Graph3d implements AfterViewInit, OnDestroy {
 
     const nodeId = mesh.userData['nodeId'] as string;
     this.nodeBaseScale.set(nodeId, isHovered ? this.config.nodeHoverScale : 1);
-  }
+  };
 
   private onClick = (): void => {
-    if (this.hoveredNode) {
-      const nodeData = this.hoveredNode.userData['nodeData'] as GraphNode;
-      this.selectedNode = nodeData;
-      console.log('Selected node:', nodeData);
+    if (!this.hoveredNode) {
+      return;
     }
+
+    const nodeData =
+      this.hoveredNode.userData['nodeData'] as GraphNode;
+
+    this.selectedNode = nodeData;
+
+    console.log('Selected node:', nodeData);
+  };
+
+  private updateSelectedRing(): void {
+    if (!this.config.selectedRingEnabled || !this.selectedNode) {
+      this.selectedRing?.removeFromParent();
+      this.selectedRing = null;
+      return;
+    }
+
+    const mesh = this.nodes.get(this.selectedNode.id);
+
+    if (!mesh) {
+      return;
+    }
+
+    if (!this.selectedRing) {
+      const ringGeometry = new THREE.TorusGeometry(
+        1,
+        0.06,
+        10,
+        32
+      );
+
+      const ringMaterial = new THREE.MeshBasicMaterial({
+        color: this.config.selectedRingColor,
+        transparent: true,
+        opacity: this.config.selectedRingOpacity,
+        depthWrite: false,
+      });
+
+      this.selectedRing = new THREE.Mesh(
+        ringGeometry,
+        ringMaterial
+      );
+
+      this.graph.add(this.selectedRing);
+    }
+
+    const elapsed = this.timer.getElapsed();
+
+    const pulse =
+      1 +
+      Math.sin(elapsed * this.config.selectedRingPulseSpeed) *
+        this.config.selectedRingPulseStrength;
+
+    const radius = mesh.geometry.boundingSphere?.radius ?? 0.1;
+
+    this.selectedRing.position.copy(mesh.position);
+
+    this.selectedRing.scale.setScalar(
+      radius * this.config.selectedRingScale * pulse
+    );
+
+    this.selectedRing.lookAt(this.camera.position);
   };
 
   private resize(): void {
@@ -651,7 +887,7 @@ export class Graph3d implements AfterViewInit, OnDestroy {
     this.renderer.setSize(width, height, false);
     this.camera.aspect = width / height;
     this.camera.updateProjectionMatrix();
-  }
+  };
 
   private animate = (): void => {
   if (this.destroyed) return;
@@ -662,6 +898,8 @@ export class Graph3d implements AfterViewInit, OnDestroy {
   if (!this.destroyed) {
     this.updateNodeAnimation();
     this.updateEdgeFlows();
+    this.updateSelectedRing();
+    this.updateClusterPhysics();
   }
 
   this.controls?.update();
@@ -677,14 +915,6 @@ export class Graph3d implements AfterViewInit, OnDestroy {
 
       let targetScale = baseScale;
 
-      if (this.config.nodePulseEnabled && !isHovered) {
-        const pulse =
-          1 +
-          Math.sin(elapsed * this.config.nodePulseSpeed + mesh.position.x) *
-            this.config.nodePulseStrength;
-        targetScale = baseScale * pulse;
-      }
-
       mesh.scale.setScalar(
         THREE.MathUtils.lerp(
           mesh.scale.x,
@@ -693,7 +923,7 @@ export class Graph3d implements AfterViewInit, OnDestroy {
         )
       );
     });
-  }
+  };
 
   private updateEdgeFlows(): void {
     if (!this.config.edgeFlowEnabled) {
@@ -709,6 +939,16 @@ export class Graph3d implements AfterViewInit, OnDestroy {
         return;
       }
 
+      const source = this.nodes.get(path.sourceId);
+      const target = this.nodes.get(path.targetId);
+
+      if (!source || !target) {
+        return;
+      }
+
+      const sourcePosition = source.position;
+      const targetPosition = target.position;
+
       const flowSpeed =
         this.layoutMode === 'cluster'
           ? this.clusterConfig.edgeFlowSpeed
@@ -718,7 +958,7 @@ export class Graph3d implements AfterViewInit, OnDestroy {
         (elapsed * flowSpeed + path.offset) % 1;
 
       const direction = new THREE.Vector3()
-        .subVectors(path.target, path.source);
+      .subVectors(targetPosition, sourcePosition);
 
       const edgeLength = direction.length();
 
@@ -729,7 +969,7 @@ export class Graph3d implements AfterViewInit, OnDestroy {
       direction.normalize();
 
       const start = new THREE.Vector3()
-        .lerpVectors(path.source, path.target, progress);
+        .lerpVectors(sourcePosition, targetPosition, progress);
 
       const segmentLength =
         this.layoutMode === 'cluster'
@@ -760,7 +1000,272 @@ export class Graph3d implements AfterViewInit, OnDestroy {
 
       positionAttribute.needsUpdate = true;
     });
-  }
+  };
+
+  private updateConnectedEdges(): void {
+    this.edgeConnections.forEach((connection, line) => {
+      const source = this.nodes.get(connection.sourceId);
+      const target = this.nodes.get(connection.targetId);
+
+      if (!source || !target) {
+        return;
+      }
+
+      const positions = line.geometry.getAttribute(
+        'position'
+      ) as THREE.BufferAttribute;
+
+      positions.setXYZ(
+        0,
+        source.position.x,
+        source.position.y,
+        source.position.z
+      );
+
+      positions.setXYZ(
+        1,
+        target.position.x,
+        target.position.y,
+        target.position.z
+      );
+
+      positions.needsUpdate = true;
+    });
+  };
+
+  private updateNodeShadow(nodeId: string): void {
+    const node = this.nodes.get(nodeId);
+    const shadow = this.nodeShadows.get(nodeId);
+
+    if (!node || !shadow) {
+      return;
+    }
+
+    shadow.position.copy(node.position);
+  };
+
+  private applyLiveClusterPhysics(
+    draggedNodeId: string,
+    movement: THREE.Vector3
+  ): void {
+    if (
+      this.layoutMode !== 'cluster' ||
+      !this.clusterConfig.livePhysicsEnabled ||
+      movement.lengthSq() === 0 ||
+      !this.draggedNode
+    ) {
+      return;
+    }
+
+    const distanceById = new Map<string, number>();
+    const queue: string[] = [draggedNodeId];
+
+    distanceById.set(draggedNodeId, 0);
+
+    while (queue.length > 0) {
+      const currentId = queue.shift();
+
+      if (!currentId) {
+        continue;
+      }
+
+      const graphDistance = distanceById.get(currentId) ?? 0;
+
+      if (
+        graphDistance >=
+        this.clusterConfig.livePhysicsMaxDistance
+      ) {
+        continue;
+      }
+
+      this.edgeConnections.forEach(connection => {
+        let neighborId: string | null = null;
+
+        if (connection.sourceId === currentId) {
+          neighborId = connection.targetId;
+        } else if (connection.targetId === currentId) {
+          neighborId = connection.sourceId;
+        }
+
+        if (!neighborId || distanceById.has(neighborId)) {
+          return;
+        }
+
+        distanceById.set(neighborId, graphDistance + 1);
+        queue.push(neighborId);
+      });
+    }
+
+    distanceById.forEach((graphDistance, nodeId) => {
+      if (nodeId === draggedNodeId || graphDistance === 0) {
+        return;
+      }
+
+      const node = this.nodes.get(nodeId);
+
+      if (!node) {
+        return;
+      }
+
+      const falloff = 1 / (graphDistance * graphDistance);
+
+      node.position.add(
+        movement.clone().multiplyScalar(
+          this.clusterConfig.livePhysicsStrength * falloff
+        )
+      );
+
+      this.updateNodeShadow(nodeId);
+    });
+
+    this.edgeConnections.forEach((connection, line) => {
+      const sourceDistance = distanceById.get(connection.sourceId);
+      const targetDistance = distanceById.get(connection.targetId);
+
+      if (
+        sourceDistance === undefined ||
+        targetDistance === undefined
+      ) {
+        return;
+      }
+
+      const source = this.nodes.get(connection.sourceId);
+      const target = this.nodes.get(connection.targetId);
+      const originalLength = this.dragEdgeLengths.get(line);
+
+      if (!source || !target || originalLength === undefined) {
+        return;
+      }
+
+      const difference = target.position
+        .clone()
+        .sub(source.position);
+
+      const currentLength = difference.length();
+
+      if (currentLength === 0) {
+        return;
+      }
+
+      const change = currentLength - originalLength;
+
+      const correction = difference
+        .normalize()
+        .multiplyScalar(
+          change * this.clusterConfig.livePhysicsStrength
+        );
+
+      if (source !== this.draggedNode) {
+        source.position.add(correction.clone().multiplyScalar(0.5));
+        this.updateNodeShadow(connection.sourceId);
+      }
+
+      if (target !== this.draggedNode) {
+        target.position.add(correction.clone().multiplyScalar(-0.5));
+        this.updateNodeShadow(connection.targetId);
+      }
+    });
+  };
+
+  private updateClusterPhysics(): void {
+    const shouldSimulate =
+      this.layoutMode === 'cluster' &&
+      (
+        this.draggedNode !== null ||
+        this.physicsFramesRemaining > 0
+      );
+
+    if (!shouldSimulate) {
+      return;
+    }
+
+    const draggedNodeId = this.draggedNode?.userData['nodeId'] as
+      | string
+      | undefined;
+
+    this.nodes.forEach((nodeA, nodeAId) => {
+      this.nodes.forEach((nodeB, nodeBId) => {
+        if (nodeAId >= nodeBId) {
+          return;
+        }
+
+        const difference = nodeA.position.clone().sub(nodeB.position);
+        const distance = Math.max(difference.length(), 0.01);
+
+        const force = difference
+          .normalize()
+          .multiplyScalar(
+            this.clusterConfig.repulsion / (distance * distance)
+          );
+
+        if (nodeAId !== draggedNodeId) {
+          this.liveVelocities.get(nodeAId)?.add(force);
+        }
+
+        if (nodeBId !== draggedNodeId) {
+          this.liveVelocities.get(nodeBId)?.sub(force);
+        }
+      });
+    });
+
+    this.edgeConnections.forEach(connection => {
+      const source = this.nodes.get(connection.sourceId);
+      const target = this.nodes.get(connection.targetId);
+
+      if (!source || !target) {
+        return;
+      }
+
+      const difference = target.position.clone().sub(source.position);
+      const distance = difference.length();
+
+      if (distance === 0) {
+        return;
+      }
+
+      const direction = difference.normalize();
+
+      const strength =
+        (distance - this.clusterConfig.desiredDistance) *
+        this.clusterConfig.attraction;
+
+      const force = direction.multiplyScalar(strength);
+
+      if (connection.sourceId !== draggedNodeId) {
+        this.liveVelocities.get(connection.sourceId)?.add(force);
+      }
+
+      if (connection.targetId !== draggedNodeId) {
+        this.liveVelocities.get(connection.targetId)?.sub(force);
+      }
+    });
+
+    this.liveVelocities.forEach((velocity, nodeId) => {
+      const node = this.nodes.get(nodeId);
+
+      if (!node || nodeId === draggedNodeId) {
+        return;
+      }
+
+      velocity.add(
+        node.position
+          .clone()
+          .multiplyScalar(-this.clusterConfig.centerForce)
+      );
+
+      velocity.multiplyScalar(this.clusterConfig.damping);
+
+      node.position.add(velocity);
+
+      this.updateNodeShadow(nodeId);
+    });
+
+    this.updateConnectedEdges();
+
+    if (!this.draggedNode && this.physicsFramesRemaining > 0) {
+      this.physicsFramesRemaining--;
+    }
+  };
 
   ngOnDestroy(): void {
     this.destroyed = true;
@@ -774,7 +1279,8 @@ export class Graph3d implements AfterViewInit, OnDestroy {
 
     if (isPlatformBrowser(this.platformId)) {
       window.removeEventListener('pointermove', this.onPointerMove);
-      window.removeEventListener('click', this.onClick);
+      window.removeEventListener('pointerdown', this.onPointerDown);
+      window.removeEventListener('pointerup', this.onPointerUp);
       document.body.style.cursor = 'default';
     }
 
@@ -796,5 +1302,5 @@ export class Graph3d implements AfterViewInit, OnDestroy {
     });
 
     this.renderer?.dispose();
-  }
+  };
 }
