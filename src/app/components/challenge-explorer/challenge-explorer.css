@@ -42,7 +42,7 @@ button {
   border-radius: 0.5rem;
   background: transparent;
   color: #c60000;
-  text-shadow: 0 0 4px #9f0003, 0 0 5px #ea003e;
+  text-shadow: 0 0 3px #9f0003, 0 0 4px #ea003e;
   cursor: pointer;
   width: clamp(40px, 16vw, 70px);
   z-index: 11;
@@ -84,9 +84,7 @@ button.active {
   margin: 0;
   border: 0;
   border-radius: 0;
-  background: transparent;
   color: inherit;
-  cursor: pointer;
   padding: 0.35rem 1rem;
   text-align: left;
   font-size: 0.90rem;
@@ -118,7 +116,7 @@ button.active {
 
 .keyword {
   border-radius: 999px;
-  background: rgba(169, 85, 247, 0.326);
+  background: #a955f753;
   color: #d8b4fe;
   padding: 0.2rem 0.35rem;
   font-size: 0.7rem;

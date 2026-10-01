@@ -2,25 +2,9 @@ import { AfterViewInit, ChangeDetectorRef, Component, ElementRef, Input, NgZone,
 import * as THREE from 'three';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
 import { isPlatformBrowser } from '@angular/common';
+import { GraphResponse, Node, Edge } from '../api/models';
 import { Timer } from 'three';
 
-export interface GraphNode {
-  id: string;
-  teaches?: string;
-  author?: string;
-  firstused?: string;
-  [key: string]: any;
-}
-
-export interface GraphEdge {
-  source: string;
-  target: string;
-}
-
-export interface GraphData {
-  nodes: GraphNode[];
-  edges: GraphEdge[];
-}
 
 export interface Graph3dConfig {
 
@@ -116,7 +100,7 @@ export class Graph3d implements AfterViewInit, OnDestroy {
   @ViewChild('canvas', { static: true })
   private canvasRef!: ElementRef<HTMLCanvasElement>;
 
-  @Input() graphData?: GraphData;
+  @Input() graphData?: GraphResponse | null = null;
   @Input() autoRotate = true;
   @Input() interactive = true;
   @Input() layoutMode: GraphLayoutMode = 'sphere';
@@ -214,7 +198,7 @@ export class Graph3d implements AfterViewInit, OnDestroy {
     visible: false,
     x: 0,
     y: 0,
-    node: null as GraphNode | null,
+    node: null as Node | null,
   };
 
   private edges: THREE.Line[] = [];
@@ -243,7 +227,7 @@ export class Graph3d implements AfterViewInit, OnDestroy {
 
   private hoveredNode: THREE.Mesh | null = null;
 
-  private selectedNode: GraphNode | null = null;
+  private selectedNode: Node | null = null;
   private selectedRing: THREE.Mesh | null = null;
 
   private draggedNode: THREE.Mesh | null = null;
@@ -329,7 +313,7 @@ export class Graph3d implements AfterViewInit, OnDestroy {
     this.resize();
   };
 
-  private buildGraph(data: GraphData): void {
+  private buildGraph(data: GraphResponse): void {
     while (this.graph.children.length > 0) {
       const child = this.graph.children[0];
       this.graph.remove(child);
@@ -524,7 +508,7 @@ export class Graph3d implements AfterViewInit, OnDestroy {
   };
 
   private computeSpherePositions(
-    data: GraphData
+    data: GraphResponse
   ): Map<string, THREE.Vector3> {
     const positions = new Map<string, THREE.Vector3>();
     const { layoutRadius } = this.config;
@@ -555,7 +539,7 @@ export class Graph3d implements AfterViewInit, OnDestroy {
   };
 
   private computeClusterPositions(
-    data: GraphData
+    data: GraphResponse
   ): Map<string, THREE.Vector3> {
     const positions = new Map<string, THREE.Vector3>();
     const velocities = new Map<string, THREE.Vector3>();
@@ -729,7 +713,7 @@ export class Graph3d implements AfterViewInit, OnDestroy {
       }
 
       this.updateHoverTooltip(
-        hovered.userData['nodeData'] as GraphNode,
+        hovered.userData['nodeData'] as Node,
         event
       );
     } else {
@@ -844,7 +828,7 @@ export class Graph3d implements AfterViewInit, OnDestroy {
     }
 
     const nodeData =
-      this.hoveredNode.userData['nodeData'] as GraphNode;
+      this.hoveredNode.userData['nodeData'] as Node;
 
     this.selectedNode = nodeData;
 
@@ -906,7 +890,7 @@ export class Graph3d implements AfterViewInit, OnDestroy {
   };
 
   private updateHoverTooltip(
-    node: GraphNode | null,
+    node: Node | null,
     event?: PointerEvent
   ): void {
     if (!node || !event) {
@@ -929,7 +913,7 @@ export class Graph3d implements AfterViewInit, OnDestroy {
   private resize(): void {
     const canvas = this.canvasRef.nativeElement;
     const rect = canvas.getBoundingClientRect();
-    
+
     const width = Math.max(1, Math.floor(rect.width));
     const height = Math.max(1, Math.floor(rect.height));
 

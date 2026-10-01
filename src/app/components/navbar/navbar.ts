@@ -53,7 +53,6 @@ export class Navbar {
     this.menuOpen = false;
   }
 
-  // closed sidebar only in desktop view
   @HostListener('window:resize')
   onWindowResize(): void {
     if (
@@ -64,7 +63,6 @@ export class Navbar {
     }
   }
 
-  // close sidebar by click outside the menu
   @ViewChild('menuButton')
   private menuButton?: ElementRef<HTMLElement>;
 

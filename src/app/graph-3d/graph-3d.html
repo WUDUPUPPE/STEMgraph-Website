@@ -7,28 +7,35 @@
       [style.left.px]="hoverTooltip.x"
       [style.top.px]="hoverTooltip.y"
     >
-      <div class="node-tooltip-title">
-        {{ node.id }}
-      </div>
-
-      @if (node.teaches) {
-        <div class="node-tooltip-row">
-          <span>Teaches:</span>
-          <span>{{ node.teaches }}</span>
+      @if (node.teaches || node.id) {    
+        <div class="node-tooltip-title">
+            {{ node.teaches || node.id }}
         </div>
       }
 
-      @if (isAdmin && node.author) {
-        <div class="node-tooltip-row">
-          <span>Author:</span>
-          <span>{{ node.author }}</span>
+      @if (node.id) {
+        <div class="node-tooltip-id">
+            ID: {{ node.id }}
         </div>
       }
 
-      @if (isAdmin && node.firstused) {
-        <div class="node-tooltip-row">
-          <span>First used:</span>
-          <span>{{ node.firstused }}</span>
+      @if (node.keywords?.length) {
+        <div class="node-tooltip-keywords">
+            @for (keyword of node.keywords; track keyword) {
+                <span class="node-tooltip-keyword">{{ keyword }}</span>
+            }
+        </div>    
+      }
+
+      @if (isAdmin) {
+        <div class="node-tooltip-admin">
+            <p>
+                <strong>Author:</strong> {{ node.author || 'Not available' }}
+            </p>
+
+            <p>
+                <strong>First used:</strong> {{ node.firstused || 'Not available' }}
+            </p>
         </div>
       }
     </div>

@@ -68,11 +68,7 @@
     <div class="challenge-list">
       @for (challenge of list(); track challenge.id) {
         <article class="challenge-row" [class.is-open]="openedChallengeId() === challenge.id">
-          <button
-            type="button"
-            class="challenge-title"
-            (click)="toggleChallenge(challenge.id)"
-            [attr.aria-expanded]="openedChallengeId() === challenge.id">
+          <button type="button" class="challenge-title" (click)="toggleChallenge(challenge.id)" [attr.aria-expanded]="openedChallengeId() === challenge.id">
 
             {{ challenge.teaches || challenge.id }}
           </button>
@@ -92,13 +88,11 @@
               @if (isAdmin) {
                 <div class="admin-information">
                   <p>
-                    <strong>Author:</strong>
-                    {{ challenge.author || 'Not available' }}
+                    <strong>Author:</strong> {{ challenge.author || 'Not available' }}
                   </p>
 
                   <p>
-                    <strong>First used:</strong>
-                    {{ challenge.firstused || 'Not available' }}
+                    <strong>First used:</strong> {{ challenge.firstused || 'Not available' }}
                   </p>
                 </div>
               }
