@@ -91,11 +91,6 @@ button.active {
   font-family: 'Fugaz One', sans-serif;
 }
 
-.challenge-title:hover,
-.challenge-row.is-open .challenge-title {
-  color: #d8b4fe;
-}
-
 .challenge-details {
   padding: 0 1rem 1rem;
 }
