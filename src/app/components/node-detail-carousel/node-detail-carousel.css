@@ -1,0 +1,373 @@
+:host {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  display: block;
+  pointer-events: auto;
+}
+
+.carousel-backdrop {
+  position: fixed;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  padding-top: clamp(5rem, 12vh, 10rem);
+  padding: 16rem 2rem 2rem;
+  background: #03040f9e;
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  animation: backdrop-in 180ms ease-out both;
+}
+
+.carousel {
+  position: relative;
+  width: min(1550px, 96vw);
+  max-height: 88vh;
+  perspective: 1400px;
+  overflow: hidden;
+}
+
+.carousel-track {
+  display: grid;
+  grid-template-columns:
+    minmax(200PX, 1fr)
+    minmax(400px, 1.5fr)
+    minmax(200PX, 1fr);
+  align-items: center;
+  gap: 3rem;
+  min-height: 430px;
+  max-height: 82vh;
+  transform-style: preserve-3d;
+  overflow: hidden;
+  touch-action: pan-y;
+}
+
+.carousel-side-left,
+.carousel-side-right {
+  display: flex;
+  flex-direction: column;
+  align-self: start;
+  justify-content: flex-start;
+  gap: 1rem;
+  height: 45vh;
+  min-height: 0;
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding: 1rem 0.75rem;
+  overscroll-behavior-y: contain;
+  scrollbar-width: none;
+  transform-style: preserve-3d;
+}
+
+.carousel-side-left {
+  align-items: flex-end;
+  transform: translateZ(-110px) rotateY(-26deg);
+}
+
+.carousel-side-right {
+  align-items: flex-start;
+  transform: translateZ(-110px) rotateY(26deg);
+}
+
+.carousel-side-left,
+.carousel-side-right {
+  position: relative;
+  isolation: isolate;
+  -webkit-mask-repeat: no-repeat;
+  mask-repeat: no-repeat;
+  -webkit-mask-size: 100% 100%;
+  mask-size: 100% 100%;
+}
+
+.carousel-side-left {
+  -webkit-mask-image:
+    linear-gradient(
+      to bottom,
+      transparent 0%,
+      black 5%,
+      black 85%,
+      transparent 100%
+    ),
+    linear-gradient(
+      to left,
+      black 0%,
+      black 20%,
+      black 60%,
+      transparent 100%
+    );
+
+  mask-image:
+    linear-gradient(
+      to bottom,
+      transparent 0%,
+      black 5%,
+      black 85%,
+      transparent 100%
+    ),
+    linear-gradient(
+      to left,
+      black 0%,
+      black 20%,
+      black 60%,
+      transparent 100%
+    );
+
+  -webkit-mask-composite: intersect;
+  mask-composite: intersect;
+}
+
+.carousel-side-right {
+  -webkit-mask-image:
+    linear-gradient(
+      to bottom,
+      transparent 0%,
+      black 5%,
+      black 85%,
+      transparent 100%
+    ),
+    linear-gradient(
+      to right,
+      black 20%,
+      black 60%,
+      transparent 100%
+    );
+
+  mask-image:
+    linear-gradient(
+      to bottom,
+      transparent 0%,
+      black 5%,
+      black 85%,
+      transparent 100%
+    ),
+    linear-gradient(
+      to right,
+      black 20%,
+      black 60%,
+      transparent 100%
+    );
+
+  -webkit-mask-composite: intersect;
+  mask-composite: intersect;
+}
+
+.side-card {
+  width: clamp(190px, 22vw, 450px);
+  min-width: clamp(190px, 22vw, 450px);
+  flex: 0 0 auto;
+  min-height: clamp(190px, 23vh, 250px);
+  padding: clamp(1rem, 1.5vw, 1.5rem);
+  cursor: pointer;
+  opacity: 0.55;
+  overflow-wrap: anywhere;
+  transform: translateZ(-60px) scale(0.86);
+  transition:
+    opacity 180ms ease,
+    transform 180ms ease,
+    filter 180ms ease;
+}
+
+.side-card:hover {
+  opacity: 0.9;
+  filter: none;
+  transform: translateZ(10px) scale(0.92);
+}
+
+.node-card {
+  box-sizing: border-box;
+  border: 1px solid rgba(168, 85, 247, 0.65);
+  border-radius: 18px;
+  color: #f4f1ff;
+  background:
+    linear-gradient(
+      145deg,
+      rgba(17, 31, 42, 0.96),
+      rgba(7, 17, 27, 0.94)
+    );
+  box-shadow:
+    0 0 18px rgba(168, 85, 247, 0.18),
+    inset 0 0 18px rgba(0, 229, 255, 0.04);
+  font: inherit;
+  text-align: left;
+}
+
+.current-card {
+  position: relative;
+  z-index: 3;
+  width: 100%;
+  min-width: clamp(340px, 42vW, 500px);
+  min-height: 380px;
+  padding: 2rem;
+  overflow-wrap: anywhere;
+  transform: translateZ(125px) scale(1.08);
+  animation: current-card-in 260ms ease-out both;
+}
+
+.relation-label {
+  display: block;
+  margin-bottom: 0.75rem;
+  color: #9ffcff;
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.current-card h2,
+.side-card h3 {
+  margin: 0;
+  color: #ffffff;
+  line-height: 1.25;
+}
+
+.current-card h2 {
+  max-width: 100%;
+  overflow-wrap: anywhere;
+  font-size: clamp(0.95rem, 1.2vw, 1.6rem);
+}
+
+.side-card h3 {
+    font-size: clamp(0.75rem, 1.1vw, 1.3rem);
+}
+
+.node-id {
+  margin: 1rem 0;
+  color: #a9a9bb;
+  font-size: 0.8rem;
+  word-break: break-all;
+}
+
+.keywords {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.45rem;
+  margin-top: 1.2rem;
+}
+
+.keywords span {
+  padding: 0.35rem 0.65rem;
+  border-radius: 999px;
+  color: #e8d9ff;
+  background: rgba(126, 76, 177, 0.65);
+  font-size: 0.75rem;
+}
+
+.metadata {
+  margin-top: 1.5rem;
+  padding-top: 1rem;
+  border-top: 1px solid rgba(159, 252, 255, 0.25);
+  color: #d5d5df;
+  font-size: 0.85rem;
+  font-style: italic;
+}
+
+.metadata p {
+  margin: 0.35rem 0;
+}
+
+.close-button {
+  position: absolute;
+  top: -2.5rem;
+  right: 0;
+  z-index: 5;
+  width: 2.2rem;
+  height: 2.2rem;
+  border: 1px solid rgba(159, 252, 255, 0.45);
+  border-radius: 50%;
+  color: #ffffff;
+  background: rgba(9, 22, 32, 0.8);
+  cursor: pointer;
+  font-size: 1.4rem;
+  line-height: 1;
+}
+
+.close-button:hover {
+  color: #9ffcff;
+  border-color: #9ffcff;
+}
+
+@keyframes backdrop-in {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes current-card-in {
+  from {
+    opacity: 0;
+    transform: translateZ(30px) scale(0.92);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateZ(125px) scale(1.08);
+  }
+}
+
+@media (max-width: 850px) {
+  .carousel-backdrop {
+    padding: 4rem 0.75rem 1rem;
+  }
+
+  .carousel {
+    width: 100%;
+    max-height: 92vh;
+  }
+
+  .carousel-track {
+    grid-template-columns:
+      minmax(0, 0.8fr)
+      minmax(190px, 1.4fr)
+      minmax(0, 0.8fr);
+    gap: 0.35rem;
+    min-height: 360px;
+    max-height: 86vh;
+    overflow: hidden;
+  }
+
+  .carousel-side-left,
+  .carousel-side-right {
+    height: 35vh;
+    max-height: 35vh;
+  }
+
+  .carousel-side-left {
+    transform: translateZ(-80px) rotateY(-22deg);
+  }
+
+  .carousel-side-right {
+    transform: translateZ(-80px) rotateY(22deg);
+  }
+
+  .current-card {
+    min-height: 280px;
+    padding: 1rem;
+    transform: translateZ(90px) scale(1);
+  }
+
+  .side-card {
+    width: 100%;
+    min-width: 0;
+    min-height: 125px;
+    padding: 0.7rem;
+    transform: translateZ(-45px) scale(0.78);
+  }
+
+  .keywords {
+    gap: 0.25rem;
+    margin-top: 0.7rem;
+  }
+
+  .keywords span {
+    padding: 0.25rem 0.45rem;
+    font-size: 0.6rem;
+  }
+
+  .close-button {
+    top: -2.4rem;
+  }
+}

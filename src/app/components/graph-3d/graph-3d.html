@@ -1,43 +1,55 @@
 <div class="graph-container">
   <canvas #canvas></canvas>
+  @if (!carouselOpen) {
+    @if (hoverTooltip.visible && hoverTooltip.node; as node) {
+      <div
+        class="node-tooltip"
+        [style.left.px]="hoverTooltip.x"
+        [style.top.px]="hoverTooltip.y"
+      >
+        @if (node.teaches || node.id) {    
+          <div class="node-tooltip-title">
+              {{ node.teaches || node.id }}
+          </div>
+        }
 
-  @if (hoverTooltip.visible && hoverTooltip.node; as node) {
-    <div
-      class="node-tooltip"
-      [style.left.px]="hoverTooltip.x"
-      [style.top.px]="hoverTooltip.y"
-    >
-      @if (node.teaches || node.id) {    
-        <div class="node-tooltip-title">
-            {{ node.teaches || node.id }}
-        </div>
-      }
+        @if (node.id) {
+          <div class="node-tooltip-id">
+              ID: {{ node.id }}
+          </div>
+        }
 
-      @if (node.id) {
-        <div class="node-tooltip-id">
-            ID: {{ node.id }}
-        </div>
-      }
+        @if (node.keywords?.length) {
+          <div class="node-tooltip-keywords">
+              @for (keyword of node.keywords; track keyword) {
+                  <span class="node-tooltip-keyword">{{ keyword }}</span>
+              }
+          </div>    
+        }
 
-      @if (node.keywords?.length) {
-        <div class="node-tooltip-keywords">
-            @for (keyword of node.keywords; track keyword) {
-                <span class="node-tooltip-keyword">{{ keyword }}</span>
-            }
-        </div>    
-      }
+        @if (isAdmin) {
+          <div class="node-tooltip-admin">
+              <p>
+                  <strong>Author:</strong> {{ node.author || 'Not available' }}
+              </p>
 
-      @if (isAdmin) {
-        <div class="node-tooltip-admin">
-            <p>
-                <strong>Author:</strong> {{ node.author || 'Not available' }}
-            </p>
-
-            <p>
-                <strong>First used:</strong> {{ node.firstused || 'Not available' }}
-            </p>
-        </div>
-      }
-    </div>
+              <p>
+                  <strong>First used:</strong> {{ node.firstused || 'Not available' }}
+              </p>
+          </div>
+        }
+      </div>
+    }
   }
+
+  @if (carouselOpen && carouselCurrent; as current) {
+    <app-node-detail-carousel
+      [current]="current"
+      [predecessors]="carouselPredecessors"
+      [successors]="carouselSuccessors"
+      (closed)="closeCarousel()"
+      (nodeSelected)="selectCarouselNode($event)"
+    />
+  }
+
 </div>

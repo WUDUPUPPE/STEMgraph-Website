@@ -1,9 +1,31 @@
-import { Component } from '@angular/core';
+import { Component, EventEmitter, Input, Output } from '@angular/core';
+import { Node } from '../../api/models';
 
 @Component({
-  imports: [],
   selector: 'app-node-detail-carousel',
-  styleUrl: './node-detail-carousel.css',
+  standalone: true,
+  imports: [],
   templateUrl: './node-detail-carousel.html',
+  styleUrl: './node-detail-carousel.css',
 })
-export class NodeDetailCarousel {}
+
+export class NodeDetailCarousel {
+  @Input({ required: true }) current!: Node;
+  @Input() predecessors: Node[] = [];
+  @Input() successors: Node[] = [];
+
+  @Output() closed = new EventEmitter<void>();
+  @Output() nodeSelected = new EventEmitter<Node>();
+
+  selectNode(node: Node): void {
+    this.nodeSelected.emit(node);
+  };
+
+  close(): void {
+    this.closed.emit();
+  };
+
+  trackByNodeId(_: number, node: Node): string {
+    return node.id;
+  };
+}

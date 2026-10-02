@@ -4,6 +4,7 @@ import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
 import { isPlatformBrowser } from '@angular/common';
 import { GraphResponse, Node, Edge } from '../../api/models';
 import { Timer } from 'three';
+import { NodeDetailCarousel } from '../node-detail-carousel/node-detail-carousel';
 
 
 export interface Graph3dConfig {
@@ -89,7 +90,7 @@ export type GraphLayoutMode = 'sphere' | 'cluster';
 @Component({
   selector: 'app-graph-3d',
   standalone: true,
-  imports: [],
+  imports: [NodeDetailCarousel],
   templateUrl: './graph-3d.html',
   styleUrl: './graph-3d.css',
 })
@@ -193,6 +194,7 @@ export class Graph3d implements AfterViewInit, OnDestroy {
   private nodes = new Map<string, THREE.Mesh>();
   private nodeShadows = new Map<string, THREE.Mesh>();
   private nodeBaseScale = new Map<string, number>();
+  private nodeById = new Map<string, Node>();
 
   readonly hoverTooltip = {
     visible: false,
@@ -228,6 +230,10 @@ export class Graph3d implements AfterViewInit, OnDestroy {
   private hoveredNode: THREE.Mesh | null = null;
 
   private selectedNode: Node | null = null;
+  carouselOpen = false;
+  carouselCurrent: Node | null = null;
+  carouselPredecessors: Node[] = [];
+  carouselSuccessors: Node[] = [];
   private selectedRing: THREE.Mesh | null = null;
 
   private draggedNode: THREE.Mesh | null = null;
@@ -327,6 +333,11 @@ export class Graph3d implements AfterViewInit, OnDestroy {
     this.nodeShadows.clear();
     this.nodeBaseScale.clear();
     this.liveVelocities.clear();
+    this.nodeById.clear();
+
+    for (const node of data.nodes) {
+      this.nodeById.set(node.id, node);
+    }
 
     this.edges.forEach(edge => edge.geometry.dispose());
     this.edgeMaterials.forEach(material => material.dispose());
@@ -827,12 +838,17 @@ export class Graph3d implements AfterViewInit, OnDestroy {
       return;
     }
 
-    const nodeData =
-      this.hoveredNode.userData['nodeData'] as Node;
+    const nodeData = this.hoveredNode.userData['nodeData'] as Node;
+    const connections = this.getCarouselConnections(nodeData.id);
 
-    this.selectedNode = nodeData;
-
-    console.log('Selected node:', nodeData);
+    this.zone.run(() => {
+      this.selectedNode = nodeData;
+      this.carouselCurrent = nodeData;
+      this.carouselPredecessors = connections.predecessors;
+      this.carouselSuccessors = connections.successors;
+      this.carouselOpen = true;
+      this.cdr.detectChanges();
+    });
   };
 
   private updateSelectedRing(): void {
@@ -1298,6 +1314,56 @@ export class Graph3d implements AfterViewInit, OnDestroy {
     if (!this.draggedNode && this.physicsFramesRemaining > 0) {
       this.physicsFramesRemaining--;
     }
+  };
+
+  private getCarouselConnections(nodeId: string): {
+    predecessors: Node[];
+    successors: Node[];
+  } {
+    const predecessors: Node[] = [];
+    const successors: Node[] = [];
+
+    if (!this.graphData) {
+      return { predecessors, successors };
+    }
+
+    for (const edge of this.graphData.edges) {
+      if (edge.target === nodeId) {
+        const predecessor = this.nodeById.get(edge.source);
+
+        if (predecessor) {
+          predecessors.push(predecessor);
+        }
+      }
+
+      if (edge.source === nodeId) {
+        const successor = this.nodeById.get(edge.target);
+
+        if (successor) {
+          successors.push(successor);
+        }
+      }
+    }
+
+    return {
+      predecessors,
+      successors,
+    };
+  };
+
+  closeCarousel(): void {
+    this.carouselOpen = false;
+    this.carouselCurrent = null;
+    this.carouselPredecessors = [];
+    this.carouselSuccessors = [];
+  };
+
+  selectCarouselNode(node: Node): void {
+    const connections = this.getCarouselConnections(node.id);
+
+    this.carouselCurrent = node;
+    this.carouselPredecessors = connections.predecessors;
+    this.carouselSuccessors = connections.successors;
   };
 
   ngOnDestroy(): void {
