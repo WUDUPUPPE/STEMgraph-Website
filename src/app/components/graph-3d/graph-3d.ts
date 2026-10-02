@@ -2,7 +2,7 @@ import { AfterViewInit, ChangeDetectorRef, Component, ElementRef, Input, NgZone,
 import * as THREE from 'three';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
 import { isPlatformBrowser } from '@angular/common';
-import { GraphResponse, Node, Edge } from '../api/models';
+import { GraphResponse, Node, Edge } from '../../api/models';
 import { Timer } from 'three';
 
 
