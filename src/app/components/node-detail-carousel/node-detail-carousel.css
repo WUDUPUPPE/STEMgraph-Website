@@ -11,34 +11,31 @@
   inset: 0;
   display: grid;
   place-items: center;
-  padding-top: clamp(5rem, 12vh, 10rem);
-  padding: 16rem 2rem 2rem;
-  background: #03040f9e;
-  backdrop-filter: blur(8px);
+  overflow: hidden;
+  padding: clamp(4.5rem, 18vh, 16rem) clamp(0.5rem, 2vw, 2rem) 1rem;
+  background: #07262461;
+  backdrop-filter: blur(4px);
   -webkit-backdrop-filter: blur(8px);
   animation: backdrop-in 180ms ease-out both;
 }
 
 .carousel {
   position: relative;
-  width: min(1550px, 96vw);
-  max-height: 88vh;
+  width: min(1550px, 100%);
   perspective: 1400px;
-  overflow: hidden;
+  overflow: visible;
 }
 
 .carousel-track {
   display: grid;
   grid-template-columns:
-    minmax(200PX, 1fr)
-    minmax(400px, 1.5fr)
-    minmax(200PX, 1fr);
+    minmax(0, 1fr)
+    minmax(0, 1.5fr)
+    minmax(0, 1fr);
   align-items: center;
-  gap: 3rem;
-  min-height: 430px;
-  max-height: 82vh;
+  gap: clamp(0.4rem, 3vw, 3rem);
   transform-style: preserve-3d;
-  overflow: hidden;
+  overflow: visible;
   touch-action: pan-y;
 }
 
@@ -152,11 +149,11 @@
 }
 
 .side-card {
-  width: clamp(190px, 22vw, 450px);
-  min-width: clamp(190px, 22vw, 450px);
+  width: min(100%, 450px);
+  min-width: 0;
   flex: 0 0 auto;
-  min-height: clamp(190px, 23vh, 250px);
-  padding: clamp(1rem, 1.5vw, 1.5rem);
+  min-height: clamp(110px, 23vh, 250px);
+  padding: clamp(0.6rem, 1.5vw, 1.5rem);
   cursor: pointer;
   opacity: 0.55;
   overflow-wrap: anywhere;
@@ -175,38 +172,39 @@
 
 .node-card {
   box-sizing: border-box;
-  border: 1px solid rgba(168, 85, 247, 0.65);
+  border: 1px solid #49226d;
   border-radius: 18px;
   color: #f4f1ff;
   background:
     linear-gradient(
       145deg,
-      rgba(17, 31, 42, 0.96),
-      rgba(7, 17, 27, 0.94)
+      #092625d8,
+      #021715cb
     );
   box-shadow:
-    0 0 18px rgba(168, 85, 247, 0.18),
-    inset 0 0 18px rgba(0, 229, 255, 0.04);
+    0 0 20px #24b8b13b,
+    inset 0 0 8px #24b8b134;
   font: inherit;
   text-align: left;
 }
 
 .current-card {
+  --current-transform: translateZ(125px) scale(1.08);
   position: relative;
   z-index: 3;
   width: 100%;
-  min-width: clamp(340px, 42vW, 500px);
+  min-width: 0;
   min-height: 380px;
   padding: 2rem;
   overflow-wrap: anywhere;
-  transform: translateZ(125px) scale(1.08);
+  transform: var(--current-transform);
   animation: current-card-in 260ms ease-out both;
 }
 
 .relation-label {
   display: block;
   margin-bottom: 0.75rem;
-  color: #9ffcff;
+  color: #24b8b17f;
   font-size: 0.75rem;
   font-weight: 700;
   letter-spacing: 0.08em;
@@ -217,6 +215,7 @@
 .side-card h3 {
   margin: 0;
   color: #ffffff;
+  text-shadow: 0 0 3px #9f0003, 0 0 4px #ea003e;
   line-height: 1.25;
 }
 
@@ -245,20 +244,20 @@
 }
 
 .keywords span {
-  padding: 0.35rem 0.65rem;
+  padding: 0.2rem 0.35rem;
   border-radius: 999px;
   color: #e8d9ff;
-  background: rgba(126, 76, 177, 0.65);
+  background: #a955f753;
   font-size: 0.75rem;
 }
 
 .metadata {
-  margin-top: 1.5rem;
+  margin-top: 1rem;
   padding-top: 1rem;
-  border-top: 1px solid rgba(159, 252, 255, 0.25);
+  border-top: 1px solid #edeeee39;
   color: #d5d5df;
   font-size: 0.85rem;
-  font-style: italic;
+  font-family: 'Fugaz One', sans-serif;
 }
 
 .metadata p {
@@ -267,23 +266,24 @@
 
 .close-button {
   position: absolute;
-  top: -2.5rem;
+  top: -2.6rem;
   right: 0;
   z-index: 5;
   width: 2.2rem;
   height: 2.2rem;
-  border: 1px solid rgba(159, 252, 255, 0.45);
+  border: 1px solid #24b8b124;
   border-radius: 50%;
   color: #ffffff;
-  background: rgba(9, 22, 32, 0.8);
+  background: #091620cc;
   cursor: pointer;
-  font-size: 1.4rem;
-  line-height: 1;
+  font-size: 1.6rem;
+  text-shadow: 0 0 3px #9f0003, 0 0 4px #ea003e;
 }
 
 .close-button:hover {
-  color: #9ffcff;
-  border-color: #9ffcff;
+  color: #52257c;
+  border-color: #52257c;
+  text-shadow: none;
 }
 
 @keyframes backdrop-in {
@@ -299,75 +299,143 @@
 @keyframes current-card-in {
   from {
     opacity: 0;
-    transform: translateZ(30px) scale(0.92);
+    transform: translateZ(0) scale(0.92);
   }
 
   to {
     opacity: 1;
-    transform: translateZ(125px) scale(1.08);
+    transform: var(--current-transform);
   }
 }
 
-@media (max-width: 850px) {
-  .carousel-backdrop {
-    padding: 4rem 0.75rem 1rem;
+@media (max-width: 1100px) {
+  .carousel-track {
+    gap: 0.5rem;
   }
 
-  .carousel {
-    width: 100%;
-    max-height: 92vh;
+  .carousel-side-left {
+    transform: translateZ(-90px) rotateY(-22deg);
+  }
+
+  .carousel-side-right {
+    transform: translateZ(-90px) rotateY(22deg);
+  }
+
+  .current-card {
+    --current-transform: translateZ(90px) scale(1.04);
+    min-height: 340px;
+    padding: 1.5rem;
+  }
+}
+
+@media (max-width: 700px) {
+  .carousel-backdrop {
+    padding: 4.5rem 0.4rem 0.75rem;
   }
 
   .carousel-track {
     grid-template-columns:
-      minmax(0, 0.8fr)
-      minmax(190px, 1.4fr)
-      minmax(0, 0.8fr);
-    gap: 0.35rem;
-    min-height: 360px;
-    max-height: 86vh;
-    overflow: hidden;
+      minmax(0, 0.75fr)
+      minmax(0, 1.7fr)
+      minmax(0, 0.75fr);
+    gap: 0.3rem;
   }
 
   .carousel-side-left,
   .carousel-side-right {
-    height: 35vh;
-    max-height: 35vh;
+    min-height: 24vh;
+    max-height: 0vh;
+    gap: 0.5rem;
+    padding: 0.4rem 0.2rem;
   }
 
   .carousel-side-left {
-    transform: translateZ(-80px) rotateY(-22deg);
+    transform: translateZ(-60px) rotateY(-20deg);
   }
 
   .carousel-side-right {
-    transform: translateZ(-80px) rotateY(22deg);
-  }
-
-  .current-card {
-    min-height: 280px;
-    padding: 1rem;
-    transform: translateZ(90px) scale(1);
+    transform: translateZ(-60px) rotateY(20deg);
   }
 
   .side-card {
-    width: 100%;
-    min-width: 0;
-    min-height: 125px;
-    padding: 0.7rem;
-    transform: translateZ(-45px) scale(0.78);
+    min-height: 90px;
+    padding: 0.5rem;
+    border-radius: 12px;
+    transform: translateZ(-30px) scale(0.92);
+  }
+
+  .side-card h3 {
+    font-size: 0.7rem;
+  }
+
+  .side-card .relation-label {
+    margin-bottom: 0.3rem;
+    font-size: 0.6rem;
+  }
+
+  .side-card .keywords {
+    display: none;
+  }
+
+  .current-card {
+    --current-transform: translateZ(30px) scale(1);
+    min-height: 0;
+    padding: 0.9rem;
+    border-radius: 14px;
+  }
+
+  .current-card h2 {
+    font-size: clamp(0.8rem, 2.4vw, 1.2rem);
+  }
+
+  .node-id {
+    margin: 0.6rem 0;
+    font-size: 0.65rem;
   }
 
   .keywords {
     gap: 0.25rem;
-    margin-top: 0.7rem;
+    margin-top: 0.6rem;
   }
 
   .keywords span {
-    padding: 0.25rem 0.45rem;
+    padding: 0.15rem 0.35rem;
     font-size: 0.6rem;
   }
 
+  .metadata {
+    margin-top: 0.6rem;
+    padding-top: 0.6rem;
+    font-size: 0.7rem;
+  }
+
   .close-button {
-    top: -2.4rem;
+    top: -2.8rem;
+    right: 0.2rem;
+  }
+}
+
+@media (max-height: 580px) {
+  .carousel-backdrop {
+    padding: 8.8rem 0.75rem 0.5rem;
+  }
+
+  .carousel-side-left,
+  .carousel-side-right {
+    height: 38vh;
+  }
+
+  .current-card {
+    --current-transform: translateZ(40px) scale(1);
+    min-height: 0;
+    padding: 0.8rem 1rem;
+  }
+
+  .metadata {
+    display: none;
+  }
+
+  .close-button {
+    top: -2.3rem;
   }
 }

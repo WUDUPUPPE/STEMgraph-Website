@@ -75,7 +75,6 @@ button.active {
 .challenge-row:hover,
 .challenge-row:focus-within {
   border-color: #49226d;
-  background: rgba(60, 21, 91, 0.22);
 }
 
 .challenge-title {
@@ -111,7 +110,6 @@ button.active {
 .keyword {
   border-radius: 999px;
   background: #a955f753;
-  color: #d8b4fe;
   padding: 0.2rem 0.35rem;
   font-size: 0.7rem;
 }
