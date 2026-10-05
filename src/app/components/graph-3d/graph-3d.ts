@@ -5,7 +5,7 @@ import { isPlatformBrowser } from '@angular/common';
 import { GraphResponse, Node, Edge } from '../../api/models';
 import { Timer } from 'three';
 import { NodeDetailCarousel } from '../node-detail-carousel/node-detail-carousel';
-
+import { Router } from '@angular/router';
 
 export interface Graph3dConfig {
 
@@ -185,6 +185,8 @@ export class Graph3d implements AfterViewInit, OnDestroy {
     maxZoom: 62,
   };
 
+  private readonly router = inject(Router);
+
   private renderer!: THREE.WebGLRenderer;
   private scene!: THREE.Scene;
   private camera!: THREE.PerspectiveCamera;
@@ -269,10 +271,6 @@ export class Graph3d implements AfterViewInit, OnDestroy {
       }
       this.animate();
     });
-  };
-
-  openChallenge(node: Node): void {
-    console.log('Open challenge:', node.id);
   };
 
   private initScene(): void {
@@ -1368,6 +1366,11 @@ export class Graph3d implements AfterViewInit, OnDestroy {
     this.carouselCurrent = node;
     this.carouselPredecessors = connections.predecessors;
     this.carouselSuccessors = connections.successors;
+  };
+
+  openChallenge(node: Node): void {
+    this.closeCarousel();
+    this.router.navigate(['/challenge', node.id]);
   };
 
   ngOnDestroy(): void {
