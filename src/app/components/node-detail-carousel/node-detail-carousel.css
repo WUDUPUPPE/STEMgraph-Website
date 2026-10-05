@@ -192,6 +192,8 @@
   --current-transform: translateZ(125px) scale(1.08);
   position: relative;
   z-index: 3;
+  display: flex;
+  flex-direction: column;
   width: 100%;
   min-width: 0;
   min-height: 380px;
@@ -251,7 +253,7 @@
   font-size: 0.75rem;
 }
 
-.metadata {
+.carousel-admin {
   margin-top: 1rem;
   padding-top: 1rem;
   border-top: 1px solid #edeeee39;
@@ -260,8 +262,53 @@
   font-family: 'Fugaz One', sans-serif;
 }
 
-.metadata p {
+.carousel-admin p {
   margin: 0.35rem 0;
+}
+
+.card-actions {
+  display: flex;
+  margin-top: auto;
+  padding-top: 1.25rem;
+}
+
+.open-button {
+  align-self: flex-start;
+  min-height: 2.75rem;
+  min-width: 2.75rem;
+  padding: 0.6rem 1.6rem;
+  border: 1px solid #24b8b1;
+  border-radius: 999px;
+  color: #ffffff;
+  background: #24b8b133;
+  box-shadow: 0 0 12px #24b8b13b;
+  cursor: pointer;
+  font-family: inherit;
+  font-size: clamp(0.8rem, 1vw, 1rem);
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  text-shadow: 0 0 3px #9f0003, 0 0 4px #ea003e;
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+  transition:
+    background 160ms ease,
+    border-color 160ms ease,
+    transform 160ms ease;
+}
+
+.open-button:hover {
+  border-color: #a955f7;
+  background: #a955f733;
+}
+
+.open-button:active {
+  transform: scale(0.97);
+}
+
+.open-button:focus-visible {
+  outline: 2px solid #a955f7;
+  outline-offset: 3px;
 }
 
 .close-button {
@@ -343,8 +390,7 @@
 
   .carousel-side-left,
   .carousel-side-right {
-    min-height: 24vh;
-    max-height: 0vh;
+    height: 24vh;
     gap: 0.5rem;
     padding: 0.4rem 0.2rem;
   }
@@ -403,10 +449,21 @@
     font-size: 0.6rem;
   }
 
-  .metadata {
+  .carousel-admin {
     margin-top: 0.6rem;
     padding-top: 0.6rem;
     font-size: 0.7rem;
+  }
+
+  .card-actions {
+  padding-top: 0.75rem;
+}
+
+  .open-button {
+    align-self: stretch;
+    width: 100%;
+    padding: 0.5rem 0.75rem;
+    font-size: 0.8rem;
   }
 
   .close-button {
@@ -431,8 +488,16 @@
     padding: 0.8rem 1rem;
   }
 
-  .metadata {
+  .carousel-admin {
     display: none;
+  }
+
+  .card-actions {
+  padding-top: 0.5rem;
+}
+
+  .open-button {
+    padding: 0.4rem 1.2rem;
   }
 
   .close-button {

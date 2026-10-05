@@ -1,19 +1,7 @@
-<div
-  class="carousel-backdrop"
-  role="dialog"
-  aria-modal="true"
-  (click)="close()"
->
-  <section
-    class="carousel"
-    (click)="$event.stopPropagation()"
-  >
-    <button
-      class="close-button"
-      type="button"
-      aria-label="Detailansicht schließen"
-      (click)="close()"
-    >
+<div class="carousel-backdrop" role="dialog" aria-modal="true" (click)="close()">
+  <section class="carousel" (click)="$event.stopPropagation()">
+
+    <button class="close-button" type="button" aria-label="Detailansicht schließen" (click)="close()">
       ×
     </button>
 
@@ -46,13 +34,10 @@
 
       <article class="node-card current-card">
         <span class="relation-label">Current Challenge</span>
-
         <h2>{{ current.teaches || current.id }}</h2>
-
         @if (current.id) {
           <p class="node-id">ID: {{ current.id }}</p>
         }
-
         @if (current.keywords?.length) {
           <div class="keywords">
             @for (keyword of current.keywords; track keyword) {
@@ -60,15 +45,20 @@
             }
           </div>
         }
-
-        <div class="metadata">
-          @if (current.author) {
-            <p>Autor: {{ current.author }}</p>
-          }
-
-          @if (current.firstused) {
-            <p>First used: {{ current.firstused }}</p>
-          }
+        @if (isAdmin) {
+          <div class="carousel-admin">
+            @if (current.author) {
+              <p>Autor: {{ current.author }}</p>
+            }
+            @if (current.firstused) {
+              <p>First used: {{ current.firstused }}</p>
+            }
+          </div>
+        }
+        <div class="card-actions">
+            <button class="open-button" type="button" (click)="openChallenge()">
+                Open
+            </button>
         </div>
       </article>
 
@@ -78,12 +68,7 @@
           track trackByNodeId($index, node);
           let index = $index
         ) {
-          <button
-            class="node-card side-card"
-            [class.outer-card]="index > 0"
-            type="button"
-            (click)="selectNode(node)"
-          >
+          <button class="node-card side-card" [class.outer-card]="index > 0" type="button" (click)="selectNode(node)">
             <span class="relation-label">Nachfolger</span>
             <h3>{{ node.teaches }}</h3>
 

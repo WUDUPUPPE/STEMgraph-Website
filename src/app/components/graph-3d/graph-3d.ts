@@ -271,6 +271,10 @@ export class Graph3d implements AfterViewInit, OnDestroy {
     });
   };
 
+  openChallenge(node: Node): void {
+    console.log('Open challenge:', node.id);
+  };
+
   private initScene(): void {
     const canvas = this.canvasRef.nativeElement;
 

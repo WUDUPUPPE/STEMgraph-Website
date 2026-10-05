@@ -13,12 +13,18 @@ export class NodeDetailCarousel {
   @Input({ required: true }) current!: Node;
   @Input() predecessors: Node[] = [];
   @Input() successors: Node[] = [];
+  @Input() isAdmin = false;
 
   @Output() closed = new EventEmitter<void>();
   @Output() nodeSelected = new EventEmitter<Node>();
+  @Output() openRequested = new EventEmitter<Node>();
 
   selectNode(node: Node): void {
     this.nodeSelected.emit(node);
+  };
+
+  openChallenge(): void {
+    this.openRequested.emit(this.current)
   };
 
   close(): void {
