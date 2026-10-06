@@ -2,12 +2,13 @@ import { Component, inject, Input, OnInit, signal } from '@angular/core';
 import { ChallengeListResponse, GraphResponse } from '../../api/models';
 import { STEMgraphApiService } from '../../service/stemgraph-api.service';
 import { ChallengeGraph } from '../challenge-graph/challenge-graph';
+import { RouterLink } from '@angular/router';
 
 type ExplorerView = 'sphere' | 'graph' | 'list';
 
 @Component({
     selector: 'app-challenge-explorer',
-    imports: [ChallengeGraph],
+    imports: [ChallengeGraph, RouterLink],
     templateUrl: './challenge-explorer.html',
     styleUrl: './challenge-explorer.css',
 })
@@ -27,7 +28,7 @@ export class ChallengeExplorer implements OnInit {
 
     ngOnInit(): void {
         this.loadGraph();
-    }
+    };
 
     protected showSphere(): void {
         this.viewMode.set('sphere');
@@ -35,7 +36,7 @@ export class ChallengeExplorer implements OnInit {
         if (this.graph() === null) {
             this.loadGraph();
         }
-    }
+    };
 
     protected showGraph(): void {
         this.viewMode.set('graph');
@@ -43,17 +44,17 @@ export class ChallengeExplorer implements OnInit {
         if (this.graph() === null) {
             this.loadGraph();
         }
-    }
+    };
 
     protected showList(): void {
         this.viewMode.set('list');
         this.loadList();
-    }
+    };
 
     protected toggleChallenge(challengeId: string): void {
         this.openedChallengeId.update((currentId) =>
             currentId === challengeId ? null : challengeId);
-    }
+    };
 
     private loadList(): void {
         this.isLoading.set(true);
@@ -71,7 +72,7 @@ export class ChallengeExplorer implements OnInit {
                 this.isLoading.set(false);
             },
         });
-    }
+    };
 
     private loadGraph(): void {
         this.isLoading.set(true);
@@ -89,5 +90,5 @@ export class ChallengeExplorer implements OnInit {
                 this.isLoading.set(false);
             },
         });
-    }
+    };
 }

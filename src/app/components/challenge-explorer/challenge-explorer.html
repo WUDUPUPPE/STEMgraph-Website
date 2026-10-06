@@ -89,9 +89,10 @@
                     </div>
                     }
 
-                    <button type="button" class="open-button">
-                        Open
-                    </button>
+                    <a class="open-button" [routerLink]="['/challenge', challenge.id, challenge.teaches]"
+                    >
+                    Open
+                    </a>
                 </div>
                 }
             </article>

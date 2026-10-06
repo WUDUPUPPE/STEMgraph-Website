@@ -39,9 +39,9 @@
     }
 
     @if (carouselOpen && carouselCurrent; as current) {
-    <app-node-detail-carousel [current]="current" [isAdmin]="isAdmin" (openRequested)="openChallenge($event)"
+    <app-node-detail-carousel [current]="current" [isAdmin]="isAdmin"
         [predecessors]="carouselPredecessors" [successors]="carouselSuccessors" (closed)="closeCarousel()"
-        (nodeSelected)="selectCarouselNode($event)" />
+        (nodeSelected)="selectCarouselNode($event)" (nodeSelected)="selectCarouselNode($event)"/>
     }
 
 </div>

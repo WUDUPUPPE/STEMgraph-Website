@@ -1,10 +1,11 @@
 import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { Node } from '../../api/models';
+import { RouterLink } from '@angular/router';
 
 @Component({
     selector: 'app-node-detail-carousel',
     standalone: true,
-    imports: [],
+    imports: [RouterLink],
     templateUrl: './node-detail-carousel.html',
     styleUrl: './node-detail-carousel.css',
 })
@@ -17,16 +18,11 @@ export class NodeDetailCarousel {
 
     @Output() closed = new EventEmitter<void>();
     @Output() nodeSelected = new EventEmitter<Node>();
-    @Output() openRequested = new EventEmitter<Node>();
 
     selectNode(node: Node): void {
         this.nodeSelected.emit(node);
     };
-
-    openChallenge(): void {
-        this.openRequested.emit(this.current)
-    };
-
+    
     close(): void {
         this.closed.emit();
     };

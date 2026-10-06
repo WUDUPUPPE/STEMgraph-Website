@@ -169,7 +169,7 @@
 
 .node-card {
     box-sizing: border-box;
-    border: 1px solid #49226d;
+    border: 1px solid #540f95;
     border-radius: 18px;
     color: #f4f1ff;
     background:
@@ -263,35 +263,29 @@
 }
 
 .card-actions {
-    display: flex;
-    margin-top: auto;
-    padding-top: 1.25rem;
+  display: flex;
+  justify-content: flex-end;
+  width: 100%;
+  margin-top: auto;
+  padding-top: 1.25rem;
+  pointer-events: auto;
 }
 
 .open-button {
+    z-index: 11;
     text-shadow: 0 0 3px #9f0003, 0 0 4px #ea003e;
-    width: clamp(40px, 16vw, 70px);
-    z-index: 100000;
+    text-decoration: none;
     border: 1px solid #6a2ea2;
     border-radius: 0.5rem;
     background: #310b54bb;
     color: white;
     cursor: pointer;
-    padding: 0.1rem;
+    padding: 0.1rem 0.6rem;
     font-family: 'Fugaz One', sans-serif;
 }
 
 .open-button:hover {
     background: #5e2297;
-}
-
-.open-button:active {
-    transform: scale(0.97);
-}
-
-.open-button:focus-visible {
-    outline: 2px solid #a955f7;
-    outline-offset: 3px;
 }
 
 .close-button {
@@ -344,17 +338,21 @@
     }
 
     .carousel-side-left {
-        transform: translateZ(-90px) rotateY(-22deg);
+        transform: translateZ(-90px) rotateY(-24deg);
     }
 
     .carousel-side-right {
-        transform: translateZ(-90px) rotateY(22deg);
+        transform: translateZ(-90px) rotateY(24deg);
     }
 
     .current-card {
         --current-transform: translateZ(90px) scale(1.04);
         min-height: 340px;
         padding: 1.5rem;
+    }
+
+    .close-button {
+        right: 0.8rem;
     }
 }
 
@@ -365,7 +363,7 @@
 
     .carousel-track {
         grid-template-columns:
-            minmax(0, 0.75fr) minmax(0, 1.7fr) minmax(0, 0.75fr);
+            minmax(0, 0.7fr) minmax(0, 1fr) minmax(0, 0.7fr);
         gap: 0.3rem;
     }
 
@@ -377,11 +375,11 @@
     }
 
     .carousel-side-left {
-        transform: translateZ(-60px) rotateY(-20deg);
+        transform: translateZ(-60px) rotateY(-24deg);
     }
 
     .carousel-side-right {
-        transform: translateZ(-60px) rotateY(20deg);
+        transform: translateZ(-60px) rotateY(24deg);
     }
 
     .side-card {
@@ -436,20 +434,8 @@
         font-size: 0.7rem;
     }
 
-    .card-actions {
-        padding-top: 0.75rem;
-    }
-
-    .open-button {
-        align-self: stretch;
-        width: 100%;
-        padding: 0.5rem 0.75rem;
-        font-size: 0.8rem;
-    }
-
     .close-button {
-        top: -2.8rem;
-        right: 0.2rem;
+        right: 0.8rem;
     }
 }
 
@@ -475,13 +461,5 @@
 
     .card-actions {
         padding-top: 0.5rem;
-    }
-
-    .open-button {
-        padding: 0.4rem 1.2rem;
-    }
-
-    .close-button {
-        top: -2.3rem;
     }
 }
