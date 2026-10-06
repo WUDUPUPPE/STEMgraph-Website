@@ -1,194 +1,194 @@
 .challenge-explorer {
-  position: relative;
-  width: 100%;
-  height: 100%;
-  margin: 0;
-  z-index: 10;
+    position: relative;
+    width: 100%;
+    height: 100%;
+    margin: 0;
+    z-index: 10;
 }
 
 .explorer-header {
-  position: relative;
-  z-index: 5;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 1rem;
-  margin: 0;
-  padding: 0.5rem clamp(16px, 4vw, 48px);
+    position: relative;
+    z-index: 5;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    margin: 0;
+    padding: 0.5rem clamp(16px, 4vw, 48px);
 }
 
 .graph-view {
-  position: absolute;
-  top: calc(-1 * clamp(100px, 38vh, 380px));
-  left: calc(50% - 50vw);
-  right: calc(50% - 50vw);
-  bottom: 20px;
-  z-index: 1;
+    position: absolute;
+    top: calc(-1 * clamp(100px, 38vh, 380px));
+    left: calc(50% - 50vw);
+    right: calc(50% - 50vw);
+    bottom: 20px;
+    z-index: 1;
 }
 
 p {
-  margin-top: 0;
-  font-family: 'Fugaz One', sans-serif;
+    margin-top: 0;
+    font-family: 'Fugaz One', sans-serif;
 
 }
 
 .view-switcher {
-  display: flex;
-  gap: 0.5rem;
+    display: flex;
+    gap: 0.5rem;
 }
 
 button {
-  border: 1px solid #24b8b124;
-  border-radius: 0.5rem;
-  background: transparent;
-  color: #c60000;
-  text-shadow: 0 0 3px #9f0003, 0 0 4px #ea003e;
-  cursor: pointer;
-  width: clamp(40px, 16vw, 70px);
-  z-index: 11;
+    border: 1px solid #24b8b124;
+    border-radius: 0.5rem;
+    background: transparent;
+    color: #c60000;
+    text-shadow: 0 0 3px #9f0003, 0 0 4px #ea003e;
+    cursor: pointer;
+    width: clamp(40px, 16vw, 70px);
+    z-index: 11;
 }
 
 button.active {
-  background: #16726d42;
-  color: #c60000;
+    background: #16726d42;
+    color: #c60000;
 }
 
 .challenge-list {
-  display: flex;
-  flex-direction: column;
-  gap: 0.45rem;
-  margin-top: 1rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.45rem;
+    margin-top: 1rem;
 }
 
 .challenge-row {
-  overflow: hidden;
-  height: auto;
-  min-height: 0;
-  border: 1px solid #24b8b124;
-  border-radius: 0.65rem;
-  background: #10555242;
-  transition:
-  border-color 0.4s ease,
-  background 0.4s ease;
+    overflow: hidden;
+    height: auto;
+    min-height: 0;
+    border: 1px solid #24b8b124;
+    border-radius: 0.65rem;
+    background: #10555242;
+    transition:
+        border-color 0.4s ease,
+        background 0.4s ease;
 }
 
 .challenge-row:hover,
 .challenge-row:focus-within {
-  border-color: #49226d;
+    border-color: #49226d;
 }
 
 .challenge-title {
-  display: block;
-  width: 100%;
-  margin: 0;
-  border: 0;
-  border-radius: 0;
-  color: inherit;
-  padding: 0.35rem 1rem;
-  text-align: left;
-  font-size: 0.90rem;
-  font-family: 'Fugaz One', sans-serif;
+    display: block;
+    width: 100%;
+    margin: 0;
+    border: 0;
+    border-radius: 0;
+    color: inherit;
+    padding: 0.35rem 1rem;
+    text-align: left;
+    font-size: 0.90rem;
+    font-family: 'Fugaz One', sans-serif;
 }
 
 .challenge-details {
-  padding: 0 1rem 1rem;
+    padding: 0 1rem 1rem;
 }
 
 .challenge-id {
-  margin: 0 0 0.75rem;
-  color: #9ca3af;
-  font-size: 0.75rem;
+    margin: 0 0 0.75rem;
+    color: #9ca3af;
+    font-size: 0.75rem;
 }
 
 .keyword-list {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.4rem;
-  margin: 0 0 0.35rem;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem;
+    margin: 0 0 0.35rem;
 }
 
 .keyword {
-  border-radius: 999px;
-  background: #a955f753;
-  padding: 0.2rem 0.35rem;
-  font-size: 0.7rem;
+    border-radius: 999px;
+    background: #a955f753;
+    padding: 0.2rem 0.35rem;
+    font-size: 0.7rem;
 }
 
 .admin-information {
-  line-height: 1.3;
-  margin: 0 0 0.9rem;
-  padding-top: 0.75rem;
-  border-top: 1px solid #374151;
-  color: #c8cbcf;
+    line-height: 1.3;
+    margin: 0 0 0.9rem;
+    padding-top: 0.75rem;
+    border-top: 1px solid #374151;
+    color: #c8cbcf;
 }
 
 .admin-information p {
-  margin: 0.15rem 0;
-  font-size: 0.75rem;
+    margin: 0.15rem 0;
+    font-size: 0.75rem;
 }
 
 .open-button {
-  border: 1px solid #6a2ea2;
-  border-radius: 0.5rem;
-  background: #310b54bb;
-  color: white;
-  cursor: pointer;
-  padding: 0.1rem;
-  font-family: 'Fugaz One', sans-serif;
+    border: 1px solid #6a2ea2;
+    border-radius: 0.5rem;
+    background: #310b54bb;
+    color: white;
+    cursor: pointer;
+    padding: 0.1rem;
+    font-family: 'Fugaz One', sans-serif;
 }
 
 .open-button:hover {
-  background: #5e2297;
+    background: #5e2297;
 }
 
 .error-message {
-  display: flex;
-  justify-content: center;
-  color: #ed3312;
-  font-size: 0.8rem;
+    display: flex;
+    justify-content: center;
+    color: #ed3312;
+    font-size: 0.8rem;
 }
 
 @media (max-width: 2560px) {
-  .challenge-list {
-    display: flex;
-    flex-direction: column;
-    gap: 0.35rem;
-    margin: 1rem 1rem 1rem;
-  }
+    .challenge-list {
+        display: flex;
+        flex-direction: column;
+        gap: 0.35rem;
+        margin: 1rem 1rem 1rem;
+    }
 
-  .view-switcher {
-    margin-left: 1rem;
-  }
+    .view-switcher {
+        margin-left: 1rem;
+    }
 }
 
 @media (max-width: 768px) {
-  .challenge-title {
-  padding: 0.25rem 1rem;
-  font-size: 0.75rem;
-  line-height: 1;
-  }
+    .challenge-title {
+        padding: 0.25rem 1rem;
+        font-size: 0.75rem;
+        line-height: 1;
+    }
 
-  .challenge-id {
-    margin: 0 0 0.45rem;
-    font-size: 0.55rem;
-  }
+    .challenge-id {
+        margin: 0 0 0.45rem;
+        font-size: 0.55rem;
+    }
 
-  .keyword {
-    padding: 0.1rem 0.25em;
-    font-size: 0.7rem;
-  }
+    .keyword {
+        padding: 0.1rem 0.25em;
+        font-size: 0.7rem;
+    }
 
-  .admin-information {
-    margin: 0 0 0.4rem;
-    padding-top: 0.35rem;
-  }
+    .admin-information {
+        margin: 0 0 0.4rem;
+        padding-top: 0.35rem;
+    }
 
-  .admin-information p {
-    margin: 0.1rem 0;
-    font-size: 0.55rem;
-  }
+    .admin-information p {
+        margin: 0.1rem 0;
+        font-size: 0.55rem;
+    }
 
-  .open-button {
-    font-size: 0.70rem;
-  }
+    .open-button {
+        font-size: 0.70rem;
+    }
 }

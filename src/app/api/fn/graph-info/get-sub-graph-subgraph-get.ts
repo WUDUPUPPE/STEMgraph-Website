@@ -4,31 +4,31 @@
 import { HttpClient, HttpContext, HttpResponse } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { filter, map } from 'rxjs/operators';
-import { StrictHttpResponse } from '../../strict-http-response';
 import { RequestBuilder } from '../../request-builder';
+import { StrictHttpResponse } from '../../strict-http-response';
 
 import { SubgraphGraphResponse } from '../../models/subgraph-graph-response';
 
 export interface GetSubGraphSubgraphGet$Params {
-  start: string;
-  end: string;
+    start: string;
+    end: string;
 }
 
 export function getSubGraphSubgraphGet(http: HttpClient, rootUrl: string, params: GetSubGraphSubgraphGet$Params, context?: HttpContext): Observable<StrictHttpResponse<SubgraphGraphResponse>> {
-  const rb = new RequestBuilder(rootUrl, getSubGraphSubgraphGet.PATH, 'get');
-  if (params) {
-    rb.query('start', params.start, {});
-    rb.query('end', params.end, {});
-  }
+    const rb = new RequestBuilder(rootUrl, getSubGraphSubgraphGet.PATH, 'get');
+    if (params) {
+        rb.query('start', params.start, {});
+        rb.query('end', params.end, {});
+    }
 
-  return http.request(
-    rb.build({ responseType: 'json', accept: 'application/json', context })
-  ).pipe(
-    filter((r: any): r is HttpResponse<any> => r instanceof HttpResponse),
-    map((r: HttpResponse<any>) => {
-      return r as StrictHttpResponse<SubgraphGraphResponse>;
-    })
-  );
+    return http.request(
+        rb.build({ responseType: 'json', accept: 'application/json', context })
+    ).pipe(
+        filter((r: any): r is HttpResponse<any> => r instanceof HttpResponse),
+        map((r: HttpResponse<any>) => {
+            return r as StrictHttpResponse<SubgraphGraphResponse>;
+        })
+    );
 }
 
 getSubGraphSubgraphGet.PATH = '/subgraph';

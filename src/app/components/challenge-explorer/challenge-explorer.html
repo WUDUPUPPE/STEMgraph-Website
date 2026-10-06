@@ -1,110 +1,102 @@
 <section class="challenge-explorer">
-  <header class="explorer-header">
+    <header class="explorer-header">
 
-    <div class="view-switcher" aria-label="Set view">
-      <button
-        type="button"
-        [class.active]="viewMode() === 'graph'"
-        (click)="showGraph()">
-        Graph
-      </button>
+        <div class="view-switcher" aria-label="Set view">
+            <button type="button" [class.active]="viewMode() === 'graph'" (click)="showGraph()">
+                Graph
+            </button>
 
-      <button
-        type="button"
-        [class.active]="viewMode() === 'sphere'"
-        (click)="showSphere()">
-        Sphere
-      </button>
+            <button type="button" [class.active]="viewMode() === 'sphere'" (click)="showSphere()">
+                Sphere
+            </button>
 
-      <button
-        type="button"
-        [class.active]="viewMode() === 'list'"
-        (click)="showList()">
-        List
-      </button>
-    </div>
-  </header>
+            <button type="button" [class.active]="viewMode() === 'list'" (click)="showList()">
+                List
+            </button>
+        </div>
+    </header>
 
-  @if (viewMode() === 'graph') {
+    @if (viewMode() === 'graph') {
     <section class="graph-view">
 
-      @if (isLoading()) {
+        @if (isLoading()) {
         <p>Loading Graph …</p>
-      } @else if (errorMessage(); as error) {
+        } @else if (errorMessage(); as error) {
         <p class="error-message">{{ error }}</p>
-      } @else if (graph(); as graphData) {
-        <app-challenge-graph [graph]="graphData" [layoutMode]="'cluster'" [isAdmin]="isAdmin"/>
-      } @else {
+        } @else if (graph(); as graphData) {
+        <app-challenge-graph [graph]="graphData" [layoutMode]="'cluster'" [isAdmin]="isAdmin" />
+        } @else {
         <p>Graph can´t load.</p>
-      }
+        }
     </section>
-  }
-
-  @if (viewMode() === 'sphere') {
-    <section class="graph-view">
-      @if (isLoading()) {
-        <p>Loading Sphere …</p>
-      } @else if (errorMessage(); as error) {
-        <p class="error-message">{{ error }}</p>
-      } @else if (graph(); as graphData) {
-        <app-challenge-graph [graph]="graphData" [layoutMode]="'sphere'" [isAdmin]="isAdmin" />
-      } @else {
-        <p>Sphere can´t load.</p>
-      }
-    </section>
-  }
-
-  @if (viewMode() === 'list') {
-  <section class="list-view">
-
-    @if (isLoading()) {
-      <p>Loading List …</p>
-    } @else if (errorMessage(); as error) {
-      <p class="error-message">{{ error }}</p>
-    } @else if (!isLoading() && !errorMessage() && list().length === 0) {
-      <p>List can´t load.</p>
     }
 
-    <div class="challenge-list">
-      @for (challenge of list(); track challenge.id) {
-        <article class="challenge-row" [class.is-open]="openedChallengeId() === challenge.id">
-          <button type="button" class="challenge-title" (click)="toggleChallenge(challenge.id)" [attr.aria-expanded]="openedChallengeId() === challenge.id">
+    @if (viewMode() === 'sphere') {
+    <section class="graph-view">
+        @if (isLoading()) {
+        <p>Loading Sphere …</p>
+        } @else if (errorMessage(); as error) {
+        <p class="error-message">{{ error }}</p>
+        } @else if (graph(); as graphData) {
+        <app-challenge-graph [graph]="graphData" [layoutMode]="'sphere'" [isAdmin]="isAdmin" />
+        } @else {
+        <p>Sphere can´t load.</p>
+        }
+    </section>
+    }
 
-            {{ challenge.teaches || challenge.id }}
-          </button>
+    @if (viewMode() === 'list') {
+    <section class="list-view">
 
-          @if (openedChallengeId() === challenge.id) {
-            <div class="challenge-details">
-              <p class="challenge-id">ID: {{ challenge.id }}</p>
+        @if (isLoading()) {
+        <p>Loading List …</p>
+        } @else if (errorMessage(); as error) {
+        <p class="error-message">{{ error }}</p>
+        } @else if (!isLoading() && !errorMessage() && list().length === 0) {
+        <p>List can´t load.</p>
+        }
 
-              @if (challenge.keywords?.length) {
-                <div class="keyword-list">
-                  @for (keyword of challenge.keywords; track keyword) {
-                    <span class="keyword">{{ keyword }}</span>
-                  }
+        <div class="challenge-list">
+            @for (challenge of list(); track challenge.id) {
+            <article class="challenge-row" [class.is-open]="openedChallengeId() === challenge.id">
+                <button type="button" class="challenge-title" (click)="toggleChallenge(challenge.id)"
+                    [attr.aria-expanded]="openedChallengeId() === challenge.id">
+
+                    {{ challenge.teaches || challenge.id }}
+                </button>
+
+                @if (openedChallengeId() === challenge.id) {
+                <div class="challenge-details">
+                    <p class="challenge-id">ID: {{ challenge.id }}</p>
+
+                    @if (challenge.keywords?.length) {
+                    <div class="keyword-list">
+                        @for (keyword of challenge.keywords; track keyword) {
+                        <span class="keyword">{{ keyword }}</span>
+                        }
+                    </div>
+                    }
+
+                    @if (isAdmin) {
+                    <div class="admin-information">
+                        <p>
+                            <strong>Author:</strong> {{ challenge.author || 'Not available' }}
+                        </p>
+
+                        <p>
+                            <strong>First used:</strong> {{ challenge.firstused || 'Not available' }}
+                        </p>
+                    </div>
+                    }
+
+                    <button type="button" class="open-button">
+                        Open
+                    </button>
                 </div>
-              }
-
-              @if (isAdmin) {
-                <div class="admin-information">
-                  <p>
-                    <strong>Author:</strong> {{ challenge.author || 'Not available' }}
-                  </p>
-
-                  <p>
-                    <strong>First used:</strong> {{ challenge.firstused || 'Not available' }}
-                  </p>
-                </div>
-              }
-
-              <button type="button" class="open-button">
-                Open
-              </button>
-            </div>
-          }
-        </article>
-      }
-    </div>
-  </section>
-  }
+                }
+            </article>
+            }
+        </div>
+    </section>
+    }
 </section>

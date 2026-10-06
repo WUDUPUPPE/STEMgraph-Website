@@ -1,248 +1,226 @@
 :host {
-  position: fixed;
-  inset: 0;
-  z-index: 99999;
-  display: block;
-  width: 100vw;
-  height: 100vh;
-  pointer-events: auto;
+    position: fixed;
+    inset: 0;
+    z-index: 99999;
+    display: block;
+    width: 100vw;
+    height: 100vh;
+    pointer-events: auto;
 }
 
 .carousel-backdrop {
-  position: fixed;
-  inset: 0;
-  z-index: 99999;
-  display: grid;
-  place-items: center;
-  width: 100%;
-  height: 100%;
-  overflow: hidden;
-  pointer-events: auto;
-  padding: clamp(4.5rem, 10vh, 16rem)
-    clamp(0.5rem, 0.2vw, 2rem)
-    1rem;
-  background: #07262461;
-  backdrop-filter: blur(4px);
-  -webkit-backdrop-filter: blur(8px);
-  animation: backdrop-in 180ms ease-out both;
+    position: fixed;
+    inset: 0;
+    z-index: 99999;
+    display: grid;
+    place-items: center;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    pointer-events: auto;
+    padding: clamp(4.5rem, 10vh, 16rem) clamp(0.5rem, 0.2vw, 2rem) 1rem;
+    background: #07262461;
+    backdrop-filter: blur(4px);
+    -webkit-backdrop-filter: blur(8px);
+    animation: backdrop-in 180ms ease-out both;
 }
 
 .carousel {
-  position: relative;
-  width: min(1550px, 100%);
-  perspective: 1400px;
-  overflow: visible;
-  z-index: 2;
-  pointer-events: auto;
+    position: relative;
+    width: min(1550px, 100%);
+    perspective: 1400px;
+    overflow: visible;
+    z-index: 2;
+    pointer-events: auto;
 }
 
 .carousel-track {
-  display: grid;
-  grid-template-columns:
-    minmax(0, 1fr)
-    minmax(0, 1.5fr)
-    minmax(0, 1fr);
-  align-items: center;
-  gap: clamp(0.4rem, 3vw, 3rem);
-  transform-style: preserve-3d;
-  overflow: visible;
-  touch-action: pan-y;
-  pointer-events: none;
+    display: grid;
+    grid-template-columns:
+        minmax(0, 1fr) minmax(0, 1.5fr) minmax(0, 1fr);
+    align-items: center;
+    gap: clamp(0.4rem, 3vw, 3rem);
+    transform-style: preserve-3d;
+    overflow: visible;
+    touch-action: pan-y;
+    pointer-events: none;
 }
 
 .carousel-side-left,
 .carousel-side-right {
-  position: relative;
-  z-index: 20;
-  pointer-events: auto;
-  display: flex;
-  flex-direction: column;
-  align-self: start;
-  justify-content: flex-start;
-  gap: 1rem;
-  height: 44vh;
-  min-height: 0;
-  overflow-y: auto;
-  overflow-x: hidden;
-  padding: 1rem 0.75rem;
-  overscroll-behavior-y: contain;
-  scrollbar-width: none;
-  transform-style: preserve-3d;
+    position: relative;
+    z-index: 20;
+    pointer-events: auto;
+    display: flex;
+    flex-direction: column;
+    align-self: start;
+    justify-content: flex-start;
+    gap: 1rem;
+    height: 44vh;
+    min-height: 0;
+    overflow-y: auto;
+    overflow-x: hidden;
+    padding: 1rem 0.75rem;
+    overscroll-behavior-y: contain;
+    scrollbar-width: none;
+    transform-style: preserve-3d;
 }
 
 .carousel-side-left {
-  align-items: flex-end;
-  transform: translateZ(-110px) rotateY(-26deg);
+    align-items: flex-end;
+    transform: translateZ(-110px) rotateY(-26deg);
 }
 
 .carousel-side-right {
-  align-items: flex-start;
-  transform: translateZ(-110px) rotateY(26deg);
+    align-items: flex-start;
+    transform: translateZ(-110px) rotateY(26deg);
 }
 
 .carousel-side-left,
 .carousel-side-right {
-  position: relative;
-  isolation: isolate;
-  -webkit-mask-repeat: no-repeat;
-  mask-repeat: no-repeat;
-  -webkit-mask-size: 100% 100%;
-  mask-size: 100% 100%;
+    position: relative;
+    isolation: isolate;
+    -webkit-mask-repeat: no-repeat;
+    mask-repeat: no-repeat;
+    -webkit-mask-size: 100% 100%;
+    mask-size: 100% 100%;
 }
 
 .carousel-side-left {
-  -webkit-mask-image:
-    linear-gradient(
-      to bottom,
-      transparent 0%,
-      black 5%,
-      black 85%,
-      transparent 100%
-    ),
-    linear-gradient(
-      to left,
-      black 0%,
-      black 20%,
-      black 60%,
-      transparent 100%
-    );
+    -webkit-mask-image:
+        linear-gradient(to bottom,
+            transparent 0%,
+            black 5%,
+            black 85%,
+            transparent 100%),
+        linear-gradient(to left,
+            black 0%,
+            black 20%,
+            black 60%,
+            transparent 100%);
 
-  mask-image:
-    linear-gradient(
-      to bottom,
-      transparent 0%,
-      black 5%,
-      black 85%,
-      transparent 100%
-    ),
-    linear-gradient(
-      to left,
-      black 0%,
-      black 20%,
-      black 60%,
-      transparent 100%
-    );
+    mask-image:
+        linear-gradient(to bottom,
+            transparent 0%,
+            black 5%,
+            black 85%,
+            transparent 100%),
+        linear-gradient(to left,
+            black 0%,
+            black 20%,
+            black 60%,
+            transparent 100%);
 
-  -webkit-mask-composite: intersect;
-  mask-composite: intersect;
+    -webkit-mask-composite: intersect;
+    mask-composite: intersect;
 }
 
 .carousel-side-right {
-  -webkit-mask-image:
-    linear-gradient(
-      to bottom,
-      transparent 0%,
-      black 5%,
-      black 85%,
-      transparent 100%
-    ),
-    linear-gradient(
-      to right,
-      black 20%,
-      black 60%,
-      transparent 100%
-    );
+    -webkit-mask-image:
+        linear-gradient(to bottom,
+            transparent 0%,
+            black 5%,
+            black 85%,
+            transparent 100%),
+        linear-gradient(to right,
+            black 20%,
+            black 60%,
+            transparent 100%);
 
-  mask-image:
-    linear-gradient(
-      to bottom,
-      transparent 0%,
-      black 5%,
-      black 85%,
-      transparent 100%
-    ),
-    linear-gradient(
-      to right,
-      black 20%,
-      black 60%,
-      transparent 100%
-    );
+    mask-image:
+        linear-gradient(to bottom,
+            transparent 0%,
+            black 5%,
+            black 85%,
+            transparent 100%),
+        linear-gradient(to right,
+            black 20%,
+            black 60%,
+            transparent 100%);
 
-  -webkit-mask-composite: intersect;
-  mask-composite: intersect;
+    -webkit-mask-composite: intersect;
+    mask-composite: intersect;
 }
 
 .side-card {
-  position: relative;
-  z-index: 100;
-  pointer-events: auto;
-  width: min(100%, 450px);
-  min-width: 0;
-  flex: 0 0 auto;
-  min-height: clamp(110px, 20vh, 200px);
-  padding: clamp(0.6rem, 1.5vw, 1.5rem);
-  cursor: pointer;
-  opacity: 0.55;
-  overflow-wrap: anywhere;
-  transform: translateZ(0) scale(0.86);
-  transition:
-    opacity 180ms ease,
-    transform 180ms ease,
-    filter 180ms ease;
+    position: relative;
+    z-index: 100;
+    pointer-events: auto;
+    width: min(100%, 450px);
+    min-width: 0;
+    flex: 0 0 auto;
+    min-height: clamp(110px, 20vh, 200px);
+    padding: clamp(0.6rem, 1.5vw, 1.5rem);
+    cursor: pointer;
+    opacity: 0.55;
+    overflow-wrap: anywhere;
+    transform: translateZ(0) scale(0.86);
+    transition:
+        opacity 180ms ease,
+        transform 180ms ease,
+        filter 180ms ease;
 }
 
 .side-card:hover {
-  opacity: 0.9;
-  filter: none;
-  transform: translateZ(35px) scale(0.92);
+    opacity: 0.9;
+    filter: none;
+    transform: translateZ(35px) scale(0.92);
 }
 
 .node-card {
-  box-sizing: border-box;
-  border: 1px solid #49226d;
-  border-radius: 18px;
-  color: #f4f1ff;
-  background:
-    linear-gradient(
-      145deg,
-      #092625d8,
-      #021715cb
-    );
-  box-shadow:
-    0 0 20px #24b8b13b,
-    inset 0 0 8px #24b8b134;
-  font: inherit;
-  text-align: left;
+    box-sizing: border-box;
+    border: 1px solid #49226d;
+    border-radius: 18px;
+    color: #f4f1ff;
+    background:
+        linear-gradient(145deg,
+            #092625d8,
+            #021715cb);
+    box-shadow:
+        0 0 20px #24b8b13b,
+        inset 0 0 8px #24b8b134;
+    font: inherit;
+    text-align: left;
 }
 
 .current-card {
-  --current-transform: translateZ(125px) scale(1.08);
-  position: relative;
-  z-index: 3;
-  pointer-events: auto;
-  display: flex;
-  flex-direction: column;
-  width: 100%;
-  min-width: 0;
-  min-height: 380px;
-  padding: 2rem;
-  overflow-wrap: anywhere;
-  transform: var(--current-transform);
-  animation: current-card-in 260ms ease-out both;
+    --current-transform: translateZ(125px) scale(1.08);
+    position: relative;
+    z-index: 3;
+    pointer-events: auto;
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    min-width: 0;
+    min-height: 380px;
+    padding: 2rem;
+    overflow-wrap: anywhere;
+    transform: var(--current-transform);
+    animation: current-card-in 260ms ease-out both;
 }
 
 .relation-label {
-  display: block;
-  margin-bottom: 0.75rem;
-  color: #24b8b17f;
-  font-size: 0.75rem;
-  font-weight: 700;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
+    display: block;
+    margin-bottom: 0.75rem;
+    color: #24b8b17f;
+    font-size: 0.75rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
 }
 
 .current-card h2,
 .side-card h3 {
-  margin: 0;
-  color: #ffffff;
-  text-shadow: 0 0 3px #9f0003, 0 0 4px #ea003e;
-  line-height: 1.25;
+    margin: 0;
+    color: #ffffff;
+    text-shadow: 0 0 3px #9f0003, 0 0 4px #ea003e;
+    line-height: 1.25;
 }
 
 .current-card h2 {
-  max-width: 100%;
-  overflow-wrap: anywhere;
-  font-size: clamp(0.95rem, 1.2vw, 1.6rem);
+    max-width: 100%;
+    overflow-wrap: anywhere;
+    font-size: clamp(0.95rem, 1.2vw, 1.6rem);
 }
 
 .side-card h3 {
@@ -250,262 +228,260 @@
 }
 
 .node-id {
-  margin: 1rem 0;
-  color: #a9a9bb;
-  font-size: 0.8rem;
-  word-break: break-all;
+    margin: 1rem 0;
+    color: #a9a9bb;
+    font-size: 0.8rem;
+    word-break: break-all;
 }
 
 .keywords {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.45rem;
-  margin-top: 0.2rem;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.45rem;
+    margin-top: 0.2rem;
 }
 
 .keywords span {
-  padding: 0.2rem 0.35rem;
-  border-radius: 999px;
-  color: #e8d9ff;
-  background: #a955f753;
-  font-size: 0.75rem;
+    padding: 0.2rem 0.35rem;
+    border-radius: 999px;
+    color: #e8d9ff;
+    background: #a955f753;
+    font-size: 0.75rem;
 }
 
 .carousel-admin {
-  margin-top: 1rem;
-  padding-top: 1rem;
-  border-top: 1px solid #edeeee39;
-  color: #d5d5df;
-  font-size: 0.85rem;
-  font-family: 'Fugaz One', sans-serif;
+    margin-top: 1rem;
+    padding-top: 1rem;
+    border-top: 1px solid #edeeee39;
+    color: #d5d5df;
+    font-size: 0.85rem;
+    font-family: 'Fugaz One', sans-serif;
 }
 
 .carousel-admin p {
-  margin: 0.35rem 0;
+    margin: 0.35rem 0;
 }
 
 .card-actions {
-  display: flex;
-  margin-top: auto;
-  padding-top: 1.25rem;
+    display: flex;
+    margin-top: auto;
+    padding-top: 1.25rem;
 }
 
 .open-button {
-  text-shadow: 0 0 3px #9f0003, 0 0 4px #ea003e;
-  width: clamp(40px, 16vw, 70px);
-  z-index: 100000;
-  border: 1px solid #6a2ea2;
-  border-radius: 0.5rem;
-  background: #310b54bb;
-  color: white;
-  cursor: pointer;
-  padding: 0.1rem;
-  font-family: 'Fugaz One', sans-serif;
+    text-shadow: 0 0 3px #9f0003, 0 0 4px #ea003e;
+    width: clamp(40px, 16vw, 70px);
+    z-index: 100000;
+    border: 1px solid #6a2ea2;
+    border-radius: 0.5rem;
+    background: #310b54bb;
+    color: white;
+    cursor: pointer;
+    padding: 0.1rem;
+    font-family: 'Fugaz One', sans-serif;
 }
 
 .open-button:hover {
-  background: #5e2297;
+    background: #5e2297;
 }
 
 .open-button:active {
-  transform: scale(0.97);
+    transform: scale(0.97);
 }
 
 .open-button:focus-visible {
-  outline: 2px solid #a955f7;
-  outline-offset: 3px;
+    outline: 2px solid #a955f7;
+    outline-offset: 3px;
 }
 
 .close-button {
-  position: absolute;
-  top: -1rem;
-  right: 0;
-  z-index: 5;
-  width: 2.2rem;
-  height: 2.2rem;
-  border: 1px solid #24b8b124;
-  border-radius: 50%;
-  color: #ffffff;
-  background: #091620cc;
-  cursor: pointer;
-  font-size: 1.6rem;
-  text-shadow: 0 0 3px #9f0003, 0 0 4px #ea003e;
+    position: absolute;
+    top: -1rem;
+    right: 0;
+    z-index: 5;
+    width: 2.2rem;
+    height: 2.2rem;
+    border: 1px solid #24b8b124;
+    border-radius: 50%;
+    color: #ffffff;
+    background: #091620cc;
+    cursor: pointer;
+    font-size: 1.6rem;
+    text-shadow: 0 0 3px #9f0003, 0 0 4px #ea003e;
 }
 
 .close-button:hover {
-  color: #52257c;
-  border-color: #52257c;
-  text-shadow: none;
+    color: #52257c;
+    border-color: #52257c;
+    text-shadow: none;
 }
 
 @keyframes backdrop-in {
-  from {
-    opacity: 0;
-  }
+    from {
+        opacity: 0;
+    }
 
-  to {
-    opacity: 1;
-  }
+    to {
+        opacity: 1;
+    }
 }
 
 @keyframes current-card-in {
-  from {
-    opacity: 0;
-    transform: translateZ(0) scale(0.92);
-  }
+    from {
+        opacity: 0;
+        transform: translateZ(0) scale(0.92);
+    }
 
-  to {
-    opacity: 1;
-    transform: var(--current-transform);
-  }
+    to {
+        opacity: 1;
+        transform: var(--current-transform);
+    }
 }
 
 @media (max-width: 1100px) {
-  .carousel-track {
-    gap: 0.5rem;
-  }
+    .carousel-track {
+        gap: 0.5rem;
+    }
 
-  .carousel-side-left {
-    transform: translateZ(-90px) rotateY(-22deg);
-  }
+    .carousel-side-left {
+        transform: translateZ(-90px) rotateY(-22deg);
+    }
 
-  .carousel-side-right {
-    transform: translateZ(-90px) rotateY(22deg);
-  }
+    .carousel-side-right {
+        transform: translateZ(-90px) rotateY(22deg);
+    }
 
-  .current-card {
-    --current-transform: translateZ(90px) scale(1.04);
-    min-height: 340px;
-    padding: 1.5rem;
-  }
+    .current-card {
+        --current-transform: translateZ(90px) scale(1.04);
+        min-height: 340px;
+        padding: 1.5rem;
+    }
 }
 
 @media (max-width: 700px) {
-  .carousel-backdrop {
-    padding: 4.5rem 0.4rem 0.75rem;
-  }
+    .carousel-backdrop {
+        padding: 4.5rem 0.4rem 0.75rem;
+    }
 
-  .carousel-track {
-    grid-template-columns:
-      minmax(0, 0.75fr)
-      minmax(0, 1.7fr)
-      minmax(0, 0.75fr);
-    gap: 0.3rem;
-  }
+    .carousel-track {
+        grid-template-columns:
+            minmax(0, 0.75fr) minmax(0, 1.7fr) minmax(0, 0.75fr);
+        gap: 0.3rem;
+    }
 
-  .carousel-side-left,
-  .carousel-side-right {
-    height: 24vh;
-    gap: 0.5rem;
-    padding: 0.4rem 0.2rem;
-  }
+    .carousel-side-left,
+    .carousel-side-right {
+        height: 24vh;
+        gap: 0.5rem;
+        padding: 0.4rem 0.2rem;
+    }
 
-  .carousel-side-left {
-    transform: translateZ(-60px) rotateY(-20deg);
-  }
+    .carousel-side-left {
+        transform: translateZ(-60px) rotateY(-20deg);
+    }
 
-  .carousel-side-right {
-    transform: translateZ(-60px) rotateY(20deg);
-  }
+    .carousel-side-right {
+        transform: translateZ(-60px) rotateY(20deg);
+    }
 
-  .side-card {
-    min-height: 90px;
-    padding: 0.5rem;
-    border-radius: 12px;
-    transform: translateZ(-30px) scale(0.92);
-  }
+    .side-card {
+        min-height: 90px;
+        padding: 0.5rem;
+        border-radius: 12px;
+        transform: translateZ(-30px) scale(0.92);
+    }
 
-  .side-card h3 {
-    font-size: 0.7rem;
-  }
+    .side-card h3 {
+        font-size: 0.7rem;
+    }
 
-  .side-card .relation-label {
-    margin-bottom: 0.3rem;
-    font-size: 0.6rem;
-  }
+    .side-card .relation-label {
+        margin-bottom: 0.3rem;
+        font-size: 0.6rem;
+    }
 
-  .side-card .keywords {
-    display: none;
-  }
+    .side-card .keywords {
+        display: none;
+    }
 
-  .current-card {
-    --current-transform: translateZ(30px) scale(1);
-    min-height: 0;
-    padding: 0.9rem;
-    border-radius: 14px;
-  }
+    .current-card {
+        --current-transform: translateZ(30px) scale(1);
+        min-height: 0;
+        padding: 0.9rem;
+        border-radius: 14px;
+    }
 
-  .current-card h2 {
-    font-size: clamp(0.8rem, 2.4vw, 1.2rem);
-  }
+    .current-card h2 {
+        font-size: clamp(0.8rem, 2.4vw, 1.2rem);
+    }
 
-  .node-id {
-    margin: 0.6rem 0;
-    font-size: 0.65rem;
-  }
+    .node-id {
+        margin: 0.6rem 0;
+        font-size: 0.65rem;
+    }
 
-  .keywords {
-    gap: 0.25rem;
-    margin-top: 0.6rem;
-  }
+    .keywords {
+        gap: 0.25rem;
+        margin-top: 0.6rem;
+    }
 
-  .keywords span {
-    padding: 0.15rem 0.35rem;
-    font-size: 0.6rem;
-  }
+    .keywords span {
+        padding: 0.15rem 0.35rem;
+        font-size: 0.6rem;
+    }
 
-  .carousel-admin {
-    margin-top: 0.6rem;
-    padding-top: 0.6rem;
-    font-size: 0.7rem;
-  }
+    .carousel-admin {
+        margin-top: 0.6rem;
+        padding-top: 0.6rem;
+        font-size: 0.7rem;
+    }
 
-  .card-actions {
-  padding-top: 0.75rem;
-}
+    .card-actions {
+        padding-top: 0.75rem;
+    }
 
-  .open-button {
-    align-self: stretch;
-    width: 100%;
-    padding: 0.5rem 0.75rem;
-    font-size: 0.8rem;
-  }
+    .open-button {
+        align-self: stretch;
+        width: 100%;
+        padding: 0.5rem 0.75rem;
+        font-size: 0.8rem;
+    }
 
-  .close-button {
-    top: -2.8rem;
-    right: 0.2rem;
-  }
+    .close-button {
+        top: -2.8rem;
+        right: 0.2rem;
+    }
 }
 
 @media (max-height: 580px) {
-  .carousel-backdrop {
-    padding: 8.8rem 0.75rem 0.5rem;
-  }
+    .carousel-backdrop {
+        padding: 8.8rem 0.75rem 0.5rem;
+    }
 
-  .carousel-side-left,
-  .carousel-side-right {
-    height: 38vh;
-  }
+    .carousel-side-left,
+    .carousel-side-right {
+        height: 38vh;
+    }
 
-  .current-card {
-    --current-transform: translateZ(40px) scale(1);
-    min-height: 0;
-    padding: 0.8rem 1rem;
-  }
+    .current-card {
+        --current-transform: translateZ(40px) scale(1);
+        min-height: 0;
+        padding: 0.8rem 1rem;
+    }
 
-  .carousel-admin {
-    display: none;
-  }
+    .carousel-admin {
+        display: none;
+    }
 
-  .card-actions {
-  padding-top: 0.5rem;
-}
+    .card-actions {
+        padding-top: 0.5rem;
+    }
 
-  .open-button {
-    padding: 0.4rem 1.2rem;
-  }
+    .open-button {
+        padding: 0.4rem 1.2rem;
+    }
 
-  .close-button {
-    top: -2.3rem;
-  }
+    .close-button {
+        top: -2.3rem;
+    }
 }

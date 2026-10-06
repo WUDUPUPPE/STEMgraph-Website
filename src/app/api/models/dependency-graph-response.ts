@@ -4,6 +4,6 @@
 import { GraphEdgeResponse } from '../models/graph-edge-response';
 import { GraphNodeResponse } from '../models/graph-node-response';
 export interface DependencyGraphResponse {
-  edges?: Array<GraphEdgeResponse>;
-  nodes?: Array<GraphNodeResponse>;
+    edges?: Array<GraphEdgeResponse>;
+    nodes?: Array<GraphNodeResponse>;
 }

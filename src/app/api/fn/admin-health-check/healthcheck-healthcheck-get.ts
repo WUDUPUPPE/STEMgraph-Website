@@ -4,8 +4,8 @@
 import { HttpClient, HttpContext, HttpResponse } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { filter, map } from 'rxjs/operators';
-import { StrictHttpResponse } from '../../strict-http-response';
 import { RequestBuilder } from '../../request-builder';
+import { StrictHttpResponse } from '../../strict-http-response';
 
 import { HealthcheckResponse } from '../../models/healthcheck-response';
 
@@ -13,18 +13,18 @@ export interface HealthcheckHealthcheckGet$Params {
 }
 
 export function healthcheckHealthcheckGet(http: HttpClient, rootUrl: string, params?: HealthcheckHealthcheckGet$Params, context?: HttpContext): Observable<StrictHttpResponse<HealthcheckResponse>> {
-  const rb = new RequestBuilder(rootUrl, healthcheckHealthcheckGet.PATH, 'get');
-  if (params) {
-  }
+    const rb = new RequestBuilder(rootUrl, healthcheckHealthcheckGet.PATH, 'get');
+    if (params) {
+    }
 
-  return http.request(
-    rb.build({ responseType: 'json', accept: 'application/json', context })
-  ).pipe(
-    filter((r: any): r is HttpResponse<any> => r instanceof HttpResponse),
-    map((r: HttpResponse<any>) => {
-      return r as StrictHttpResponse<HealthcheckResponse>;
-    })
-  );
+    return http.request(
+        rb.build({ responseType: 'json', accept: 'application/json', context })
+    ).pipe(
+        filter((r: any): r is HttpResponse<any> => r instanceof HttpResponse),
+        map((r: HttpResponse<any>) => {
+            return r as StrictHttpResponse<HealthcheckResponse>;
+        })
+    );
 }
 
 healthcheckHealthcheckGet.PATH = '/healthcheck';

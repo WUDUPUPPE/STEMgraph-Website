@@ -4,6 +4,6 @@
 import { Edge } from '../models/edge';
 import { Node } from '../models/node';
 export interface GraphResponse {
-  edges: Array<Edge>;
-  nodes: Array<Node>;
+    edges: Array<Edge>;
+    nodes: Array<Node>;
 }

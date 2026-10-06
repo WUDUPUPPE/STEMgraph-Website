@@ -1,55 +1,60 @@
 /* You can add global styles to this file, and also import other style files */
 :root {
-  --color-bg-dark: #0b0713;
-  --color-bg-main: #0a191b;
-  --color-bg-light: #2d163b;
+    --color-bg-dark: #0b0713;
+    --color-bg-main: #0a191b;
+    --color-bg-light: #2d163b;
 
-  --color-text: #d0e3de;
-  --color-text-muted: #c1b1d9;
+    --color-text: #d0e3de;
+    --color-text-muted: #c1b1d9;
 
-  --color-border: rgba(255, 255, 255, 0.1);
+    --color-border: rgba(255, 255, 255, 0.1);
 }
+
 @font-face {
-  font-family: 'Fugaz One';
-  src: url('/FugazOne-Regular.ttf')format('truetype');
-  font-weight: 400;
-  font-style: normal;
-  font-display: swap;
+    font-family: 'Fugaz One';
+    src: url('/FugazOne-Regular.ttf')format('truetype');
+    font-weight: 400;
+    font-style: normal;
+    font-display: swap;
 }
 
-h1, h2, h3, h4, h5, h6 {
-  font-family: 'Fugaz One', sans-serif;
-  font-weight: 300;
-  letter-spacing: 0.06rem;
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+    font-family: 'Fugaz One', sans-serif;
+    font-weight: 300;
+    letter-spacing: 0.06rem;
 }
 
-html{
-  min-height: 100%;
-  background: var(--color-bg-dark);
+html {
+    min-height: 100%;
+    background: var(--color-bg-dark);
 }
+
 body {
-  min-width: 320px;
-  min-height: 100vh;
-  margin: 0;
+    min-width: 320px;
+    min-height: 100vh;
+    margin: 0;
 
-  color: var(--color-text);
-  font-family: Arial, sans-serif;
+    color: var(--color-text);
+    font-family: Arial, sans-serif;
 
-  background:
-    radial-gradient(
-      circle at 50% 0%,
-      var(--color-purple) 0%,
-      var(--color-bg-main) 35%,
-      var(--color-bg-dark) 80%
-    );
+    background:
+        radial-gradient(circle at 50% 0%,
+            var(--color-purple) 0%,
+            var(--color-bg-main) 35%,
+            var(--color-bg-dark) 80%);
 
-  background-attachment: fixed;
-  background-repeat: no-repeat;
-  background-size: cover;
+    background-attachment: fixed;
+    background-repeat: no-repeat;
+    background-size: cover;
 }
 
 html,
 body {
-  max-width: 100%;
-  overflow-x: hidden;
+    max-width: 100%;
+    overflow-x: hidden;
 }

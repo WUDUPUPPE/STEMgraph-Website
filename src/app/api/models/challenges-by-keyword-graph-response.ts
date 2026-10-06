@@ -4,6 +4,6 @@
 import { ChallengeEdge } from '../models/challenge-edge';
 import { ChallengeNode } from '../models/challenge-node';
 export interface ChallengesByKeywordGraphResponse {
-  edges?: Array<ChallengeEdge>;
-  nodes?: Array<ChallengeNode>;
+    edges?: Array<ChallengeEdge>;
+    nodes?: Array<ChallengeNode>;
 }

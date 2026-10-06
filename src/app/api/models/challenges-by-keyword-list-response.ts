@@ -3,5 +3,5 @@
 
 import { ChallengeByKeywordListItem } from '../models/challenge-by-keyword-list-item';
 export interface ChallengesByKeywordListResponse {
-  items?: Array<ChallengeByKeywordListItem>;
+    items?: Array<ChallengeByKeywordListItem>;
 }
