@@ -1,4 +1,9 @@
 <main class="challenge-page">
-  <h1>Challenge</h1>
-  <p>ID: {{ challengeId }}</p>
+    <app-logo-3d
+        [glbUrl]="'/STEMgraph_website.glb'"
+        [mouseParallax]="true">
+    </app-logo-3d>
+    
+    <h1>{{ challengeTeaches }}</h1>
+    <h2>ID: {{ challengeId }}</h2>
 </main>
