@@ -28,7 +28,7 @@ export const routes: Routes = [
           import('./pages/keywords/keywords').then(m => m.Keywords)
       },
       {
-        path: 'challenge/:id',
+        path: 'challenge/:id/:teaches',
         loadComponent: () =>
           import('./pages/challenge-detail/challenge-detail').then(m => m.ChallengeDetail)
       },

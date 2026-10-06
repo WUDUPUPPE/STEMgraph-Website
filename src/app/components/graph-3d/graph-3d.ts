@@ -1370,7 +1370,7 @@ export class Graph3d implements AfterViewInit, OnDestroy {
 
   openChallenge(node: Node): void {
     this.closeCarousel();
-    this.router.navigate(['/challenge', node.id]);
+    this.router.navigate(['/challenge', node.id, node.teaches]);
   };
 
   ngOnDestroy(): void {

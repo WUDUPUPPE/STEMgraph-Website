@@ -1,18 +1,26 @@
 :host {
   position: fixed;
   inset: 0;
-  z-index: 1000;
+  z-index: 99999;
   display: block;
+  width: 100vw;
+  height: 100vh;
   pointer-events: auto;
 }
 
 .carousel-backdrop {
   position: fixed;
   inset: 0;
+  z-index: 99999;
   display: grid;
   place-items: center;
+  width: 100%;
+  height: 100%;
   overflow: hidden;
-  padding: clamp(4.5rem, 18vh, 16rem) clamp(0.5rem, 2vw, 2rem) 1rem;
+  pointer-events: auto;
+  padding: clamp(4.5rem, 10vh, 16rem)
+    clamp(0.5rem, 0.2vw, 2rem)
+    1rem;
   background: #07262461;
   backdrop-filter: blur(4px);
   -webkit-backdrop-filter: blur(8px);
@@ -24,6 +32,8 @@
   width: min(1550px, 100%);
   perspective: 1400px;
   overflow: visible;
+  z-index: 2;
+  pointer-events: auto;
 }
 
 .carousel-track {
@@ -37,16 +47,20 @@
   transform-style: preserve-3d;
   overflow: visible;
   touch-action: pan-y;
+  pointer-events: none;
 }
 
 .carousel-side-left,
 .carousel-side-right {
+  position: relative;
+  z-index: 20;
+  pointer-events: auto;
   display: flex;
   flex-direction: column;
   align-self: start;
   justify-content: flex-start;
   gap: 1rem;
-  height: 45vh;
+  height: 44vh;
   min-height: 0;
   overflow-y: auto;
   overflow-x: hidden;
@@ -149,15 +163,18 @@
 }
 
 .side-card {
+  position: relative;
+  z-index: 100;
+  pointer-events: auto;
   width: min(100%, 450px);
   min-width: 0;
   flex: 0 0 auto;
-  min-height: clamp(110px, 23vh, 250px);
+  min-height: clamp(110px, 20vh, 200px);
   padding: clamp(0.6rem, 1.5vw, 1.5rem);
   cursor: pointer;
   opacity: 0.55;
   overflow-wrap: anywhere;
-  transform: translateZ(-60px) scale(0.86);
+  transform: translateZ(0) scale(0.86);
   transition:
     opacity 180ms ease,
     transform 180ms ease,
@@ -167,7 +184,7 @@
 .side-card:hover {
   opacity: 0.9;
   filter: none;
-  transform: translateZ(10px) scale(0.92);
+  transform: translateZ(35px) scale(0.92);
 }
 
 .node-card {
@@ -192,6 +209,7 @@
   --current-transform: translateZ(125px) scale(1.08);
   position: relative;
   z-index: 3;
+  pointer-events: auto;
   display: flex;
   flex-direction: column;
   width: 100%;
@@ -242,7 +260,7 @@
   display: flex;
   flex-wrap: wrap;
   gap: 0.45rem;
-  margin-top: 1.2rem;
+  margin-top: 0.2rem;
 }
 
 .keywords span {
@@ -273,33 +291,20 @@
 }
 
 .open-button {
-  align-self: flex-start;
-  min-height: 2.75rem;
-  min-width: 2.75rem;
-  padding: 0.6rem 1.6rem;
-  border: 1px solid #24b8b1;
-  border-radius: 999px;
-  color: #ffffff;
-  background: #24b8b133;
-  box-shadow: 0 0 12px #24b8b13b;
-  cursor: pointer;
-  font-family: inherit;
-  font-size: clamp(0.8rem, 1vw, 1rem);
-  font-weight: 700;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
   text-shadow: 0 0 3px #9f0003, 0 0 4px #ea003e;
-  touch-action: manipulation;
-  -webkit-tap-highlight-color: transparent;
-  transition:
-    background 160ms ease,
-    border-color 160ms ease,
-    transform 160ms ease;
+  width: clamp(40px, 16vw, 70px);
+  z-index: 100000;
+  border: 1px solid #6a2ea2;
+  border-radius: 0.5rem;
+  background: #310b54bb;
+  color: white;
+  cursor: pointer;
+  padding: 0.1rem;
+  font-family: 'Fugaz One', sans-serif;
 }
 
 .open-button:hover {
-  border-color: #a955f7;
-  background: #a955f733;
+  background: #5e2297;
 }
 
 .open-button:active {
@@ -313,7 +318,7 @@
 
 .close-button {
   position: absolute;
-  top: -2.6rem;
+  top: -1rem;
   right: 0;
   z-index: 5;
   width: 2.2rem;
