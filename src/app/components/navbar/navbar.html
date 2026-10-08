@@ -26,21 +26,8 @@
 
   </div>
 
-  <div class="navbar-center">
-    <form class="search-box" (ngSubmit)="submitSearch()">
-      <span class="search-icon" aria-hidden="true">
-        <img src="/search.png" alt="Search Icon" />
-      </span>
-      <input type="search" name="searchTerm" [(ngModel)]="searchTerm" placeholder="Search..." aria-label="Search" />
-
-      <select name="searchType" [(ngModel)]="searchType" aria-label="Search Filter">
-        <option value="all">All</option>
-        <option value="keywords">Keywords</option>
-        <option value="challenges">Challenges</option>
-        <option value="lists">Lists</option>
-        <option value="chall-by-key">Challenges by Keyword</option>
-      </select>
-    </form>
+   <div class="navbar-center">
+    <app-search></app-search>
   </div>
 
   <div class="navbar-right">

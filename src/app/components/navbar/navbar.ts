@@ -1,12 +1,12 @@
 import { isPlatformBrowser } from '@angular/common';
 import { Component, ElementRef, HostListener, inject, PLATFORM_ID, ViewChild } from '@angular/core';
-import { FormsModule } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import { ApiStatusService } from './../../service/api-status.service';
+import { Search } from '../search/search';
 
 @Component({
   selector: 'app-navbar',
-  imports: [RouterLink, FormsModule],
+  imports: [RouterLink, Search],
   templateUrl: './navbar.html',
   styleUrl: './navbar.css',
 })
@@ -20,29 +20,10 @@ export class Navbar {
 
   private readonly platformId = inject(PLATFORM_ID);
 
-  searchTerm = '';
-  searchType = 'all';
   menuOpen = false;
 
   constructor(readonly router: Router) {
     this.apiStatusService.check();
-  };
-
-  submitSearch(): void {
-    const query = this.searchTerm.trim();
-
-    if (!query) {
-      return;
-    }
-
-    this.menuOpen = false;
-
-    this.router.navigate(['/search'], {
-      queryParams: {
-        q: query,
-        type: this.searchType
-      }
-    });
   };
 
   toggleMenu(): void {
