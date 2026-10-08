@@ -4,6 +4,7 @@ import { provideClientHydration } from '@angular/platform-browser';
 import { provideRouter } from '@angular/router';
 import { provideApiConfiguration } from './api/api-configuration';
 import { routes } from './app.routes';
+import { provideMarkdown } from 'ngx-markdown';
 
 export const appConfig: ApplicationConfig = {
   providers: [
@@ -11,6 +12,7 @@ export const appConfig: ApplicationConfig = {
     provideRouter(routes),
     provideClientHydration(),
     provideHttpClient(),
-    provideApiConfiguration('http://localhost:8000')
+    provideApiConfiguration('http://localhost:8000'),
+    provideMarkdown()
   ],
 };
