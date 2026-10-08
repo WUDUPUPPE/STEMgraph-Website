@@ -8,12 +8,15 @@
     BACK
   </button>
 
-  <h1 class="challange-header">
-    {{ challengeTeaches }}
-  </h1>
-  <h2 class="detail-id">
-    ID: {{ challengeId }}
-  </h2>
+  <header class="challenge-header">
+    <h1 class="detail-title">
+      {{ challengeTeaches }}
+    </h1>
+
+    <h2 class="detail-id">
+      ID: {{ challengeId }}
+    </h2>
+  </header>
 
   @if (loading) {
     <section class="content-loading" aria-live="polite">

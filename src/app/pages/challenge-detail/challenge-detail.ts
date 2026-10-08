@@ -22,7 +22,7 @@ export class ChallengeDetail implements OnInit {
   readonly challengeId = this.route.snapshot.paramMap.get('id');
   readonly challengeTeaches = this.route.snapshot.paramMap.get('teaches');
 
-  content: ChallengeContentResponse | null = null;
+  content: any = null;
   loading = false;
   error = false;
 
