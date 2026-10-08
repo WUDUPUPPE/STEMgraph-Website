@@ -1,14 +1,14 @@
 <main class="challenge-page">
-  <button type="button" class="back-button" (click)="back()">
-    BACK
-  </button>
-
   <app-logo-3d
     [glbUrl]="'/STEMgraph_website.glb'"
     [mouseParallax]="true">
   </app-logo-3d>
 
-  <h1 class="detail-title">
+   <button type="button" class="back-button" (click)="back()">
+    BACK
+  </button>
+
+  <h1 class="challange-header">
     {{ challengeTeaches }}
   </h1>
   <h2 class="detail-id">
@@ -16,22 +16,21 @@
   </h2>
 
   @if (loading) {
-    <p class="content-status">
-      Challenge is loading...
-    </p>
+    <section class="content-loading" aria-live="polite">
+      <div class="loading-spinner"></div>
+      <p>Challenge wird geladen ...</p>
+    </section>
   }
 
   @if (error) {
-    <p class="content-status error">
-      Challenge Content can`t load.
+    <p class="content-error">
+      Content can`t load.
     </p>
   }
 
   @if (content; as challengeContent) {
-    <article class="challenge-readme">
-      <markdown
-        [data]="challengeContent.content_markdown">
-      </markdown>
+    <article class="challenge-content">
+      <markdown [data]="challengeContent.content_markdown"></markdown>
     </article>
 
     @if (challengeContent.assets.length > 0) {
@@ -40,12 +39,11 @@
 
         <ul>
           @for (asset of challengeContent.assets; track asset.id) {
-            <li>
-              <span>{{ asset.file_name }}</span>
+            <li class="asset-item">
+              <span class="asset-name">{{ asset.file_name }}</span>
+              <small class="asset-info">{{ asset.relative_path }} · {{ asset.file_size }} Bytes</small>
 
-              <a
-                [href]="getAssetUrl(asset.file_name)"
-                [download]="asset.file_name">
+              <a class="asset-download" [href]="getAssetUrl(asset.file_name)" [download]="asset.file_name">
                 Download
               </a>
             </li>
