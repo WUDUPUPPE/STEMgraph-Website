@@ -1,9 +1,10 @@
 import { Location } from '@angular/common';
-import { Component, inject, OnInit } from '@angular/core';
+import { Component, inject, OnInit, ChangeDetectorRef } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { Logo3d } from '../../components/logo-3d/logo-3d';
 import { MarkdownComponent } from 'ngx-markdown';
 import { STEMgraphApiService } from '../../service/stemgraph-api.service';
+import { ChallengeContentResponse } from '../../api/models';
 
 @Component({
   selector: 'app-challenge-detail',
@@ -16,11 +17,12 @@ export class ChallengeDetail implements OnInit {
   private readonly route = inject(ActivatedRoute);
   private readonly location = inject(Location);
   private readonly apiService = inject(STEMgraphApiService);
+  private readonly changeDetectorRef = inject(ChangeDetectorRef);
 
   readonly challengeId = this.route.snapshot.paramMap.get('id');
   readonly challengeTeaches = this.route.snapshot.paramMap.get('teaches');
 
-  content: any = null;
+  content: ChallengeContentResponse | null = null;
   loading = false;
   error = false;
 
@@ -36,11 +38,13 @@ export class ChallengeDetail implements OnInit {
       next: (content) => {
         this.content = content;
         this.loading = false;
+        this.changeDetectorRef.markForCheck();
       },
       error: (error) => {
         console.error("Challenge Content can´t load:", error);
         this.error = true;
         this.loading = false;
+        this.changeDetectorRef.markForCheck();
       },
     });
   };
