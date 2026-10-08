@@ -4,6 +4,6 @@
 import { GraphEdge } from '../models/graph-edge';
 import { GraphNode } from '../models/graph-node';
 export interface SubgraphGraphResponse {
-    edges?: Array<GraphEdge>;
-    nodes?: Array<GraphNode>;
+  edges?: Array<GraphEdge>;
+  nodes?: Array<GraphNode>;
 }

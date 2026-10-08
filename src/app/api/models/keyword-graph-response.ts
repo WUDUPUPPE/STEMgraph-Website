@@ -4,6 +4,6 @@
 import { KeywordEdge } from '../models/keyword-edge';
 import { KeywordNode } from '../models/keyword-node';
 export interface KeywordGraphResponse {
-    edges?: Array<KeywordEdge>;
-    nodes?: Array<KeywordNode>;
+  edges?: Array<KeywordEdge>;
+  nodes?: Array<KeywordNode>;
 }

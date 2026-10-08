@@ -3,7 +3,7 @@
 
 import { ScheduleResponse } from '../models/schedule-response';
 export interface ScheduleUpdateResponse {
-    message: string;
-    schedule: ScheduleResponse;
-    status: string;
+  message: string;
+  schedule: ScheduleResponse;
+  status: string;
 }

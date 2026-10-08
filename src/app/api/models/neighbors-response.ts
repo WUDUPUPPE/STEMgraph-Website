@@ -3,6 +3,6 @@
 
 import { NeighborChallenge } from '../models/neighbor-challenge';
 export interface NeighborsResponse {
-    next?: Array<NeighborChallenge>;
-    previous?: Array<NeighborChallenge>;
+  next?: Array<NeighborChallenge>;
+  previous?: Array<NeighborChallenge>;
 }
