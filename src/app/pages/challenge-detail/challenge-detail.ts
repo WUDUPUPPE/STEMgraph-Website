@@ -50,7 +50,7 @@ export class ChallengeDetail implements OnInit {
   };
 
   getAssetUrl(fileName: string): string {
-    return 'http://localhost:8000/challenge/${this.challengeId}/assets/${encodeURIComponent(fileName)}';
+    return `http://localhost:8000/challenges/${this.challengeId}/assets/${encodeURIComponent(fileName)}`;
   };
 
   back(): void {

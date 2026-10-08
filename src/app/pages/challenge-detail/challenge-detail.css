@@ -44,6 +44,7 @@ button.active.hover {
   margin-top: 15px;
   margin-bottom: 20px;
   color: #a9a6bd;
+  text-shadow: 0 0 4px #181818, 0 0 6px #c3c2c2;
   font-family: monospace;
   font-size: 0.9rem;
   overflow-wrap: anywhere;
@@ -57,8 +58,8 @@ button.active.hover {
   border-radius: 28px;
   background:
     linear-gradient(145deg,
-      #092625d8,
-      #021715cb);
+      #092625aa,
+      #0217158f);
   box-shadow:
     0 0 24px #24b8b174,
     inset 0 0 10px #24b8b15f;
@@ -98,6 +99,15 @@ button.active.hover {
   text-shadow: 0 0 2px #000000, 0 0 2px #a9a9a9;
 }
 
+:host ::ng-deep .challenge-content a {
+  color: #24b8b1e8;
+  text-shadow: 0 0 4px #5636855c, 0 0 5px #b787fa63;
+}
+
+:host ::ng-deep .challenge-content a:hover {
+  color: #6311b0;
+}
+
 :host ::ng-deep .challenge-content ul,
 :host ::ng-deep .challenge-content ol {
   padding-left: 1.5rem;
@@ -126,9 +136,9 @@ button.active.hover {
   padding: 0;
   background: transparent;
   color: #7612d4;
-  font-size: 0.9rem;
+  font-size: clamp(0.72rem, 1vw, 0.9rem);
   text-shadow: 0 0 4px #1b1150;
-  line-height: 1.65;
+  line-height: 1.45;
 }
 
 :host ::ng-deep .challenge-content table {
@@ -147,10 +157,10 @@ button.active.hover {
 }
 
 :host ::ng-deep .challenge-content blockquote {
-  margin: 1.5rem 0;
-  padding: 12px 18px;
-  border-left: 4px solid #8e55d9;
-  background: #201832;
+  margin: 1.2rem 0;
+  padding: 2px 16px;
+  border-left: 3px solid #540f95;
+  background: #241a3b;
   color: #cbc2dc;
 }
 
@@ -158,14 +168,23 @@ button.active.hover {
   max-width: 900px;
   margin: 28px auto 0;
   padding: 24px;
-  border: 1px solid rgba(133, 70, 220, 0.3);
-  border-radius: 14px;
-  background: rgba(18, 14, 31, 0.75);
+  border: 2px solid #540f95;
+  border-radius: 20px;
+  background:
+    linear-gradient(145deg,
+      #092625aa,
+      #0217158f);
+  box-shadow:
+    0 0 24px #24b8b174,
+    inset 0 0 10px #24b8b15f;
+  line-height: 1.25;
+  font-size: 1rem;
 }
 
-.challenge-assets h2 {
+:host ::ng-deep .challenge-assets h2 {
   margin-top: 0;
-  color: #f3ddff;
+  font-size: clamp(1rem, 1.4vw, 2.7rem);
+  text-shadow: 0 0 4px #000000, 0 0 5px #a9a9a9;
 }
 
 .challenge-assets ul {
@@ -180,8 +199,8 @@ button.active.hover {
   align-items: center;
   justify-content: space-between;
   gap: 20px;
-  padding: 14px;
-  border: 1px solid #3b3155;
+  padding: 10px;
+    border: 2px solid #540f95;
   border-radius: 8px;
   background: #171326;
 }
@@ -189,26 +208,32 @@ button.active.hover {
 .asset-name {
   display: block;
   color: #ffffff;
+  text-shadow: 0 0 4px #000000, 0 0 5px #a9a9a9;
   font-family: monospace;
 }
 
 .asset-info {
   display: block;
   margin-top: 5px;
-  color: #9991ad;
+  color: #b6aad5;
+  text-shadow: 0 0 2px #000000, 0 0 2px #a9a9a9;
 }
 
 .asset-download {
-  flex-shrink: 0;
-  padding: 8px 12px;
-  border-radius: 6px;
-  background: #673ab7;
-  color: #ffffff;
+  z-index: 11;
+  text-shadow: 0 0 3px #9f0003, 0 0 4px #ea003e;
   text-decoration: none;
+  border: 1px solid #6a2ea2;
+  border-radius: 0.5rem;
+  background: #310b54bb;
+  color: white;
+  cursor: pointer;
+  padding: 0.5rem 1rem;
+  font-family: 'Fugaz One', sans-serif;
 }
 
 .asset-download:hover {
-  background: #8557d4;
+  background: #5e2297;
 }
 
 .content-loading {
@@ -233,7 +258,7 @@ button.active.hover {
   max-width: 900px;
   margin: 30px auto;
   padding: 18px;
-  border: 1px solid #963f67;
+  border: 1px solid #9d3264;
   border-radius: 10px;
   background: #32182a;
   color: #ffb7d1;
@@ -256,13 +281,7 @@ button.active.hover {
     font-size: 0.95rem;
   }
 
-  .asset-item {
-    align-items: flex-start;
-    flex-direction: column;
-  }
-
   .asset-download {
-    width: 100%;
     text-align: center;
   }
 }
