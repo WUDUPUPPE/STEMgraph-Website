@@ -1,7 +1,57 @@
 <main class="challenge-page">
-  <app-logo-3d [glbUrl]="'/STEMgraph_website.glb'" [mouseParallax]="true">
+  <button type="button" class="back-button" (click)="back()">
+    BACK
+  </button>
+
+  <app-logo-3d
+    [glbUrl]="'/STEMgraph_website.glb'"
+    [mouseParallax]="true">
   </app-logo-3d>
 
-  <h1 class="detail-title">{{ challengeTeaches }}</h1>
-  <h2 class="detail-id">ID: {{ challengeId }}</h2>
+  <h1 class="detail-title">
+    {{ challengeTeaches }}
+  </h1>
+  <h2 class="detail-id">
+    ID: {{ challengeId }}
+  </h2>
+
+  @if (loading) {
+    <p class="content-status">
+      Challenge is loading...
+    </p>
+  }
+
+  @if (error) {
+    <p class="content-status error">
+      Challenge Content can`t load.
+    </p>
+  }
+
+  @if (content; as challengeContent) {
+    <article class="challenge-readme">
+      <markdown
+        [data]="challengeContent.content_markdown">
+      </markdown>
+    </article>
+
+    @if (challengeContent.assets.length > 0) {
+      <section class="challenge-assets">
+        <h2>Required Files</h2>
+
+        <ul>
+          @for (asset of challengeContent.assets; track asset.id) {
+            <li>
+              <span>{{ asset.file_name }}</span>
+
+              <a
+                [href]="getAssetUrl(asset.file_name)"
+                [download]="asset.file_name">
+                Download
+              </a>
+            </li>
+          }
+        </ul>
+      </section>
+    }
+  }
 </main>
