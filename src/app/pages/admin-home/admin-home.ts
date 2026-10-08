@@ -6,21 +6,21 @@ import { STEMgraphApiService } from '../../service/stemgraph-api.service';
 type ApiStatus = 'checking' | 'online' | 'offline';
 
 @Component({
-    selector: 'app-admin-home',
-    imports: [Logo3d, ChallengeExplorer],
-    templateUrl: './admin-home.html',
-    styleUrl: './admin-home.css',
+  selector: 'app-admin-home',
+  imports: [Logo3d, ChallengeExplorer],
+  templateUrl: './admin-home.html',
+  styleUrl: './admin-home.css',
 })
 
 export class AdminHome implements OnInit {
-    private readonly stemgraphApi = inject(STEMgraphApiService);
+  private readonly stemgraphApi = inject(STEMgraphApiService);
 
-    protected readonly apiStatus = signal<ApiStatus>('checking')
+  protected readonly apiStatus = signal<ApiStatus>('checking')
 
-    ngOnInit(): void {
-        this.stemgraphApi.Healthcheck().subscribe({
-            next: () => this.apiStatus.set('online'),
-            error: () => this.apiStatus.set('offline'),
-        });
-    };
+  ngOnInit(): void {
+    this.stemgraphApi.Healthcheck().subscribe({
+      next: () => this.apiStatus.set('online'),
+      error: () => this.apiStatus.set('offline'),
+    });
+  };
 }

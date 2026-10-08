@@ -4,25 +4,25 @@ import { Api } from '../api/api';
 import { databasecheckDatabasecheckGet, getGraphGraphGet, getListListGet, healthcheckHealthcheckGet } from "../api/functions";
 
 @Injectable({
-    providedIn: 'root',
+  providedIn: 'root',
 })
 
 export class STEMgraphApiService {
-    private readonly api = inject(Api);
+  private readonly api = inject(Api);
 
-    Healthcheck() {
-        return from(this.api.invoke(healthcheckHealthcheckGet));
-    }
+  Healthcheck() {
+    return from(this.api.invoke(healthcheckHealthcheckGet));
+  }
 
-    Databasecheck() {
-        return from(this.api.invoke(databasecheckDatabasecheckGet));
-    }
+  Databasecheck() {
+    return from(this.api.invoke(databasecheckDatabasecheckGet));
+  }
 
-    MainGraph() {
-        return from(this.api.invoke(getGraphGraphGet));
-    }
+  MainGraph() {
+    return from(this.api.invoke(getGraphGraphGet));
+  }
 
-    MainList() {
-        return from(this.api.invoke(getListListGet));
-    }
+  MainList() {
+    return from(this.api.invoke(getListListGet));
+  }
 }

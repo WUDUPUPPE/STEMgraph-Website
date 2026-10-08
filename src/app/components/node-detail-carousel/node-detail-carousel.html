@@ -1,84 +1,84 @@
 <div class="carousel-backdrop" role="dialog" aria-modal="true" (click)="close()">
-    <section class="carousel" (click)="$event.stopPropagation()">
+  <section class="carousel" (click)="$event.stopPropagation()">
 
-        <button class="close-button" type="button" aria-label="Detailansicht schließen" (click)="close()">
-            ×
+    <button class="close-button" type="button" aria-label="Detailansicht schließen" (click)="close()">
+      ×
+    </button>
+
+    <div class="carousel-track">
+      <div class="carousel-side carousel-side-left">
+        @for (
+        node of predecessors;
+        track trackByNodeId($index, node);
+        let index = $index
+        ) {
+        <button class="node-card side-card" [class.outer-card]="index > 0" type="button"
+          (click)="$event.stopPropagation(); selectNode(node)">
+          <span class="relation-label">Vorgänger</span>
+          <h3>{{ node.teaches }}</h3>
+
+          @if (node.keywords?.length) {
+          <div class="keywords">
+            @for (keyword of node.keywords; track keyword) {
+            <span>{{ keyword }}</span>
+            }
+          </div>
+          }
         </button>
+        }
+      </div>
 
-        <div class="carousel-track">
-            <div class="carousel-side carousel-side-left">
-                @for (
-                node of predecessors;
-                track trackByNodeId($index, node);
-                let index = $index
-                ) {
-                <button class="node-card side-card" [class.outer-card]="index > 0" type="button"
-                    (click)="$event.stopPropagation(); selectNode(node)">
-                    <span class="relation-label">Vorgänger</span>
-                    <h3>{{ node.teaches }}</h3>
-
-                    @if (node.keywords?.length) {
-                    <div class="keywords">
-                        @for (keyword of node.keywords; track keyword) {
-                        <span>{{ keyword }}</span>
-                        }
-                    </div>
-                    }
-                </button>
-                }
-            </div>
-
-            <article class="node-card current-card">
-                <span class="relation-label">Current Challenge</span>
-                <h2>{{ current.teaches || current.id }}</h2>
-                @if (current.id) {
-                <p class="node-id">ID: {{ current.id }}</p>
-                }
-                @if (current.keywords?.length) {
-                <div class="keywords">
-                    @for (keyword of current.keywords; track keyword) {
-                    <span>{{ keyword }}</span>
-                    }
-                </div>
-                }
-                @if (isAdmin) {
-                <div class="carousel-admin">
-                    @if (current.author) {
-                    <p>Autor: {{ current.author }}</p>
-                    }
-                    @if (current.firstused) {
-                    <p>First used: {{ current.firstused }}</p>
-                    }
-                </div>
-                }
-                <div class="card-actions">
-                    <a class="open-button" [routerLink]="['/challenge', current.id, current.teaches]">
-                    Open
-                    </a>
-                </div>
-            </article>
-
-            <div class="carousel-side carousel-side-right">
-                @for (
-                node of successors;
-                track trackByNodeId($index, node);
-                let index = $index
-                ) {
-                <button class="node-card side-card" [class.outer-card]="index > 0" type="button"
-                    (click)="$event.stopPropagation(); selectNode(node)">
-                    <span class="relation-label">Nachfolger</span>
-                    <h3>{{ node.teaches }}</h3>
-
-                    @if (node.keywords?.length) {
-                    <div class="keywords">
-                        @for (keyword of node.keywords; track keyword) {
-                        <span>{{ keyword }}</span>
-                        }
-                    </div>
-                    }
-                </button>
-                }
-            </div>
+      <article class="node-card current-card">
+        <span class="relation-label">Current Challenge</span>
+        <h2>{{ current.teaches || current.id }}</h2>
+        @if (current.id) {
+        <p class="node-id">ID: {{ current.id }}</p>
+        }
+        @if (current.keywords?.length) {
+        <div class="keywords">
+          @for (keyword of current.keywords; track keyword) {
+          <span>{{ keyword }}</span>
+          }
         </div>
-    </section>
+        }
+        @if (isAdmin) {
+        <div class="carousel-admin">
+          @if (current.author) {
+          <p>Autor: {{ current.author }}</p>
+          }
+          @if (current.firstused) {
+          <p>First used: {{ current.firstused }}</p>
+          }
+        </div>
+        }
+        <div class="card-actions">
+          <a class="open-button" [routerLink]="['/challenge', current.id, current.teaches]">
+            Open
+          </a>
+        </div>
+      </article>
+
+      <div class="carousel-side carousel-side-right">
+        @for (
+        node of successors;
+        track trackByNodeId($index, node);
+        let index = $index
+        ) {
+        <button class="node-card side-card" [class.outer-card]="index > 0" type="button"
+          (click)="$event.stopPropagation(); selectNode(node)">
+          <span class="relation-label">Nachfolger</span>
+          <h3>{{ node.teaches }}</h3>
+
+          @if (node.keywords?.length) {
+          <div class="keywords">
+            @for (keyword of node.keywords; track keyword) {
+            <span>{{ keyword }}</span>
+            }
+          </div>
+          }
+        </button>
+        }
+      </div>
+    </div>
+  </section>
 </div>

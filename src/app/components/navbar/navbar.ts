@@ -5,81 +5,81 @@ import { Router, RouterLink } from '@angular/router';
 import { ApiStatusService } from './../../service/api-status.service';
 
 @Component({
-    selector: 'app-navbar',
-    imports: [RouterLink, FormsModule],
-    templateUrl: './navbar.html',
-    styleUrl: './navbar.css',
+  selector: 'app-navbar',
+  imports: [RouterLink, FormsModule],
+  templateUrl: './navbar.html',
+  styleUrl: './navbar.css',
 })
 export class Navbar {
 
-    readonly apiStatusService = inject(ApiStatusService);
-    readonly apiStatus = this.apiStatusService.status;
-    readonly apiStatusMessage = this.apiStatusService.apiMessage;
-    readonly databaseStatusMessage = this.apiStatusService.databaseMessage
+  readonly apiStatusService = inject(ApiStatusService);
+  readonly apiStatus = this.apiStatusService.status;
+  readonly apiStatusMessage = this.apiStatusService.apiMessage;
+  readonly databaseStatusMessage = this.apiStatusService.databaseMessage
 
 
-    private readonly platformId = inject(PLATFORM_ID);
+  private readonly platformId = inject(PLATFORM_ID);
 
-    searchTerm = '';
-    searchType = 'all';
-    menuOpen = false;
+  searchTerm = '';
+  searchType = 'all';
+  menuOpen = false;
 
-    constructor(readonly router: Router) {
-        this.apiStatusService.check();
-    };
+  constructor(readonly router: Router) {
+    this.apiStatusService.check();
+  };
 
-    submitSearch(): void {
-        const query = this.searchTerm.trim();
+  submitSearch(): void {
+    const query = this.searchTerm.trim();
 
-        if (!query) {
-            return;
-        }
+    if (!query) {
+      return;
+    }
 
-        this.menuOpen = false;
+    this.menuOpen = false;
 
-        this.router.navigate(['/search'], {
-            queryParams: {
-                q: query,
-                type: this.searchType
-            }
-        });
-    };
+    this.router.navigate(['/search'], {
+      queryParams: {
+        q: query,
+        type: this.searchType
+      }
+    });
+  };
 
-    toggleMenu(): void {
-        this.menuOpen = !this.menuOpen;
-    };
+  toggleMenu(): void {
+    this.menuOpen = !this.menuOpen;
+  };
 
-    closeMenu(): void {
-        this.menuOpen = false;
-    };
+  closeMenu(): void {
+    this.menuOpen = false;
+  };
 
-    @HostListener('window:resize')
-    onWindowResize(): void {
-        if (
-            isPlatformBrowser(this.platformId) &&
-            window.innerWidth >= 769
-        ) {
-            this.menuOpen = false;
-        }
-    };
+  @HostListener('window:resize')
+  onWindowResize(): void {
+    if (
+      isPlatformBrowser(this.platformId) &&
+      window.innerWidth >= 769
+    ) {
+      this.menuOpen = false;
+    }
+  };
 
-    @ViewChild('menuButton')
-    private menuButton?: ElementRef<HTMLElement>;
+  @ViewChild('menuButton')
+  private menuButton?: ElementRef<HTMLElement>;
 
-    @ViewChild('mobileMenu')
-    private mobileMenu?: ElementRef<HTMLElement>;
+  @ViewChild('mobileMenu')
+  private mobileMenu?: ElementRef<HTMLElement>;
 
-    @HostListener('document:click', ['$event.target'])
-    onDocumentClick(target: EventTarget | null): void {
-        if (!this.menuOpen || !(target instanceof Node)) {
-            return;
-        }
+  @HostListener('document:click', ['$event.target'])
+  onDocumentClick(target: EventTarget | null): void {
+    if (!this.menuOpen || !(target instanceof Node)) {
+      return;
+    }
 
-        const clickMenu = this.mobileMenu?.nativeElement.contains(target);
-        const clickButton = this.menuButton?.nativeElement.contains(target);
+    const clickMenu = this.mobileMenu?.nativeElement.contains(target);
+    const clickButton = this.menuButton?.nativeElement.contains(target);
 
-        if (!clickMenu && !clickButton) {
-            this.closeMenu();
-        }
-    };
+    if (!clickMenu && !clickButton) {
+      this.closeMenu();
+    }
+  };
 }
