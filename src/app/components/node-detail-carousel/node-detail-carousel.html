@@ -14,7 +14,7 @@
         ) {
         <button class="node-card side-card" [class.outer-card]="index > 0" type="button"
           (click)="$event.stopPropagation(); selectNode(node)">
-          <span class="relation-label">Vorgänger</span>
+          <span class="relation-label">Dependency</span>
           <h3>{{ node.teaches }}</h3>
 
           @if (node.keywords?.length) {
@@ -66,7 +66,7 @@
         ) {
         <button class="node-card side-card" [class.outer-card]="index > 0" type="button"
           (click)="$event.stopPropagation(); selectNode(node)">
-          <span class="relation-label">Nachfolger</span>
+          <span class="relation-label">Dependent</span>
           <h3>{{ node.teaches }}</h3>
 
           @if (node.keywords?.length) {

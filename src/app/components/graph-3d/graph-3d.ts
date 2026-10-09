@@ -1416,6 +1416,10 @@ export class Graph3d implements AfterViewInit, OnChanges, OnDestroy {
       return;
     }
 
+    if (changes['layoutMode'] && !changes['layoutMode'].firstChange) {
+      this.closeCarousel();
+    }
+
     if (changes['graphData'] && this.graphData) {
       this.buildGraph(this.graphData);
     }
