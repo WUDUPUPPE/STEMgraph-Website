@@ -1,7 +1,7 @@
 import { Injectable, inject } from "@angular/core";
 import { from } from 'rxjs';
 import { Api } from '../api/api';
-import { databasecheckDatabasecheckGet, getGraphGraphGet, getListListGet, healthcheckHealthcheckGet, getChallengeContentChallengesIdContentGet, downloadAssetChallengesIdAssetsFileNameGet } from "../api/functions";
+import { databasecheckDatabasecheckGet, getGraphGraphGet, getListListGet, healthcheckHealthcheckGet, getChallengeContentChallengesIdContentGet, downloadAssetChallengesIdAssetsFileNameGet, getKeywordsGraphKeywordsGraphGet, getKeywordsListKeywordsListGet } from "../api/functions";
 
 @Injectable({
   providedIn: 'root',
@@ -26,6 +26,14 @@ export class STEMgraphApiService {
     return from(this.api.invoke(getListListGet));
   };
 
+  KeywordsGraph(){
+    return from(this.api.invoke(getKeywordsGraphKeywordsGraphGet));
+  };
+
+  KeywordsList(){
+    return from(this.api.invoke(getKeywordsListKeywordsListGet));
+  };
+
   ChallengeContent(id: string) {
     return from(this.api.invoke(getChallengeContentChallengesIdContentGet,
         {
@@ -33,7 +41,7 @@ export class STEMgraphApiService {
         },
       ),
     );
-  }
+  };
 
   DownloadAsset(id: string, fileName: string) {
     return from(this.api.invoke(downloadAssetChallengesIdAssetsFileNameGet,
@@ -43,5 +51,5 @@ export class STEMgraphApiService {
         },
       ),
     );
-  }
+  };
 }
