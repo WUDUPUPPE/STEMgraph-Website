@@ -1,8 +1,9 @@
-import { Component, inject, Input, OnInit, signal } from '@angular/core';
+import { Component, inject, Input, OnInit, signal, effect } from '@angular/core';
 import { ChallengeListResponse, GraphResponse } from '../../api/models';
 import { STEMgraphApiService } from '../../service/stemgraph-api.service';
 import { ChallengeGraph } from '../challenge-graph/challenge-graph';
 import { RouterLink } from '@angular/router';
+import { GraphSelectionService } from "../../service/graph-selection.service";
 
 type ExplorerView = 'sphere' | 'graph' | 'list';
 
@@ -14,6 +15,7 @@ type ExplorerView = 'sphere' | 'graph' | 'list';
 })
 export class ChallengeExplorer implements OnInit {
   private readonly stemgraphApi = inject(STEMgraphApiService);
+  private readonly graphSelection = inject(GraphSelectionService);
 
   @Input() isAdmin = false;
 
@@ -25,6 +27,24 @@ export class ChallengeExplorer implements OnInit {
   protected readonly list = signal<ChallengeListResponse[]>([]);
   protected readonly graph = signal<GraphResponse | null>(null);
 
+  protected readonly selectedChallengeId = signal<string | null>(null);
+
+  private readonly selectedChallengeEffect = effect(() => {
+    const selectedId = this.graphSelection.selectedChallengeId();
+
+    if (!selectedId) {
+      return;
+    }
+
+    this.viewMode.set("graph");
+    this.selectedChallengeId.set(selectedId);
+
+    if (this.graph() === null) {
+      this.loadGraph();
+    }
+
+    this.graphSelection.clearSelection();
+  });
 
   ngOnInit(): void {
     this.loadGraph();

@@ -1,5 +1,5 @@
 import { isPlatformBrowser } from '@angular/common';
-import { AfterViewInit, ChangeDetectorRef, Component, ElementRef, inject, Input, NgZone, OnDestroy, PLATFORM_ID, ViewChild } from '@angular/core';
+import { AfterViewInit, ChangeDetectorRef, Component, ElementRef, inject, Input, NgZone, OnChanges, OnDestroy, PLATFORM_ID, ViewChild, SimpleChanges } from '@angular/core';
 import { Router } from '@angular/router';
 import * as THREE from 'three';
 import { Timer } from 'three';
@@ -95,7 +95,7 @@ export type GraphLayoutMode = 'sphere' | 'cluster';
   styleUrl: './graph-3d.css',
 })
 
-export class Graph3d implements AfterViewInit, OnDestroy {
+export class Graph3d implements AfterViewInit, OnChanges, OnDestroy {
   private readonly platformId = inject(PLATFORM_ID);
 
   @ViewChild('canvas', { static: true })
@@ -107,6 +107,8 @@ export class Graph3d implements AfterViewInit, OnDestroy {
   @Input() layoutMode: GraphLayoutMode = 'sphere';
 
   @Input() isAdmin = false;
+
+  @Input() selectedChallengeId: string | null = null;
 
   readonly config: Graph3dConfig = {
     nodeBaseRadius: 0.08,
@@ -254,6 +256,8 @@ export class Graph3d implements AfterViewInit, OnDestroy {
   private resizeObserver?: ResizeObserver;
   private destroyed = false;
 
+  private viewInitialized = false;
+
   constructor(
     private readonly zone: NgZone,
     private readonly cdr: ChangeDetectorRef
@@ -263,12 +267,17 @@ export class Graph3d implements AfterViewInit, OnDestroy {
     if (!isPlatformBrowser(this.platformId)) {
       return;
     }
+
     this.zone.runOutsideAngular(() => {
       this.initScene();
       this.bindInteraction();
+      this.viewInitialized = true;
+
       if (this.graphData) {
         this.buildGraph(this.graphData);
+        this.selectRequestedNode();
       }
+
       this.animate();
     });
   };
@@ -1371,6 +1380,49 @@ export class Graph3d implements AfterViewInit, OnDestroy {
   openChallenge(node: Node): void {
     this.closeCarousel();
     this.router.navigate(['/challenge', node.id, node.teaches]);
+  };
+
+  private selectNodeById(nodeId: string): void {
+    const node = this.nodeById.get(nodeId);
+
+    if (!node) {
+      return;
+    }
+
+    const connections = this.getCarouselConnections(node.id);
+
+    this.zone.run(() => {
+      this.selectedNode = node;
+      this.carouselCurrent = node;
+      this.carouselPredecessors = connections.predecessors;
+      this.carouselSuccessors = connections.successors;
+      this.carouselOpen = true;
+      this.cdr.detectChanges();
+    });
+  };
+
+  private selectRequestedNode(): void {
+    const id = this.selectedChallengeId;
+
+    if (!id || !this.nodeById.has(id)) {
+      return;
+    }
+
+    this.selectNodeById(id);
+  };
+
+  ngOnChanges(changes: SimpleChanges): void {
+    if (!this.viewInitialized) {
+      return;
+    }
+
+    if (changes['graphData'] && this.graphData) {
+      this.buildGraph(this.graphData);
+    }
+
+    if (changes['selectedChallengeId'] && this.selectedChallengeId) {
+      this.selectRequestedNode();
+    }
   };
 
   ngOnDestroy(): void {

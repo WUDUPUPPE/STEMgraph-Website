@@ -13,4 +13,5 @@ export class ChallengeGraph {
 
   @Input() layoutMode: GraphLayoutMode = 'sphere';
   @Input() isAdmin = false;
+  @Input() selectedChallengeId: string | null = null;
 }

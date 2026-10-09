@@ -3,6 +3,7 @@ import { FormsModule } from "@angular/forms";
 import { Router } from "@angular/router";
 import { forkJoin } from "rxjs";
 import { STEMgraphApiService } from "../../service/stemgraph-api.service";
+import { GraphSelectionService } from "../../service/graph-selection.service";
 
 type SearchType = "challenges" | "keywords" | "chall-by-key" | "dependencies" | "subgraph";
 
@@ -22,6 +23,7 @@ interface ChallengeSuggestion {
 export class Search implements OnInit {
   private readonly router = inject(Router);
   private readonly api = inject(STEMgraphApiService);
+  private readonly graphSelection = inject(GraphSelectionService);
 
   searchTerm = "";
   searchType: SearchType = "challenges";
@@ -69,6 +71,24 @@ export class Search implements OnInit {
   selectSuggestion(suggestion: string): void {
     this.searchTerm = suggestion;
     this.suggestions = [];
+
+    if (this.searchType === "challenges") {
+      const challenge = this.findChallenge(suggestion);
+
+      if (challenge) {
+        this.openChallengeInGraph(challenge.id);
+      }
+    }
+  };
+
+  private openChallengeInGraph(id: string): void {
+    this.graphSelection.selectChallenge(id);
+  };
+
+  private openDependencies(id: string): void {
+    this.router.navigate(["/"], {
+      queryParams: { dependency: id },
+    });
   };
 
 
@@ -112,12 +132,17 @@ export class Search implements OnInit {
         });
         break;
 
-      case "challenges":
-        default:
-          this.router.navigate(["/challenges"], {
-            queryParams: { q: query },
-          });
-          break;
+      case "challenges": {
+        const challenge = this.findChallenge(query);
+
+        if (!challenge) {
+          console.warn("Challenge not found:", query);
+          return;
+        }
+
+        this.openChallengeInGraph(challenge.id);
+        break;
+      }
     }
 
     this.suggestions = [];
