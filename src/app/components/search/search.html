@@ -1,29 +1,34 @@
 <form class="search-box" (ngSubmit)="submitSearch()">
-
   <span class="search-icon" aria-hidden="true">
     <img src="/search.png" alt="" />
   </span>
 
-  <input
-    type="search"
-    name="searchTerm"
-    [(ngModel)]="searchTerm"
-    placeholder="Search..."
-    aria-label="Search STEMgraph">
+  <div class="search-input-wrapper">
+    <input type="search" name="searchTerm" 
+    [(ngModel)]="searchTerm" (ngModelChange)="updateSuggestions()" 
+    placeholder="Search..." aria-label="Search STEMgraph" autocomplete="off">
+  </div>
 
-  <select
-    name="searchType"
-    [(ngModel)]="searchType"
-    aria-label="Search Filter">
-
+  <select name="searchType" [(ngModel)]="searchType" (ngModelChange)="updateSuggestions()" aria-label="Search Filter">
     <option value="challenges">Challenges</option>
     <option value="keywords">Keywords</option>
     <option value="chall-by-key">Challenges by Keyword</option>
     <option value="dependencies">Dependencies</option>
     <option value="subgraph">Subgraph</option>
   </select>
-
-  <button type="submit">
-    Search
-  </button>
 </form>
+
+@if (suggestions.length > 0) {
+  <ul class="suggestion-list" role="listbox">
+    @for (suggestion of suggestions; track suggestion) {
+      <li>
+        <button
+          type="button"
+          role="option"
+          (click)="selectSuggestion(suggestion)">
+          {{ suggestion }}
+        </button>
+      </li>
+    }
+  </ul>
+}
