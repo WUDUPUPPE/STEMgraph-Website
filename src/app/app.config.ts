@@ -12,7 +12,7 @@ export const appConfig: ApplicationConfig = {
     provideRouter(routes),
     provideClientHydration(),
     provideHttpClient(),
-    provideApiConfiguration('http://localhost:8000'),
+    provideApiConfiguration('/api'),
     provideMarkdown()
   ],
 };
