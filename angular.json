@@ -29,7 +29,7 @@
             "server": "src/main.server.ts",
             "outputMode": "server",
             "security": {
-              "allowedHosts": ["localhost", "127.0.0.1", "172.20.10.2"]
+              "allowedHosts": ["localhost", "127.0.0.1", "linux-on-mac.local"]
             },
             "ssr": {
               "entry": "src/server.ts"
