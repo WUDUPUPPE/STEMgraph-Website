@@ -1,6 +1,7 @@
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { ChallengeExplorer } from '../../components/challenge-explorer/challenge-explorer';
 import { Logo3d } from '../../components/logo-3d/logo-3d';
+import { AuthService } from '../../service/auth.service';
 
 @Component({
   selector: 'app-user-home',
@@ -8,4 +9,6 @@ import { Logo3d } from '../../components/logo-3d/logo-3d';
   templateUrl: './user-home.html',
   styleUrl: './user-home.css',
 })
-export class UserHome {}
+export class UserHome {
+  readonly auth = inject(AuthService);
+}

@@ -2,6 +2,8 @@ import { Component, OnInit, inject, signal } from '@angular/core';
 import { ChallengeExplorer } from '../../components/challenge-explorer/challenge-explorer';
 import { Logo3d } from '../../components/logo-3d/logo-3d';
 import { STEMgraphApiService } from '../../service/stemgraph-api.service';
+import { AuthService } from '../../service/auth.service';
+
 
 type ApiStatus = 'checking' | 'online' | 'offline';
 
@@ -13,6 +15,8 @@ type ApiStatus = 'checking' | 'online' | 'offline';
 })
 
 export class AdminHome implements OnInit {
+  readonly auth = inject(AuthService);
+  
   private readonly stemgraphApi = inject(STEMgraphApiService);
 
   protected readonly apiStatus = signal<ApiStatus>('checking')

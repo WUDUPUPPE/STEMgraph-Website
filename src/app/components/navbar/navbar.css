@@ -94,18 +94,30 @@
   right: 0;
   z-index: 999;
 
-  width: min(80px);
-  height: 35%;
-  padding: 90px 24px;
+  box-sizing: border-box;
+  width: min(300px, 90vw);
+  height: 100dvh;
+  padding: 90px 24px 24px;
 
-  background: #16726d28;
-  backdrop-filter: blur(2px);
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
 
+  overflow-y: auto;
+  background: #03191ff2;
+  backdrop-filter: blur(8px);
+  border-left: 1px solid #24b8b135;
+  box-shadow: -8px 0 30px #00000059;
+
+  visibility: hidden;
   transform: translateX(100%);
-  transition: transform 0.3s ease;
+  transition:
+    transform 0.3s ease,
+    visibility 0.3s;
 }
 
 .mobile-menu.is-open {
+  visibility: visible;
   transform: translateX(0);
 }
 
@@ -241,7 +253,13 @@
   .navbar-right {
     grid-column: 3;
     justify-self: end;
-    display: block;
+
+    display: flex;
+    align-items: center;
+  }
+
+  .navbar-right .profile-area {
+    display: none;
   }
 
   .navbar-links {
@@ -270,6 +288,79 @@
 
   .api-status {
     margin-left: 0;
+  }
+
+  /* --Profil in der mobilen Sidebar-- */
+  .mobile-profile {
+    display: flex;
+    flex: 1;
+    flex-direction: column;
+    gap: 18px;
+    padding-top: 20px;
+    border-top: 1px solid #24b8b135;
+  }
+
+  .mobile-profile__header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .mobile-profile__avatar {
+    display: grid;
+    place-items: center;
+    flex-shrink: 0;
+
+    width: 42px;
+    height: 42px;
+
+    border: 1px solid #24b8b155;
+    border-radius: 50%;
+    background: #03191f80;
+    color: #ede3e2;
+
+    font-family: 'Fugaz One', sans-serif;
+    font-size: 1rem;
+  }
+
+  .mobile-profile .profile-role {
+    margin-bottom: 0;
+  }
+
+  .mobile-profile__actions {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  .mobile-profile button {
+    width: 100%;
+    padding: 10px 12px;
+
+    border: 0;
+    border-radius: 8px;
+    background: transparent;
+    color: #ede3e2;
+
+    text-align: left;
+    font: inherit;
+    cursor: pointer;
+  }
+
+  .mobile-profile button:disabled {
+    color: #7d8f8d;
+    cursor: not-allowed;
+  }
+
+  .mobile-profile .mobile-profile__logout {
+    margin-top: auto;
+    border-top: 1px solid #24b8b135;
+    border-radius: 0;
+    color: #f87171;
+  }
+
+  .mobile-profile__logout:hover {
+    background: #16726d40;
   }
 }
 

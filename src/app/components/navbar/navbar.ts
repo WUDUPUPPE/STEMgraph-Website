@@ -14,6 +14,7 @@ import { Search } from '../search/search';
 export class Navbar {
 
   readonly apiStatusService = inject(ApiStatusService);
+  
   readonly auth = inject(AuthService);
 
   readonly apiStatus = this.apiStatusService.status;
