@@ -6,9 +6,3 @@
 main {
   min-height: 100vh;
 }
-
-.page-content {
-  position: relative;
-  isolation: isolate;
-  z-index: 0;
-}
