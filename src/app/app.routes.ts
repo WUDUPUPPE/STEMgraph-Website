@@ -1,6 +1,6 @@
 import { Routes } from '@angular/router';
 import { MainLayout } from './layouts/main-layout/main-layout';
-import { authGuard, adminGuard } from './core/auth.guards';
+import { authGuard, adminGuard } from './service/auth.guards';
 
 export const routes: Routes = [
   {
@@ -20,7 +20,7 @@ export const routes: Routes = [
           import('./pages/admin-home/admin-home').then(m => m.AdminHome),
       },
       {
-        path: 'user-home',
+        path: 'user',
         canActivate: [authGuard],
         loadComponent: () =>
           import('./pages/user-home/user-home').then(m => m.UserHome),

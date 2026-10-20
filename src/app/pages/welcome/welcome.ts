@@ -1,15 +1,17 @@
 import { Component, inject, signal } from '@angular/core';
 import { Router } from '@angular/router';
 import { AuthService } from '../../service/auth.service';
+import { FormsModule } from '@angular/forms';
 
 @Component({
   selector: 'app-welcome',
   standalone: true,
+  imports: [FormsModule],
   templateUrl: './welcome.html',
   styleUrl: './welcome.css',
 })
 export class Welcome {
-  private readonly auth = inject(AuthService);
+  readonly auth = inject(AuthService);
   private readonly router = inject(Router);
 
   readonly showLogin = signal(false);
@@ -44,9 +46,12 @@ export class Welcome {
       return;
     }
 
+    this.password = '';
+    this.errorMessage = '';
     this.closeForms();
-    this.router.navigate(
-      [this.auth.isAdmin() ? '/admin-home' : '/user-home']
+
+    void this.router.navigate(
+      [this.auth.isAdmin() ? '/admin' : '/user']
     );
   }
 }
