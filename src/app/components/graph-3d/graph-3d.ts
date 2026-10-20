@@ -1,5 +1,5 @@
 import { isPlatformBrowser } from '@angular/common';
-import { AfterViewInit, ChangeDetectorRef, Component, ElementRef, inject, Input, NgZone, OnChanges, OnDestroy, PLATFORM_ID, ViewChild, SimpleChanges } from '@angular/core';
+import { AfterViewInit, ChangeDetectorRef, Component, ElementRef, inject, Input, NgZone, OnChanges, OnDestroy, PLATFORM_ID, ViewChild, SimpleChanges, signal } from '@angular/core';
 import { Router } from '@angular/router';
 import * as THREE from 'three';
 import { Timer } from 'three';
@@ -7,6 +7,8 @@ import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
 import { GraphResponse, Node } from '../../api/models';
 import { NodeDetailCarousel } from '../node-detail-carousel/node-detail-carousel';
 import { AuthService } from '../../service/auth.service';
+import { Subscription } from 'rxjs';
+import { STEMgraphApiService } from '../../service/stemgraph-api.service';
 
 export interface Graph3dConfig {
 
@@ -189,6 +191,7 @@ export class Graph3d implements AfterViewInit, OnChanges, OnDestroy {
   };
 
   private readonly router = inject(Router);
+  private readonly api = inject(STEMgraphApiService);
 
   readonly auth = inject(AuthService);
 
@@ -235,6 +238,12 @@ export class Graph3d implements AfterViewInit, OnChanges, OnDestroy {
   private mouse = new THREE.Vector2();
 
   private hoveredNode: THREE.Mesh | null = null;
+  readonly hoverReadme = signal('');
+  readonly hoverReadmeLoading = signal(false);
+
+  private readonly readmeCache = new Map<string, string>();
+  private hoverReadmeSubscription?: Subscription;
+  private hoverReadmeNodeId: string | null = null;
 
   private selectedNode: Node | null = null;
   carouselOpen = false;
@@ -946,6 +955,12 @@ export class Graph3d implements AfterViewInit, OnChanges, OnDestroy {
     if (!node || !event) {
       this.hoverTooltip.visible = false;
       this.hoverTooltip.node = null;
+
+      this.hoverReadmeSubscription?.unsubscribe();
+      this.hoverReadmeNodeId = null;
+      this.hoverReadme.set('');
+      this.hoverReadmeLoading.set(false);
+
       this.cdr.detectChanges();
       return;
     }
@@ -957,7 +972,81 @@ export class Graph3d implements AfterViewInit, OnChanges, OnDestroy {
     this.hoverTooltip.x = event.clientX - rect.left + 16;
     this.hoverTooltip.y = event.clientY - rect.top + 16;
 
+    this.loadHoverReadme(node.id);
+
     this.cdr.detectChanges();
+  };
+
+  private toPreviewText(markdown: string): string {
+    return markdown
+      .split(/\r?\n/)
+      .slice(1)
+      .join('\n')
+      .replace(/<!--[\s\S]*?-->/g, '')
+      .replace(/```[\s\S]*?```/g, '')
+      .replace(/~~~[\s\S]*?~~~/g, '')
+      .replace(/!\[([^\]]*)\]\([^)]*\)/g, '')
+      .replace(/\[([^\]]+)\]\([^)]*\)/g, '$1')
+      .replace(/^\s{0,3}#{1,6}\s+/gm, '')
+      .replace(/^\s*>\s?/gm, '')
+      .replace(/^\s*[-*+]\s+/gm, '')
+      .replace(/[*_`]/g, '')
+      .replace(/\s+/g, ' ')
+      .trim();
+  };
+
+  private loadHoverReadme(nodeId: string): void {
+    if (this.hoverReadmeNodeId === nodeId) {
+      return;
+    }
+
+    this.hoverReadmeSubscription?.unsubscribe();
+    this.hoverReadmeNodeId = nodeId;
+
+    this.hoverReadme.set('');
+    this.hoverReadmeLoading.set(false);
+
+    const cached = this.readmeCache.get(nodeId);
+
+    if (cached !== undefined) {
+      this.hoverReadme.set(cached);
+      return;
+    }
+
+    this.hoverReadmeLoading.set(true);
+
+    this.hoverReadmeSubscription = this.api
+      .ChallengeContent(nodeId)
+      .subscribe({
+        next: (content) => {
+          const preview = this.toPreviewText(
+            content.content_markdown ?? ''
+          );
+
+          this.readmeCache.set(nodeId, preview);
+
+          if (this.hoverReadmeNodeId !== nodeId) {
+            return;
+          }
+
+          this.zone.run(() => {
+            this.hoverReadme.set(preview);
+            this.hoverReadmeLoading.set(false);
+            this.cdr.markForCheck();
+          });
+        },
+        error: () => {
+          if (this.hoverReadmeNodeId !== nodeId) {
+            return;
+          }
+
+          this.zone.run(() => {
+            this.hoverReadme.set('');
+            this.hoverReadmeLoading.set(false);
+            this.cdr.markForCheck();
+          });
+        },
+      });
   };
 
   private resize(): void {
@@ -1453,6 +1542,7 @@ export class Graph3d implements AfterViewInit, OnChanges, OnDestroy {
   };
 
   ngOnDestroy(): void {
+    this.hoverReadmeSubscription?.unsubscribe();
     this.destroyed = true;
 
     if (typeof cancelAnimationFrame !== 'undefined' && this.animationId) {

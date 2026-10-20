@@ -22,6 +22,12 @@ canvas {
   z-index: 10;
   padding: 0.35rem 1rem;
 
+  width: 460px;
+  max-width: calc(100vw - 34px);
+  box-sizing: border-box;
+  white-space: normal;
+  overflow-wrap: anywhere;
+
   color: #e9ffff;
   font-family: 'Fugaz One', sans-serif;
   background: #10555242;
@@ -60,6 +66,33 @@ canvas {
   padding: 0.2rem 0.35rem;
   font-size: 0.7rem;
   font-family: sans-serif;
+}
+
+.node-tooltip-readme {
+  margin: 10px 0 0;
+  padding-top: 8px;
+  border-top: 1px solid #24b8b135;
+
+  color: #ede3e2;
+  font-size: 0.8rem;
+  line-height: 1.45;
+  font-family: sans-serif;
+  text-align: left;
+
+  white-space: normal;
+  overflow-wrap: anywhere;
+  max-width: none;
+
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 3;
+  overflow: hidden;
+}
+
+.node-tooltip-readme-hint {
+  margin: 10px 0 0;
+  color: #93aaa8;
+  font-size: 0.8rem;
 }
 
 .node-tooltip-admin {

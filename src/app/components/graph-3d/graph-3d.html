@@ -23,6 +23,16 @@
     </div>
     }
 
+    @if (hoverReadmeLoading()) {
+      <p class="node-tooltip-readme-hint">
+        Loading README ...
+      </p>
+    } @else if (hoverReadme()) {
+      <p class="node-tooltip-readme">
+        {{ hoverReadme() }}
+      </p>
+    }
+
     @if (auth.isAdmin()) {
     <div class="node-tooltip-admin">
       <p>
