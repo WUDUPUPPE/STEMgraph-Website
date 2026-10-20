@@ -8,7 +8,7 @@ import { AuthService } from '../../service/auth.service';
   templateUrl: './welcome.html',
   styleUrl: './welcome.css',
 })
-export class WelcomeComponent {
+export class Welcome {
   private readonly auth = inject(AuthService);
   private readonly router = inject(Router);
 
