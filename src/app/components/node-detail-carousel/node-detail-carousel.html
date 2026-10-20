@@ -41,6 +41,25 @@
           }
         </div>
         }
+
+        <section class="readme-section" aria-label="README preview">
+          @if (readmeLoading()) {
+            <p class="readme-hint" role="status">
+              Loading README ...
+            </p>
+          } @else if (readmeError()) {
+            <p class="readme-hint">
+              README preview could not be loaded.
+            </p>
+          } @else if (readmePreview()) {
+            <p class="readme-preview">{{ readmePreview() }}</p>
+          } @else {
+            <p class="readme-hint">
+              No README preview available.
+            </p>
+          }
+        </section>
+        
         @if (isAdmin) {
         <div class="carousel-admin">
           @if (current.author) {
