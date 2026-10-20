@@ -6,6 +6,7 @@ import { Timer } from 'three';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
 import { GraphResponse, Node } from '../../api/models';
 import { NodeDetailCarousel } from '../node-detail-carousel/node-detail-carousel';
+import { AuthService } from '../../service/auth.service';
 
 export interface Graph3dConfig {
 
@@ -188,6 +189,8 @@ export class Graph3d implements AfterViewInit, OnChanges, OnDestroy {
   };
 
   private readonly router = inject(Router);
+
+  readonly auth = inject(AuthService);
 
   private renderer!: THREE.WebGLRenderer;
   private scene!: THREE.Scene;
@@ -674,13 +677,20 @@ export class Graph3d implements AfterViewInit, OnChanges, OnDestroy {
   };
 
   private bindInteraction(): void {
-    window.addEventListener('click', this.onClick, { passive: true });
-    window.addEventListener('pointermove', this.onPointerMove, { passive: true });
-    window.addEventListener('pointerdown', this.onPointerDown, { passive: false });
+    const canvas = this.canvasRef.nativeElement;
+
+    canvas.addEventListener('click', this.onClick, { passive: true });
+    canvas.addEventListener('pointermove', this.onPointerMove, { passive: true });
+    canvas.addEventListener('pointerdown', this.onPointerDown, { passive: false });
+    canvas.addEventListener('pointerleave', this.onPointerLeave, { passive: true });
+
     window.addEventListener('pointerup', this.onPointerUp, { passive: true });
   };
 
   private onPointerMove = (event: PointerEvent): void => {
+    if (!this.interactive) {
+      return;
+    }
     const rect = this.canvasRef.nativeElement.getBoundingClientRect();
     this.mouse.x = ((event.clientX - rect.left) / rect.width) * 2 - 1;
     this.mouse.y = -((event.clientY - rect.top) / rect.height) * 2 + 1;
@@ -751,6 +761,7 @@ export class Graph3d implements AfterViewInit, OnChanges, OnDestroy {
 
   private onPointerDown = (event: PointerEvent): void => {
     if (
+      !this.interactive ||
       this.layoutMode !== 'cluster' ||
       !this.hoveredNode
     ) {
@@ -833,6 +844,18 @@ export class Graph3d implements AfterViewInit, OnChanges, OnDestroy {
     document.body.style.cursor = 'default';
   };
 
+  private onPointerLeave = (): void => {
+    if (this.draggedNode) {
+      return;
+    }
+
+    this.setHoverState(this.hoveredNode, false);
+    this.hoveredNode = null;
+    this.updateHoverTooltip(null);
+
+    document.body.style.cursor = 'default';
+  };
+
   private setHoverState(mesh: THREE.Mesh | null, isHovered: boolean): void {
     if (!mesh) return;
 
@@ -845,7 +868,7 @@ export class Graph3d implements AfterViewInit, OnChanges, OnDestroy {
   };
 
   private onClick = (): void => {
-    if (!this.hoveredNode) {
+    if (!this.interactive || !this.hoveredNode) {
       return;
     }
 
@@ -1440,9 +1463,15 @@ export class Graph3d implements AfterViewInit, OnChanges, OnDestroy {
     this.controls?.dispose();
 
     if (isPlatformBrowser(this.platformId)) {
-      window.removeEventListener('pointermove', this.onPointerMove);
-      window.removeEventListener('pointerdown', this.onPointerDown);
+      const canvas = this.canvasRef.nativeElement;
+
+      canvas.removeEventListener('click', this.onClick);
+      canvas.removeEventListener('pointermove', this.onPointerMove);
+      canvas.removeEventListener('pointerdown', this.onPointerDown);
+      canvas.removeEventListener('pointerleave', this.onPointerLeave);
+
       window.removeEventListener('pointerup', this.onPointerUp);
+
       document.body.style.cursor = 'default';
     }
 

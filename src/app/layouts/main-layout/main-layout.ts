@@ -1,7 +1,8 @@
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { RouterOutlet } from "@angular/router";
 import { Navbar } from "../../components/navbar/navbar";
 import { Welcome } from '../../pages/welcome/welcome';
+import { AuthService } from '../../service/auth.service';
 
 @Component({
   selector: 'app-main-layout',
@@ -11,4 +12,5 @@ import { Welcome } from '../../pages/welcome/welcome';
 })
 
 export class MainLayout {
+  readonly auth = inject(AuthService);
 }

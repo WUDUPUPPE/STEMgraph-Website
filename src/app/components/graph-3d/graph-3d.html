@@ -23,7 +23,7 @@
     </div>
     }
 
-    @if (isAdmin) {
+    @if (auth.isAdmin()) {
     <div class="node-tooltip-admin">
       <p>
         <strong>Author:</strong> {{ node.author || 'Not available' }}
@@ -39,9 +39,8 @@
   }
 
   @if (carouselOpen && carouselCurrent; as current) {
-  <app-node-detail-carousel [current]="current" [isAdmin]="isAdmin" [predecessors]="carouselPredecessors"
-    [successors]="carouselSuccessors" (closed)="closeCarousel()" (nodeSelected)="selectCarouselNode($event)"
-    (nodeSelected)="selectCarouselNode($event)" />
+  <app-node-detail-carousel [current]="current" [isAdmin]="auth.isAdmin()" [predecessors]="carouselPredecessors"
+    [successors]="carouselSuccessors" (closed)="closeCarousel()" (nodeSelected)="selectCarouselNode($event)" />
   }
 
 </div>
