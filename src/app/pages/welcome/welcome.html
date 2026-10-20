@@ -1,0 +1,55 @@
+@if (!auth.user()) {
+  <div class="welcome">
+    <div class="welcome-card">
+      <h1>Welcome to STEMgraph</h1>
+      <p>Enjoy the graph and challenges for learning.</p>
+
+      <div class="welcome-actions">
+        <button type="button" (click)="openRegister()">
+          Sign up
+        </button>
+        <button type="button" (click)="openLogin()">
+          Login
+        </button>
+      </div>
+
+      @if (showLogin()) {
+        <form class="auth-form" (submit)="$event.preventDefault(); login()">
+          <h2>Login</h2>
+
+          <label>
+            Username
+            <input type="text" [(ngModel)]="username" name="username" required />
+          </label>
+
+          <label>
+            Password
+            <input type="password" [(ngModel)]="password" name="password" required />
+          </label>
+
+          @if (errorMessage) {
+            <p class="error">{{ errorMessage }}</p>
+          }
+
+          <button type="submit">Login</button>
+          <button type="button" class="secondary" (click)="closeForms()">
+            Cancel
+          </button>
+        </form>
+      }
+
+      @if (showRegister()) {
+        <div class="auth-form">
+          <h2>Sign up</h2>
+          <p>
+            The registration is not yet active in this demo.
+            Please use one of the test accounts.
+          </p>
+          <button type="button" class="secondary" (click)="closeForms()">
+            Close
+          </button>
+        </div>
+      }
+    </div>
+  </div>
+}
