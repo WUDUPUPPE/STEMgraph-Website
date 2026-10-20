@@ -24,9 +24,9 @@
     } @else if (errorMessage(); as error) {
     <p class="error-message">{{ error }}</p>
     } @else if (graph(); as graphData) {
-    <app-challenge-graph [graph]="graphData" [layoutMode]="'cluster'" [isAdmin]="isAdmin" [selectedChallengeId]="selectedChallengeId()"/>
+    <app-challenge-graph [graph]="graphData" [layoutMode]="'cluster'" [isAdmin]="isAdmin" [selectedNodeId]="selectedChallengeId()"/>
     } @else {
-    <p>Graph can´t load.</p>
+    <p>Graph could not be loaded.</p>
     }
   </section>
   }
@@ -38,9 +38,9 @@
     } @else if (errorMessage(); as error) {
     <p class="error-message">{{ error }}</p>
     } @else if (graph(); as graphData) {
-    <app-challenge-graph [graph]="graphData" [layoutMode]="'sphere'" [isAdmin]="isAdmin" [selectedChallengeId]="selectedChallengeId()"/>
+    <app-challenge-graph [graph]="graphData" [layoutMode]="'sphere'" [isAdmin]="isAdmin" [selectedNodeId]="selectedChallengeId()"/>
     } @else {
-    <p>Sphere can´t load.</p>
+    <p>Sphere could not be loaded.</p>
     }
   </section>
   }
@@ -53,7 +53,7 @@
     } @else if (errorMessage(); as error) {
     <p class="error-message">{{ error }}</p>
     } @else if (!isLoading() && !errorMessage() && list().length === 0) {
-    <p>List can´t load.</p>
+    <p>List could not be loaded.</p>
     }
 
     <div class="challenge-list">

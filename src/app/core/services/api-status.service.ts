@@ -1,12 +1,10 @@
-import { Injectable, inject, signal } from "@angular/core";
-import { STEMgraphApiService } from "./stemgraph-api.service";
-
-export type ApiStatus = 'checking' | 'online' | 'degraded' | 'offline';
+import { Injectable, inject, signal } from '@angular/core';
+import { ApiStatus } from '../models/api-status.model';
+import { STEMgraphApiService } from './stemgraph-api.service';
 
 @Injectable({
   providedIn: 'root',
 })
-
 export class ApiStatusService {
   private readonly stemgraphApi = inject(STEMgraphApiService);
 
@@ -19,7 +17,7 @@ export class ApiStatusService {
     this.apiMessage.set('Checking API status ...');
     this.databaseMessage.set('Checking Neo4j status ...');
 
-    this.stemgraphApi.Healthcheck().subscribe({
+    this.stemgraphApi.healthcheck().subscribe({
       next: () => {
         this.apiMessage.set('API is running');
         this.checkDatabase();
@@ -30,11 +28,11 @@ export class ApiStatusService {
         this.databaseMessage.set('Neo4j unavailable');
       },
     });
-  };
+  }
 
   private checkDatabase(): void {
-    this.stemgraphApi.Databasecheck().subscribe({
-      next: response => {
+    this.stemgraphApi.databasecheck().subscribe({
+      next: (response) => {
         if (response.status === 'online') {
           this.status.set('online');
           this.databaseMessage.set(response.message ?? 'API and Neo4j are reachable');
@@ -46,8 +44,8 @@ export class ApiStatusService {
       },
       error: () => {
         this.status.set('degraded');
-        this.databaseMessage.set('API is reachable, but Neo4j could´nt be checked');
+        this.databaseMessage.set('API is reachable, but Neo4j could not be checked');
       },
     });
-  };
+  }
 }

@@ -1,6 +1,7 @@
-import { Component, input, Input } from '@angular/core';
+import { Component, Input, input } from '@angular/core';
 import { GraphResponse } from '../../api/models';
-import { Graph3d, GraphLayoutMode } from '../graph-3d/graph-3d';
+import { GraphLayoutMode } from '../graph-3d/config/graph-3d.config';
+import { Graph3d } from '../graph-3d/graph-3d';
 
 @Component({
   selector: 'app-challenge-graph',
@@ -13,5 +14,5 @@ export class ChallengeGraph {
 
   @Input() layoutMode: GraphLayoutMode = 'sphere';
   @Input() isAdmin = false;
-  @Input() selectedChallengeId: string | null = null;
+  @Input() selectedNodeId: string | null = null;
 }

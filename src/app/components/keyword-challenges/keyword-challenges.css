@@ -1,0 +1,60 @@
+.keyword-challenges {
+  width: min(360px, calc(100vw - 2rem));
+  max-height: 40vh;
+  overflow-y: auto;
+  box-sizing: border-box;
+  padding: 0.5rem 1rem 0.75rem;
+
+  color: #e9ffff;
+  font-family: 'Fugaz One', sans-serif;
+  background: #10555242;
+  border: 1px solid #49226d;
+  border-radius: 0.65rem;
+  box-shadow: 0 0 20px #1055517c;
+  backdrop-filter: blur(8px);
+}
+
+.keyword-title {
+  margin: 0 0 0.5rem;
+  font-size: 1rem;
+  text-shadow: 0 0 3px #9f0003, 0 0 4px #ea003e;
+  overflow-wrap: anywhere;
+}
+
+.hint {
+  margin: 0;
+  font-size: 0.8rem;
+}
+
+.hint.error {
+  color: #ed3312;
+}
+
+.challenge-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.challenge-link {
+  display: block;
+  padding: 0.3rem 0.75rem;
+  color: inherit;
+  font-size: 0.85rem;
+  text-decoration: none;
+  border: 1px solid #24b8b124;
+  border-radius: 0.5rem;
+  background: #10555242;
+  transition:
+    border-color 0.4s ease,
+    background 0.4s ease;
+}
+
+.challenge-link:hover,
+.challenge-link:focus-visible {
+  border-color: #49226d;
+  background: #5e229766;
+}

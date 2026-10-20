@@ -1,10 +1,10 @@
 import { Location } from '@angular/common';
-import { Component, inject, OnInit, ChangeDetectorRef } from '@angular/core';
+import { ChangeDetectorRef, Component, OnInit, inject } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
-import { Logo3d } from '../../components/logo-3d/logo-3d';
 import { MarkdownComponent } from 'ngx-markdown';
-import { STEMgraphApiService } from '../../service/stemgraph-api.service';
 import { ChallengeContentResponse } from '../../api/models';
+import { Logo3d } from '../../components/logo-3d/logo-3d';
+import { STEMgraphApiService } from '../../core/services/stemgraph-api.service';
 
 @Component({
   selector: 'app-challenge-detail',
@@ -12,7 +12,6 @@ import { ChallengeContentResponse } from '../../api/models';
   templateUrl: './challenge-detail.html',
   styleUrl: './challenge-detail.css',
 })
-
 export class ChallengeDetail implements OnInit {
   private readonly route = inject(ActivatedRoute);
   private readonly location = inject(Location);
@@ -22,7 +21,7 @@ export class ChallengeDetail implements OnInit {
   readonly challengeId = this.route.snapshot.paramMap.get('id');
   readonly challengeTeaches = this.route.snapshot.paramMap.get('teaches');
 
-  content: any = null;
+  content: ChallengeContentResponse | null = null;
   loading = false;
   error = false;
 
@@ -34,26 +33,26 @@ export class ChallengeDetail implements OnInit {
 
     this.loading = true;
 
-    this.apiService.ChallengeContent(this.challengeId).subscribe({
+    this.apiService.challengeContent(this.challengeId).subscribe({
       next: (content) => {
         this.content = content;
         this.loading = false;
         this.changeDetectorRef.markForCheck();
       },
       error: (error) => {
-        console.error("Challenge Content can´t load:", error);
+        console.error('Challenge content could not be loaded:', error);
         this.error = true;
         this.loading = false;
         this.changeDetectorRef.markForCheck();
       },
     });
-  };
+  }
 
   getAssetUrl(fileName: string): string {
     return `/api/challenges/${this.challengeId}/assets/${encodeURIComponent(fileName)}`;
-  };
+  }
 
   back(): void {
     this.location.back();
-  };
+  }
 }

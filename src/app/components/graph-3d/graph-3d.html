@@ -9,40 +9,42 @@
     </div>
     }
 
-    @if (node.id) {
-    <div class="node-tooltip-id">
-      ID: {{ node.id }}
-    </div>
-    }
-
-    @if (node.keywords?.length) {
-    <div class="node-tooltip-keywords">
-      @for (keyword of node.keywords; track keyword) {
-      <span class="node-tooltip-keyword">{{ keyword }}</span>
+    @if (nodeKind === 'challenge') {
+      @if (node.id) {
+      <div class="node-tooltip-id">
+        ID: {{ node.id }}
+      </div>
       }
-    </div>
-    }
 
-    @if (hoverReadmeLoading()) {
-      <p class="node-tooltip-readme-hint">
-        Loading README ...
-      </p>
-    } @else if (hoverReadme()) {
-      <p class="node-tooltip-readme">
-        {{ hoverReadme() }}
-      </p>
-    }
+      @if (node.keywords?.length) {
+      <div class="node-tooltip-keywords">
+        @for (keyword of node.keywords; track keyword) {
+        <span class="node-tooltip-keyword">{{ keyword }}</span>
+        }
+      </div>
+      }
 
-    @if (auth.isAdmin()) {
-    <div class="node-tooltip-admin">
-      <p>
-        <strong>Author:</strong> {{ node.author || 'Not available' }}
-      </p>
+      @if (hoverReadmeLoading()) {
+        <p class="node-tooltip-readme-hint">
+          Loading README ...
+        </p>
+      } @else if (hoverReadme()) {
+        <p class="node-tooltip-readme">
+          {{ hoverReadme() }}
+        </p>
+      }
 
-      <p>
-        <strong>First used:</strong> {{ node.firstused || 'Not available' }}
-      </p>
-    </div>
+      @if (auth.isAdmin()) {
+      <div class="node-tooltip-admin">
+        <p>
+          <strong>Author:</strong> {{ node.author || 'Not available' }}
+        </p>
+
+        <p>
+          <strong>First used:</strong> {{ node.firstused || 'Not available' }}
+        </p>
+      </div>
+      }
     }
   </div>
   }

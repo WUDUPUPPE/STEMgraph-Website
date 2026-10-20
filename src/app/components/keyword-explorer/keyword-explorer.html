@@ -1,0 +1,31 @@
+<section class="keyword-explorer">
+  <header class="explorer-header">
+    <div class="view-switcher" aria-label="Set view">
+      <button type="button" [class.active]="viewMode() === 'graph'" (click)="showGraph()">
+        Graph
+      </button>
+
+      <button type="button" [class.active]="viewMode() === 'sphere'" (click)="showSphere()">
+        Sphere
+      </button>
+    </div>
+  </header>
+
+  <section class="graph-view">
+    @if (isLoading()) {
+    <p>Loading Keywords …</p>
+    } @else if (errorMessage(); as error) {
+    <p class="error-message">{{ error }}</p>
+    } @else if (graph(); as graphData) {
+      @if (viewMode() === 'graph') {
+      <app-graph-3d [graphData]="graphData" [nodeKind]="'keyword'" [layoutMode]="'cluster'"
+        [selectedNodeId]="selectedKeyword" (nodeSelected)="onNodeSelected($event)" />
+      } @else {
+      <app-graph-3d [graphData]="graphData" [nodeKind]="'keyword'" [layoutMode]="'sphere'"
+        [selectedNodeId]="selectedKeyword" (nodeSelected)="onNodeSelected($event)" />
+      }
+    } @else {
+    <p>Keywords could not be loaded.</p>
+    }
+  </section>
+</section>

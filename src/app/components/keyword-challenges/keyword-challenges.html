@@ -1,0 +1,23 @@
+@if (keyword) {
+<aside class="keyword-challenges" aria-label="Challenges of the selected keyword">
+  <h2 class="keyword-title">{{ keyword }}</h2>
+
+  @if (isLoading()) {
+  <p class="hint">Loading challenges ...</p>
+  } @else if (hasError()) {
+  <p class="hint error">Challenges could not be loaded.</p>
+  } @else if (challenges().length === 0) {
+  <p class="hint">No challenges found for this keyword.</p>
+  } @else {
+  <ul class="challenge-list">
+    @for (challenge of challenges(); track challenge.id) {
+    <li>
+      <a class="challenge-link" [routerLink]="['/challenge', challenge.id, challenge.teaches]">
+        {{ challenge.teaches || challenge.id }}
+      </a>
+    </li>
+    }
+  </ul>
+  }
+</aside>
+}

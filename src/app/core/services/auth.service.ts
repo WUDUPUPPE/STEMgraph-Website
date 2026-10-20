@@ -1,23 +1,7 @@
 import { isPlatformBrowser } from '@angular/common';
 import { Injectable, PLATFORM_ID, inject, signal } from '@angular/core';
-
-export type Role = 'user' | 'admin';
-
-export interface AppUser {
-  username: string;
-  role: Role;
-}
-
-interface TestAccount extends AppUser {
-  password: string;
-}
-
-const TEST_ACCOUNTS: TestAccount[] = [
-  { username: 'testuser', password: 'user123', role: 'user' },
-  { username: 'testadmin', password: 'admin123', role: 'admin' },
-];
-
-const STORAGE_KEY = 'stemgraph_demo_user';
+import { AUTH_STORAGE_KEY, TEST_ACCOUNTS } from '../constants/auth.constants';
+import { AppUser } from '../models/auth.model';
 
 @Injectable({ providedIn: 'root' })
 export class AuthService {
@@ -43,7 +27,7 @@ export class AuthService {
     this.user.set(currentUser);
 
     if (this.isBrowser) {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(currentUser));
+      localStorage.setItem(AUTH_STORAGE_KEY, JSON.stringify(currentUser));
     }
 
     return true;
@@ -53,7 +37,7 @@ export class AuthService {
     this.user.set(null);
 
     if (this.isBrowser) {
-      localStorage.removeItem(STORAGE_KEY);
+      localStorage.removeItem(AUTH_STORAGE_KEY);
     }
   }
 
@@ -66,7 +50,7 @@ export class AuthService {
       return null;
     }
 
-    const raw = localStorage.getItem(STORAGE_KEY);
+    const raw = localStorage.getItem(AUTH_STORAGE_KEY);
 
     if (!raw) {
       return null;
@@ -75,7 +59,7 @@ export class AuthService {
     try {
       return JSON.parse(raw) as AppUser;
     } catch {
-      localStorage.removeItem(STORAGE_KEY);
+      localStorage.removeItem(AUTH_STORAGE_KEY);
       return null;
     }
   }
