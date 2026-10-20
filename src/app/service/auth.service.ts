@@ -1,4 +1,5 @@
-import { Injectable, signal } from '@angular/core';
+import { isPlatformBrowser } from '@angular/common';
+import { Injectable, PLATFORM_ID, inject, signal } from '@angular/core';
 
 export type Role = 'user' | 'admin';
 
@@ -20,6 +21,9 @@ const STORAGE_KEY = 'stemgraph_demo_user';
 
 @Injectable({ providedIn: 'root' })
 export class AuthService {
+  private readonly platformId = inject(PLATFORM_ID);
+  private readonly isBrowser = isPlatformBrowser(this.platformId);
+
   readonly user = signal<AppUser | null>(this.loadUser());
 
   login(username: string, password: string): boolean {
@@ -37,13 +41,20 @@ export class AuthService {
     };
 
     this.user.set(currentUser);
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(currentUser));
+
+    if (this.isBrowser) {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(currentUser));
+    }
+
     return true;
   }
 
   logout(): void {
     this.user.set(null);
-    localStorage.removeItem(STORAGE_KEY);
+
+    if (this.isBrowser) {
+      localStorage.removeItem(STORAGE_KEY);
+    }
   }
 
   isAdmin(): boolean {
@@ -51,7 +62,21 @@ export class AuthService {
   }
 
   private loadUser(): AppUser | null {
+    if (!this.isBrowser) {
+      return null;
+    }
+
     const raw = localStorage.getItem(STORAGE_KEY);
-    return raw ? (JSON.parse(raw) as AppUser) : null;
+
+    if (!raw) {
+      return null;
+    }
+
+    try {
+      return JSON.parse(raw) as AppUser;
+    } catch {
+      localStorage.removeItem(STORAGE_KEY);
+      return null;
+    }
   }
 }
