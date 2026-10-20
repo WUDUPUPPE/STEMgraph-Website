@@ -13,8 +13,8 @@ interface TestAccount extends AppUser {
 }
 
 const TEST_ACCOUNTS: TestAccount[] = [
-  { username: 'user', password: 'user123', role: 'user' },
-  { username: 'admin', password: 'admin123', role: 'admin' },
+  { username: 'testuser', password: 'user123', role: 'user' },
+  { username: 'testadmin', password: 'admin123', role: 'admin' },
 ];
 
 const STORAGE_KEY = 'stemgraph_demo_user';
