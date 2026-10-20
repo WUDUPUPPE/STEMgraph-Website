@@ -128,6 +128,9 @@
 }
 
 .mobile-menu a {
+  margin: 2px 0;
+  border-top: 1px solid #24b8b135;
+  padding: 12px 0;
   color: #ede3e2;
   text-shadow: 0 0 4px #9f0003, 0 0 5px #ea003e;
   font-family: 'Fugaz One', sans-serif;
@@ -190,6 +193,7 @@
 .profile-name {
   margin: 0;
   color: #ede3e2;
+  text-shadow: 0 0 4px #9f0003, 0 0 5px #ea003e;
   font-family: 'Fugaz One', sans-serif;
 }
 
@@ -296,8 +300,7 @@
     flex: 1;
     flex-direction: column;
     gap: 18px;
-    padding-top: 20px;
-    border-top: 1px solid #24b8b135;
+    padding-top: 20px
   }
 
   .mobile-profile__header {
@@ -355,7 +358,7 @@
   .mobile-profile .mobile-profile__logout {
     margin-top: auto;
     border-top: 1px solid #24b8b135;
-    border-radius: 0;
+    border-radius: 1;
     color: #f87171;
   }
 

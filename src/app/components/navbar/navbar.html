@@ -76,11 +76,7 @@
 </header>
 
 <aside #mobileMenu id="mobile-menu" class="mobile-menu" [class.is-open]="menuOpen">
-  <nav aria-label="Mobile navigation">
-    <a routerLink="/keywords" (click)="closeMenu()">Keywords</a>
-  </nav>
-
-  @if (auth.user(); as user) {
+    @if (auth.user(); as user) {
     <section class="mobile-profile" aria-label="Profil">
       <div class="mobile-profile__header">
         <span class="mobile-profile__avatar" aria-hidden="true">
@@ -102,6 +98,10 @@
           <button type="button" disabled>Instant Update</button>
           <button type="button" disabled>Status</button>
         }
+
+        <nav aria-label="Mobile navigation">
+          <a routerLink="/keywords" (click)="closeMenu()">Keywords</a>
+        </nav>
       </div>
 
       <button

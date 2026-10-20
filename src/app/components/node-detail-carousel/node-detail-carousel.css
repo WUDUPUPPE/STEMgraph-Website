@@ -19,7 +19,7 @@
   overflow: hidden;
   pointer-events: auto;
   padding: clamp(4.5rem, 10vh, 16rem) clamp(0.5rem, 0.2vw, 2rem) 1rem;
-  background: #07262461;
+  background: #0726242f;
   backdrop-filter: blur(4px);
   -webkit-backdrop-filter: blur(8px);
   animation: backdrop-in 180ms ease-out both;
@@ -174,7 +174,7 @@
   color: #f4f1ff;
   background:
     linear-gradient(145deg,
-      #092625d8,
+      #062222d8,
       #021715cb);
   box-shadow:
     0 0 20px #24b8b13b,

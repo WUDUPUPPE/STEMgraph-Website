@@ -4,17 +4,20 @@
   z-index: 1000;
   display: grid;
   place-items: center;
-  background: rgba(0, 0, 0, 0.45);
-  backdrop-filter: blur(4px);
+  backdrop-filter: blur(2px);
 }
 
 .welcome-card {
   width: min(92vw, 480px);
   padding: 2rem;
-  border-radius: 16px;
-  background: #fff;
+  border: 1px solid #540f95;
+  border-radius: 18px;
+  background: #03191fad;
+  backdrop-filter: blur(2px);
   text-align: center;
-  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.25);
+  box-shadow:
+    0 0 20px #24b8b13b,
+    inset 0 0 8px #24b8b134;
 }
 
 .welcome-actions {
@@ -35,10 +38,14 @@
 }
 
 .auth-form input {
-  width: 100%;
+  width: 94%;
   padding: 0.6rem;
   margin-top: 0.25rem;
-  border: 1px solid #ccc;
+  border-radius: 8px;
+  height: clamp(28px, 1.5vw, 36px);
+  color: #f7fbfbc0;
+  background: #03191f99;
+  border: 1px solid #24b8b124;
   border-radius: 8px;
 }
 
@@ -47,12 +54,21 @@
 }
 
 button {
-  padding: 0.6rem 1rem;
-  border: none;
-  border-radius: 8px;
+  text-shadow: 0 0 3px #9f0003, 0 0 4px #ea003e;
+  text-decoration: none;
+  border: 1px solid #6a2ea2;
+  border-radius: 0.5rem;
+  background: #310b54bb;
+  color: white;
   cursor: pointer;
+  padding: 0.4rem 1rem;
+  font-family: 'Fugaz One', sans-serif;
+}
+
+button:hover {
+  background: #5e2297;
 }
 
 .secondary {
-  background: #eee;
+  background: #310b54bb;
 }
