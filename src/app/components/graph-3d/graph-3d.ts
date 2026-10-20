@@ -1,95 +1,52 @@
 import { isPlatformBrowser } from '@angular/common';
-import { AfterViewInit, ChangeDetectorRef, Component, ElementRef, inject, Input, NgZone, OnChanges, OnDestroy, PLATFORM_ID, ViewChild, SimpleChanges, signal } from '@angular/core';
-import { Router } from '@angular/router';
-import * as THREE from 'three';
-import { Timer } from 'three';
-import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
-import { GraphResponse, Node } from '../../api/models';
-import { NodeDetailCarousel } from '../node-detail-carousel/node-detail-carousel';
-import { AuthService } from '../../service/auth.service';
+import {
+  AfterViewInit,
+  ChangeDetectorRef,
+  Component,
+  ElementRef,
+  Input,
+  NgZone,
+  OnChanges,
+  OnDestroy,
+  PLATFORM_ID,
+  SimpleChanges,
+  ViewChild,
+  inject,
+  signal,
+} from '@angular/core';
 import { Subscription } from 'rxjs';
-import { STEMgraphApiService } from '../../service/stemgraph-api.service';
+import { Timer } from 'three';
+import { GraphResponse, Node } from '../../api/models';
+import { AuthService } from '../../core/services/auth.service';
+import { ReadmePreviewService } from '../../core/services/readme-preview.service';
+import { NodeDetailCarousel } from '../node-detail-carousel/node-detail-carousel';
+import {
+  DEFAULT_CLUSTER_CONFIG,
+  DEFAULT_GRAPH_CONFIG,
+  Graph3dConfig,
+  GraphClusterConfig,
+  GraphLayoutMode,
+} from './config/graph-3d.config';
+import { ClusterLayout } from './layout/cluster-layout';
+import { GraphLayout } from './layout/graph-layout';
+import { SphereLayout } from './layout/sphere-layout';
+import { ClusterPhysics } from './scene/cluster-physics';
+import { GraphInteraction } from './scene/graph-interaction';
+import { GraphView } from './scene/graph-view';
+import { SceneManager } from './scene/scene-manager';
+import { SelectionRing } from './scene/selection-ring';
 
-export interface Graph3dConfig {
-
-  nodeBaseRadius: number;
-  nodeDegreeScale: number;
-  nodeMaxRadius: number;
-
-  nodeColor: number;
-  nodeHoverColor: number;
-  nodeHoverEmissive: number;
-  nodeMetalness: number;
-  nodeRoughness: number;
-  nodeClearcoat: number;
-  nodeClearcoatRoughness: number;
-  nodeSegments: number;
-
-  nodeHoverScale: number;
-  nodeHoverTransitionSpeed: number;
-
-  nodeShadowEnabled: boolean;
-  nodeShadowScale: number;
-  nodeShadowColor: number;
-  nodeShadowOpacity: number;
-
-  selectedRingEnabled: boolean;
-  selectedRingColor: number;
-  selectedRingOpacity: number;
-  selectedRingScale: number;
-  selectedRingPulseSpeed: number;
-  selectedRingPulseStrength: number;
-
-  edgeColor: number;
-  edgeOpacity: number;
-  edgeHoverOpacity: number;
-
-  layoutRadius: number;
-
-  edgeFlowEnabled: boolean;
-  edgeFlowSpeed: number;
-  edgeFlowSegmentLength: number;
-  edgeFlowSegmentsPerEdge: number;
-  edgeFlowColor: number;
-  edgeFlowOpacity: number;
-
-  autoRotateSpeed: number;
-  minZoom: number;
-  maxZoom: number;
-}
-
-export interface GraphClusterConfig {
-  nodeSpacing: number;
-  desiredDistance: number;
-  repulsion: number;
-  attraction: number;
-  centerForce: number;
-  damping: number;
-  iterations: number;
-
-  livePhysicsEnabled: boolean;
-  livePhysicsStrength: number;
-  livePhysicsDamping: number;
-  livePhysicsMaxDistance: number;
-
-  physicsFramesRemaining: number;
-
-  liveSpringStrength: number;
-  liveSpringDistance: number;
-  liveNeighborPull: number;
-
-  edgeOpacity: number;
-  edgeFlowSpeed: number;
-  edgeFlowOpacity: number;
-  edgeFlowSegmentsPerEdge: number;
-  edgeFlowSegmentLength: number;
-
-  minZoom: number;
-  maxZoom: number;
-}
-
-export type GraphLayoutMode = 'sphere' | 'cluster';
-
+/**
+ * Zeigt den Challenge-Graphen in 3D (three.js).
+ *
+ * Die Komponente ist nur noch der "Kleber" zwischen Angular und den
+ * 3D-Klassen im Ordner scene/ und layout/:
+ *  - SceneManager      Szene, Kamera, Renderer, Steuerung
+ *  - GraphView         Knoten, Kanten, Animationen
+ *  - ClusterPhysics    Physik im Cluster-Modus
+ *  - GraphInteraction  Maus (Hover, Klick, Ziehen)
+ *  - SelectionRing     Ring um den ausgewählten Knoten
+ */
 @Component({
   selector: 'app-graph-3d',
   standalone: true,
@@ -97,9 +54,13 @@ export type GraphLayoutMode = 'sphere' | 'cluster';
   templateUrl: './graph-3d.html',
   styleUrl: './graph-3d.css',
 })
-
 export class Graph3d implements AfterViewInit, OnChanges, OnDestroy {
   private readonly platformId = inject(PLATFORM_ID);
+  private readonly zone = inject(NgZone);
+  private readonly cdr = inject(ChangeDetectorRef);
+  private readonly readmePreviews = inject(ReadmePreviewService);
+
+  readonly auth = inject(AuthService);
 
   @ViewChild('canvas', { static: true })
   private canvasRef!: ElementRef<HTMLCanvasElement>;
@@ -108,181 +69,56 @@ export class Graph3d implements AfterViewInit, OnChanges, OnDestroy {
   @Input() autoRotate = true;
   @Input() interactive = true;
   @Input() layoutMode: GraphLayoutMode = 'sphere';
-
   @Input() isAdmin = false;
-
   @Input() selectedChallengeId: string | null = null;
 
-  readonly config: Graph3dConfig = {
-    nodeBaseRadius: 0.08,
-    nodeDegreeScale: 0.01,
-    nodeMaxRadius: 0.12,
+  readonly config: Graph3dConfig = { ...DEFAULT_GRAPH_CONFIG };
+  readonly clusterConfig: GraphClusterConfig = { ...DEFAULT_CLUSTER_CONFIG };
 
-    nodeColor: 0xc104ff,
-    nodeHoverColor: 0x1a918c,
-    nodeHoverEmissive: 0x2a1b3d,
-    nodeMetalness: 0.8,
-    nodeRoughness: 0.25,
-    nodeClearcoat: 0.5,
-    nodeClearcoatRoughness: 0.1,
-    nodeSegments: 20,
-
-    nodeHoverScale: 1.12,
-    nodeHoverTransitionSpeed: 0.15,
-
-    nodeShadowEnabled: true,
-    nodeShadowScale: 1.03,
-    nodeShadowColor: 0x572368,
-    nodeShadowOpacity: 0.77,
-
-    selectedRingEnabled: true,
-    selectedRingColor: 0x1a918c,
-    selectedRingOpacity: 0.45,
-    selectedRingScale: 1.1,
-    selectedRingPulseSpeed: 2,
-    selectedRingPulseStrength: 0.15,
-
-    edgeColor: 0xffffff,
-    edgeOpacity: 0.15,
-    edgeHoverOpacity: 0.85,
-
-    layoutRadius: 3,
-
-    edgeFlowEnabled: true,
-    edgeFlowSpeed: 0.05,
-    edgeFlowSegmentLength: 0.04,
-    edgeFlowSegmentsPerEdge: 8,
-    edgeFlowColor: 0x1a918c,
-    edgeFlowOpacity: 0.50,
-
-    autoRotateSpeed: 0.1,
-    minZoom: 5,
-    maxZoom: 19.8,
-  };
-
-  readonly clusterConfig: GraphClusterConfig = {
-    nodeSpacing: 0.35,
-    desiredDistance: 0.8,
-    repulsion: 0.015,
-    attraction: 0.1,
-    centerForce: 0.003,
-    damping: 0.92,
-    iterations: 220,
-
-    livePhysicsEnabled: true,
-    livePhysicsStrength: 0.18,
-    livePhysicsDamping: 0.28,
-    livePhysicsMaxDistance: 600,
-
-    physicsFramesRemaining: 240,
-
-    liveSpringStrength: 0.05,
-    liveSpringDistance: 0.4,
-    liveNeighborPull: 0.08,
-
-    edgeOpacity: 0.15,
-    edgeFlowSpeed: 0.14,
-    edgeFlowOpacity: 0.70,
-    edgeFlowSegmentsPerEdge: 5,
-    edgeFlowSegmentLength: 0.06,
-
-    minZoom: 12,
-    maxZoom: 62,
-  };
-
-  private readonly router = inject(Router);
-  private readonly api = inject(STEMgraphApiService);
-
-  readonly auth = inject(AuthService);
-
-  private renderer!: THREE.WebGLRenderer;
-  private scene!: THREE.Scene;
-  private camera!: THREE.PerspectiveCamera;
-  private graph = new THREE.Group();
-  private controls?: OrbitControls;
-
-  private nodes = new Map<string, THREE.Mesh>();
-  private nodeShadows = new Map<string, THREE.Mesh>();
-  private nodeBaseScale = new Map<string, number>();
-  private nodeById = new Map<string, Node>();
-
+  // Tooltip beim Hover (wird im Template angezeigt)
   readonly hoverTooltip = {
     visible: false,
     x: 0,
     y: 0,
     node: null as Node | null,
   };
-
-  private edges: THREE.Line[] = [];
-  private edgeMaterials: THREE.LineBasicMaterial[] = [];
-  private edgeFlows: THREE.Line[] = [];
-
-  private edgeConnections = new Map<
-    THREE.Line,
-    {
-      sourceId: string;
-      targetId: string;
-    }
-  >();
-
-  private edgeFlowPaths = new Map<
-    THREE.Line,
-    {
-      sourceId: string;
-      targetId: string;
-      offset: number;
-    }
-  >();
-
-  private raycaster = new THREE.Raycaster();
-  private mouse = new THREE.Vector2();
-
-  private hoveredNode: THREE.Mesh | null = null;
   readonly hoverReadme = signal('');
   readonly hoverReadmeLoading = signal(false);
 
-  private readonly readmeCache = new Map<string, string>();
   private hoverReadmeSubscription?: Subscription;
   private hoverReadmeNodeId: string | null = null;
 
-  private selectedNode: Node | null = null;
+  // Detail-Karussell
   carouselOpen = false;
   carouselCurrent: Node | null = null;
   carouselPredecessors: Node[] = [];
   carouselSuccessors: Node[] = [];
-  private selectedRing: THREE.Mesh | null = null;
 
-  private draggedNode: THREE.Mesh | null = null;
-  private dragPlane = new THREE.Plane();
-  private dragIntersection = new THREE.Vector3();
-  private dragOffset = new THREE.Vector3();
-  private dragStartPosition = new THREE.Vector3();
-  private dragEdgeLengths = new Map<THREE.Line, number>();
+  private selectedNode: Node | null = null;
 
-  private physicsFramesRemaining = 0;
+  // 3D-Klassen (werden erst in ngAfterViewInit erzeugt)
+  private sceneManager!: SceneManager;
+  private graphView!: GraphView;
+  private physics!: ClusterPhysics;
+  private interaction!: GraphInteraction;
+  private selectionRing!: SelectionRing;
 
-  private liveVelocities = new Map<string, THREE.Vector3>();
-
-  private timer = new Timer();
+  private readonly timer = new Timer();
   private animationId = 0;
-  private resizeObserver?: ResizeObserver;
   private destroyed = false;
-
   private viewInitialized = false;
-
-  constructor(
-    private readonly zone: NgZone,
-    private readonly cdr: ChangeDetectorRef
-  ) { }
 
   ngAfterViewInit(): void {
     if (!isPlatformBrowser(this.platformId)) {
       return;
     }
 
+    // three.js läuft außerhalb von Angular, damit nicht bei jedem Frame
+    // die Change Detection startet.
     this.zone.runOutsideAngular(() => {
-      this.initScene();
-      this.bindInteraction();
+      this.createSceneObjects();
+      this.syncInputs();
+      this.interaction.bind();
       this.viewInitialized = true;
 
       if (this.graphData) {
@@ -292,666 +128,139 @@ export class Graph3d implements AfterViewInit, OnChanges, OnDestroy {
 
       this.animate();
     });
-  };
+  }
 
-  private initScene(): void {
-    const canvas = this.canvasRef.nativeElement;
-
-    this.scene = new THREE.Scene();
-
-    this.camera = new THREE.PerspectiveCamera(50, 1, 0.1, 100);
-    this.camera.position.set(0, 0, 8);
-
-    this.renderer = new THREE.WebGLRenderer({
-      canvas,
-      alpha: true,
-      antialias: true,
-      powerPreference: 'high-performance',
-    });
-
-    this.renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
-    this.renderer.outputColorSpace = THREE.SRGBColorSpace;
-    this.renderer.toneMapping = THREE.ACESFilmicToneMapping;
-    this.renderer.toneMappingExposure = 1.0;
-
-    const ambient = new THREE.AmbientLight(0xffffff, 0.6);
-    this.scene.add(ambient);
-
-    const key = new THREE.DirectionalLight(0xffffff, 1.2);
-    key.position.set(5, 8, 10);
-    this.scene.add(key);
-
-    const blue = new THREE.PointLight(0x4f8cff, 0.8, 15);
-    blue.position.set(-6, 2, -4);
-    this.scene.add(blue);
-
-    this.scene.add(this.graph);
-
-    if (this.interactive) {
-      this.controls = new OrbitControls(this.camera, canvas);
-      this.controls.enableDamping = true;
-      this.controls.dampingFactor = 0.08;
-      this.controls.minDistance = this.config.minZoom;
-      this.controls.maxDistance = this.config.maxZoom;
-      this.controls.autoRotate = this.autoRotate;
-      this.controls.autoRotateSpeed = this.config.autoRotateSpeed;
+  ngOnChanges(changes: SimpleChanges): void {
+    if (!this.viewInitialized) {
+      return;
     }
 
-    this.resizeObserver = new ResizeObserver(() => this.resize());
-    this.resizeObserver.observe(canvas);
-    this.resize();
-  };
+    this.syncInputs();
+
+    if (changes['layoutMode'] && !changes['layoutMode'].firstChange) {
+      this.closeCarousel();
+    }
+
+    if (changes['graphData'] && this.graphData) {
+      this.buildGraph(this.graphData);
+    }
+
+    if (changes['selectedChallengeId'] && this.selectedChallengeId) {
+      this.selectRequestedNode();
+    }
+  }
+
+  ngOnDestroy(): void {
+    this.hoverReadmeSubscription?.unsubscribe();
+    this.destroyed = true;
+
+    if (typeof cancelAnimationFrame !== 'undefined' && this.animationId) {
+      cancelAnimationFrame(this.animationId);
+    }
+
+    if (isPlatformBrowser(this.platformId)) {
+      this.interaction?.unbind();
+    }
+
+    this.graphView?.dispose();
+    this.sceneManager?.dispose();
+  }
+
+  // ---------------------------------------------------------------------------
+  // Aufbau
+  // ---------------------------------------------------------------------------
+
+  private createSceneObjects(): void {
+    const canvas = this.canvasRef.nativeElement;
+
+    this.sceneManager = new SceneManager(canvas, this.config, {
+      interactive: this.interactive,
+      autoRotate: this.autoRotate,
+    });
+
+    this.graphView = new GraphView(
+      this.sceneManager.graphGroup,
+      this.config,
+      this.clusterConfig
+    );
+
+    this.physics = new ClusterPhysics(this.graphView, this.clusterConfig);
+
+    this.selectionRing = new SelectionRing(
+      this.sceneManager.graphGroup,
+      this.graphView.nodes,
+      this.config
+    );
+
+    this.interaction = new GraphInteraction(
+      canvas,
+      this.sceneManager,
+      this.graphView,
+      this.physics,
+      {
+        onHover: (node, event) => this.updateHoverTooltip(node, event),
+        onNodeClick: (node) => this.openCarouselFor(node),
+      }
+    );
+  }
+
+  /** Gibt die aktuellen Input-Werte an die 3D-Klassen weiter. */
+  private syncInputs(): void {
+    this.graphView.layoutMode = this.layoutMode;
+    this.physics.layoutMode = this.layoutMode;
+    this.interaction.layoutMode = this.layoutMode;
+    this.interaction.interactive = this.interactive;
+  }
+
+  private createLayout(): GraphLayout {
+    return this.layoutMode === 'sphere'
+      ? new SphereLayout(this.config)
+      : new ClusterLayout(this.clusterConfig);
+  }
 
   private buildGraph(data: GraphResponse): void {
-    while (this.graph.children.length > 0) {
-      const child = this.graph.children[0];
-      this.graph.remove(child);
-      if (child instanceof THREE.Mesh) {
-        child.geometry.dispose();
-        (child.material as THREE.Material).dispose();
-      }
-    }
+    this.graphView.build(data, this.createLayout());
+    this.physics.reset();
 
-    this.nodes.clear();
-    this.nodeShadows.clear();
-    this.nodeBaseScale.clear();
-    this.liveVelocities.clear();
-    this.nodeById.clear();
+    const isCluster = this.layoutMode === 'cluster';
 
-    for (const node of data.nodes) {
-      this.nodeById.set(node.id, node);
-    }
-
-    this.edges.forEach(edge => edge.geometry.dispose());
-    this.edgeMaterials.forEach(material => material.dispose());
-
-    this.edgeFlows.forEach(flow => {
-      flow.geometry.dispose();
-      (flow.material as THREE.Material).dispose();
-    });
-
-    this.edges = [];
-    this.edgeMaterials = [];
-    this.edgeFlows = [];
-    this.edgeFlowPaths.clear();
-    this.edgeConnections.clear();
-
-    const degreeById = new Map<string, number>();
-    data.nodes.forEach(node => degreeById.set(node.id, 0));
-    data.edges.forEach(edge => {
-      degreeById.set(edge.source, (degreeById.get(edge.source) ?? 0) + 1);
-      degreeById.set(edge.target, (degreeById.get(edge.target) ?? 0) + 1);
-    });
-
-    const nodePositions =
-      this.layoutMode === 'sphere'
-        ? this.computeSpherePositions(data)
-        : this.computeClusterPositions(data);
-
-    data.nodes.forEach(node => {
-      const position = nodePositions.get(node.id);
-
-      if (!position) {
-        return;
-      }
-
-      const degree = degreeById.get(node.id) ?? 0;
-
-      const radius = Math.min(
-        this.config.nodeBaseRadius + degree * this.config.nodeDegreeScale,
-        this.config.nodeMaxRadius
-      );
-
-      const geometry = new THREE.SphereGeometry(
-        radius,
-        this.config.nodeSegments,
-        this.config.nodeSegments
-      );
-
-      const material = new THREE.MeshPhysicalMaterial({
-        color: this.config.nodeColor,
-        metalness: this.config.nodeMetalness,
-        roughness: this.config.nodeRoughness,
-        clearcoat: this.config.nodeClearcoat,
-        clearcoatRoughness: this.config.nodeClearcoatRoughness,
-      });
-
-      const mesh = new THREE.Mesh(geometry, material);
-      mesh.position.copy(position);
-
-      if (this.config.nodeShadowEnabled) {
-        const shadowGeometry = new THREE.SphereGeometry(
-          radius * this.config.nodeShadowScale,
-          this.config.nodeSegments,
-          this.config.nodeSegments
-        );
-
-        const shadowMaterial = new THREE.MeshBasicMaterial({
-          color: this.config.nodeShadowColor,
-          transparent: true,
-          opacity: this.config.nodeShadowOpacity,
-          side: THREE.BackSide,
-          depthWrite: false,
-        });
-
-        const shadowMesh = new THREE.Mesh(
-          shadowGeometry, shadowMaterial
-        );
-
-        shadowMesh.position.copy(position);
-
-        this.graph.add(shadowMesh);
-        this.nodeShadows.set(node.id, shadowMesh);
-      }
-      mesh.userData['nodeId'] = node.id;
-      mesh.userData['nodeData'] = node;
-      mesh.scale.setScalar(1);
-
-      this.graph.add(mesh);
-      this.nodes.set(node.id, mesh);
-      this.liveVelocities.set(
-        node.id,
-        new THREE.Vector3()
-      );
-      this.nodeBaseScale.set(node.id, 1);
-    });
-
-    data.edges.forEach((edge, edgeIndex) => {
-      const sourcePos = nodePositions.get(edge.source);
-      const targetPos = nodePositions.get(edge.target);
-
-      if (!sourcePos || !targetPos) {
-        return;
-      }
-
-      const edgePoints = [sourcePos, targetPos];
-
-      const edgeGeometry = new THREE.BufferGeometry().setFromPoints(
-        edgePoints
-      ) as THREE.BufferGeometry;
-
-      const edgeMaterial = new THREE.LineBasicMaterial({
-        color: this.config.edgeColor,
-        transparent: true,
-        opacity:
-          this.layoutMode === 'cluster'
-            ? this.clusterConfig.edgeOpacity
-            : this.config.edgeOpacity,
-      });
-
-      const line = new THREE.Line(edgeGeometry, edgeMaterial);
-
-      this.graph.add(line);
-      this.edges.push(line);
-      this.edgeMaterials.push(edgeMaterial);
-      this.edgeConnections.set(line, {
-        sourceId: edge.source,
-        targetId: edge.target,
-      });
-
-      if (this.config.edgeFlowEnabled) {
-        const flowCount =
-          this.layoutMode === 'cluster'
-            ? this.clusterConfig.edgeFlowSegmentsPerEdge
-            : this.config.edgeFlowSegmentsPerEdge; const edgeOffset = edgeIndex / Math.max(1, data.edges.length);
-
-        for (let index = 0; index < flowCount; index++) {
-          const flowGeometry = new THREE.BufferGeometry();
-          const positions = new Float32Array(6);
-
-          flowGeometry.setAttribute(
-            'position',
-            new THREE.BufferAttribute(positions, 3)
-          );
-
-          const flowMaterial = new THREE.LineBasicMaterial({
-            color: this.config.edgeFlowColor,
-            transparent: true,
-            opacity:
-              this.layoutMode === 'cluster'
-                ? this.clusterConfig.edgeFlowOpacity
-                : this.config.edgeFlowOpacity,
-          });
-
-          const flowLine = new THREE.Line(flowGeometry, flowMaterial);
-
-          this.graph.add(flowLine);
-          this.edgeFlows.push(flowLine);
-
-          this.edgeFlowPaths.set(flowLine, {
-            sourceId: edge.source,
-            targetId: edge.target,
-            offset: edgeOffset + index / flowCount,
-          });
-        }
-      }
-    });
-    if (this.controls) {
-      this.controls.minDistance =
-        this.layoutMode === 'cluster'
-          ? this.clusterConfig.minZoom
-          : this.config.minZoom;
-
-      this.controls.maxDistance =
-        this.layoutMode === 'cluster'
-          ? this.clusterConfig.maxZoom
-          : this.config.maxZoom;
-
-      this.controls.update();
-    }
-  };
-
-  private computeSpherePositions(
-    data: GraphResponse
-  ): Map<string, THREE.Vector3> {
-    const positions = new Map<string, THREE.Vector3>();
-    const { layoutRadius } = this.config;
-
-    data.nodes.forEach((node, index) => {
-      const phi = Math.acos(
-        -1 + (2 * index) / data.nodes.length
-      );
-
-      const theta =
-        Math.sqrt(data.nodes.length * Math.PI) * phi;
-
-      const x =
-        layoutRadius * Math.sin(phi) * Math.cos(theta);
-
-      const y =
-        layoutRadius * Math.sin(phi) * Math.sin(theta);
-
-      const z = layoutRadius * Math.cos(phi);
-
-      positions.set(
-        node.id,
-        new THREE.Vector3(x, y, z)
-      );
-    });
-
-    return positions;
-  };
-
-  private computeClusterPositions(
-    data: GraphResponse
-  ): Map<string, THREE.Vector3> {
-    const positions = new Map<string, THREE.Vector3>();
-    const velocities = new Map<string, THREE.Vector3>();
-
-    data.nodes.forEach(node => {
-      positions.set(
-        node.id,
-        new THREE.Vector3(
-          (Math.random() - 0.5) * this.clusterConfig.nodeSpacing * 4,
-          (Math.random() - 0.5) * this.clusterConfig.nodeSpacing * 4,
-          (Math.random() - 0.5) * this.clusterConfig.nodeSpacing * 4
-        )
-      );
-
-      velocities.set(node.id, new THREE.Vector3());
-    });
-
-    const { iterations, repulsion, attraction, centerForce, damping, desiredDistance } = this.clusterConfig;
-
-    for (let step = 0; step < iterations; step++) {
-      data.nodes.forEach(nodeA => {
-        const positionA = positions.get(nodeA.id);
-        const velocityA = velocities.get(nodeA.id);
-
-        if (!positionA || !velocityA) {
-          return;
-        }
-
-        data.nodes.forEach(nodeB => {
-          if (nodeA.id === nodeB.id) {
-            return;
-          }
-
-          const positionB = positions.get(nodeB.id);
-
-          if (!positionB) {
-            return;
-          }
-
-          const difference = positionA.clone().sub(positionB);
-          const distance = Math.max(difference.length(), 0.1);
-
-          velocityA.add(
-            difference
-              .normalize()
-              .multiplyScalar(
-                repulsion / (distance * distance)
-              )
-          );
-        });
-
-        velocityA.add(
-          positionA.clone().multiplyScalar(-centerForce)
-        );
-      });
-
-      data.edges.forEach(edge => {
-        const sourcePosition = positions.get(edge.source);
-        const targetPosition = positions.get(edge.target);
-        const sourceVelocity = velocities.get(edge.source);
-        const targetVelocity = velocities.get(edge.target);
-
-        if (
-          !sourcePosition ||
-          !targetPosition ||
-          !sourceVelocity ||
-          !targetVelocity
-        ) {
-          return;
-        }
-
-        const difference = targetPosition
-          .clone()
-          .sub(sourcePosition);
-
-        const distance = difference.length();
-
-        if (distance === 0) {
-          return;
-        }
-
-        const force =
-          (distance - desiredDistance) * attraction;
-
-        const direction = difference.normalize();
-
-        sourceVelocity.add(
-          direction.clone().multiplyScalar(force)
-        );
-
-        targetVelocity.add(
-          direction.clone().multiplyScalar(-force)
-        );
-      });
-
-      data.nodes.forEach(node => {
-        const position = positions.get(node.id);
-        const velocity = velocities.get(node.id);
-
-        if (!position || !velocity) {
-          return;
-        }
-
-        velocity.multiplyScalar(damping);
-        position.add(velocity);
-      });
-    }
-
-    return positions;
-  };
-
-  private bindInteraction(): void {
-    const canvas = this.canvasRef.nativeElement;
-
-    canvas.addEventListener('click', this.onClick, { passive: true });
-    canvas.addEventListener('pointermove', this.onPointerMove, { passive: true });
-    canvas.addEventListener('pointerdown', this.onPointerDown, { passive: false });
-    canvas.addEventListener('pointerleave', this.onPointerLeave, { passive: true });
-
-    window.addEventListener('pointerup', this.onPointerUp, { passive: true });
-  };
-
-  private onPointerMove = (event: PointerEvent): void => {
-    if (!this.interactive) {
-      return;
-    }
-    const rect = this.canvasRef.nativeElement.getBoundingClientRect();
-    this.mouse.x = ((event.clientX - rect.left) / rect.width) * 2 - 1;
-    this.mouse.y = -((event.clientY - rect.top) / rect.height) * 2 + 1;
-
-    this.raycaster.setFromCamera(this.mouse, this.camera);
-    if (this.draggedNode) {
-      this.updateHoverTooltip(null);
-      if (
-        this.raycaster.ray.intersectPlane(
-          this.dragPlane,
-          this.dragIntersection
-        )
-      ) {
-        const previousPosition = this.draggedNode.position.clone();
-
-        this.draggedNode.position.copy(
-          this.dragIntersection.clone().add(this.dragOffset)
-        );
-
-        const draggedNodeId =
-          this.draggedNode.userData['nodeId'] as string;
-
-        const movement = this.draggedNode.position
-          .clone()
-          .sub(previousPosition);
-
-        this.updateNodeShadow(draggedNodeId);
-
-        this.applyLiveClusterPhysics(
-          draggedNodeId,
-          movement
-        );
-
-        this.updateConnectedEdges();
-      }
-
-      return;
-    }
-
-    const intersects = this.raycaster.intersectObjects(
-      Array.from(this.nodes.values())
+    this.sceneManager.setZoomLimits(
+      isCluster ? this.clusterConfig.minZoom : this.config.minZoom,
+      isCluster ? this.clusterConfig.maxZoom : this.config.maxZoom
     );
+  }
 
-    if (intersects.length > 0) {
-      const hovered = intersects[0].object as THREE.Mesh;
+  // ---------------------------------------------------------------------------
+  // Animation
+  // ---------------------------------------------------------------------------
 
-      if (this.hoveredNode !== hovered) {
-        this.setHoverState(this.hoveredNode, false);
-        this.hoveredNode = hovered;
-        this.setHoverState(hovered, true);
-        document.body.style.cursor = 'pointer';
-      }
-
-      this.updateHoverTooltip(
-        hovered.userData['nodeData'] as Node,
-        event
-      );
-    } else {
-      if (this.hoveredNode) {
-        this.setHoverState(this.hoveredNode, false);
-        this.hoveredNode = null;
-      }
-
-      this.updateHoverTooltip(null);
-      document.body.style.cursor = 'default';
-    }
-  };
-
-  private onPointerDown = (event: PointerEvent): void => {
-    if (
-      !this.interactive ||
-      this.layoutMode !== 'cluster' ||
-      !this.hoveredNode
-    ) {
+  private animate = (): void => {
+    if (this.destroyed) {
       return;
     }
 
-    const rect = this.canvasRef.nativeElement.getBoundingClientRect();
-
-    this.mouse.x =
-      ((event.clientX - rect.left) / rect.width) * 2 - 1;
-
-    this.mouse.y =
-      -((event.clientY - rect.top) / rect.height) * 2 + 1;
-
-    this.raycaster.setFromCamera(this.mouse, this.camera);
-
-    this.draggedNode = this.hoveredNode;
-    this.dragStartPosition.copy(this.draggedNode.position);
-    this.dragEdgeLengths.clear();
-
-    this.edgeConnections.forEach((connection, line) => {
-      const source = this.nodes.get(connection.sourceId);
-      const target = this.nodes.get(connection.targetId);
-
-      if (!source || !target) {
-        return;
-      }
-
-      this.dragEdgeLengths.set(
-        line,
-        source.position.distanceTo(target.position)
-      );
-    });
-
-    const cameraDirection = new THREE.Vector3();
-    this.camera.getWorldDirection(cameraDirection);
-
-    this.dragPlane.setFromNormalAndCoplanarPoint(
-      cameraDirection,
-      this.draggedNode.position
-    );
-
-    if (
-      this.raycaster.ray.intersectPlane(
-        this.dragPlane,
-        this.dragIntersection
-      )
-    ) {
-      this.dragOffset.copy(this.draggedNode.position)
-        .sub(this.dragIntersection);
-    }
-
-    this.controls!.enabled = false;
-
-    this.canvasRef.nativeElement.setPointerCapture(
-      event.pointerId
-    );
-
-    document.body.style.cursor = 'grabbing';
-  };
-
-  private onPointerUp = (event: PointerEvent): void => {
-    if (!this.draggedNode) {
-
-      return;
-    }
-
-    this.canvasRef.nativeElement.releasePointerCapture(
-      event.pointerId
-    );
-
-    this.draggedNode = null;
-    this.physicsFramesRemaining = this.clusterConfig.physicsFramesRemaining;
-    this.dragEdgeLengths.clear();
-
-    if (this.controls) {
-      this.controls.enabled = true;
-    }
-
-    document.body.style.cursor = 'default';
-  };
-
-  private onPointerLeave = (): void => {
-    if (this.draggedNode) {
-      return;
-    }
-
-    this.setHoverState(this.hoveredNode, false);
-    this.hoveredNode = null;
-    this.updateHoverTooltip(null);
-
-    document.body.style.cursor = 'default';
-  };
-
-  private setHoverState(mesh: THREE.Mesh | null, isHovered: boolean): void {
-    if (!mesh) return;
-
-    const material = mesh.material as THREE.MeshPhysicalMaterial;
-    material.color.setHex(isHovered ? this.config.nodeHoverColor : this.config.nodeColor);
-    material.emissive.setHex(isHovered ? this.config.nodeHoverEmissive : 0x000000);
-
-    const nodeId = mesh.userData['nodeId'] as string;
-    this.nodeBaseScale.set(nodeId, isHovered ? this.config.nodeHoverScale : 1);
-  };
-
-  private onClick = (): void => {
-    if (!this.interactive || !this.hoveredNode) {
-      return;
-    }
-
-    const nodeData = this.hoveredNode.userData['nodeData'] as Node;
-    const connections = this.getCarouselConnections(nodeData.id);
-
-    this.zone.run(() => {
-      this.selectedNode = nodeData;
-      this.carouselCurrent = nodeData;
-      this.carouselPredecessors = connections.predecessors;
-      this.carouselSuccessors = connections.successors;
-      this.carouselOpen = true;
-      this.cdr.detectChanges();
-    });
-  };
-
-  private updateSelectedRing(): void {
-    if (!this.config.selectedRingEnabled || !this.selectedNode) {
-      this.selectedRing?.removeFromParent();
-      this.selectedRing = null;
-      return;
-    }
-
-    const mesh = this.nodes.get(this.selectedNode.id);
-
-    if (!mesh) {
-      return;
-    }
-
-    if (!this.selectedRing) {
-      const ringGeometry = new THREE.TorusGeometry(
-        1,
-        0.06,
-        10,
-        32
-      );
-
-      const ringMaterial = new THREE.MeshBasicMaterial({
-        color: this.config.selectedRingColor,
-        transparent: true,
-        opacity: this.config.selectedRingOpacity,
-        depthWrite: false,
-      });
-
-      this.selectedRing = new THREE.Mesh(
-        ringGeometry,
-        ringMaterial
-      );
-
-      this.graph.add(this.selectedRing);
-    }
+    this.animationId = requestAnimationFrame(this.animate);
+    this.timer.update();
 
     const elapsed = this.timer.getElapsed();
 
-    const pulse =
-      1 +
-      Math.sin(elapsed * this.config.selectedRingPulseSpeed) *
-      this.config.selectedRingPulseStrength;
-
-    const radius = mesh.geometry.boundingSphere?.radius ?? 0.1;
-
-    this.selectedRing.position.copy(mesh.position);
-
-    this.selectedRing.scale.setScalar(
-      radius * this.config.selectedRingScale * pulse
+    this.graphView.updateNodeAnimation();
+    this.graphView.updateEdgeFlows(elapsed);
+    this.selectionRing.update(
+      this.selectedNode?.id ?? null,
+      elapsed,
+      this.sceneManager.camera.position
     );
+    this.physics.update(this.interaction.draggedNode);
 
-    this.selectedRing.lookAt(this.camera.position);
+    this.sceneManager.render();
   };
 
-  private updateHoverTooltip(
-    node: Node | null,
-    event?: PointerEvent
-  ): void {
+  // ---------------------------------------------------------------------------
+  // Tooltip beim Hover
+  // ---------------------------------------------------------------------------
+
+  private updateHoverTooltip(node: Node | null, event?: PointerEvent): void {
     if (!node || !event) {
       this.hoverTooltip.visible = false;
       this.hoverTooltip.node = null;
@@ -975,25 +284,7 @@ export class Graph3d implements AfterViewInit, OnChanges, OnDestroy {
     this.loadHoverReadme(node.id);
 
     this.cdr.detectChanges();
-  };
-
-  private toPreviewText(markdown: string): string {
-    return markdown
-      .split(/\r?\n/)
-      .slice(1)
-      .join('\n')
-      .replace(/<!--[\s\S]*?-->/g, '')
-      .replace(/```[\s\S]*?```/g, '')
-      .replace(/~~~[\s\S]*?~~~/g, '')
-      .replace(/!\[([^\]]*)\]\([^)]*\)/g, '')
-      .replace(/\[([^\]]+)\]\([^)]*\)/g, '$1')
-      .replace(/^\s{0,3}#{1,6}\s+/gm, '')
-      .replace(/^\s*>\s?/gm, '')
-      .replace(/^\s*[-*+]\s+/gm, '')
-      .replace(/[*_`]/g, '')
-      .replace(/\s+/g, ' ')
-      .trim();
-  };
+  }
 
   private loadHoverReadme(nodeId: string): void {
     if (this.hoverReadmeNodeId === nodeId) {
@@ -1006,7 +297,7 @@ export class Graph3d implements AfterViewInit, OnChanges, OnDestroy {
     this.hoverReadme.set('');
     this.hoverReadmeLoading.set(false);
 
-    const cached = this.readmeCache.get(nodeId);
+    const cached = this.readmePreviews.getCached(nodeId);
 
     if (cached !== undefined) {
       this.hoverReadme.set(cached);
@@ -1015,16 +306,10 @@ export class Graph3d implements AfterViewInit, OnChanges, OnDestroy {
 
     this.hoverReadmeLoading.set(true);
 
-    this.hoverReadmeSubscription = this.api
-      .ChallengeContent(nodeId)
+    this.hoverReadmeSubscription = this.readmePreviews
+      .loadAndCache(nodeId)
       .subscribe({
-        next: (content) => {
-          const preview = this.toPreviewText(
-            content.content_markdown ?? ''
-          );
-
-          this.readmeCache.set(nodeId, preview);
-
+        next: (preview) => {
           if (this.hoverReadmeNodeId !== nodeId) {
             return;
           }
@@ -1047,461 +332,15 @@ export class Graph3d implements AfterViewInit, OnChanges, OnDestroy {
           });
         },
       });
-  };
-
-  private resize(): void {
-    const canvas = this.canvasRef.nativeElement;
-    const rect = canvas.getBoundingClientRect();
-
-    const width = Math.max(1, Math.floor(rect.width));
-    const height = Math.max(1, Math.floor(rect.height));
-
-    this.renderer.setSize(width, height, false);
-    this.camera.aspect = width / height;
-    this.camera.updateProjectionMatrix();
-  };
-
-  private animate = (): void => {
-    if (this.destroyed) return;
-
-    this.animationId = requestAnimationFrame(this.animate);
-    this.timer.update();
-
-    if (!this.destroyed) {
-      this.updateNodeAnimation();
-      this.updateEdgeFlows();
-      this.updateSelectedRing();
-      this.updateClusterPhysics();
-    }
-
-    this.controls?.update();
-    this.renderer.render(this.scene, this.camera);
-  };
-
-  private updateNodeAnimation(): void {
-    const elapsed = this.timer.getElapsed();
-
-    this.nodes.forEach((mesh, nodeId) => {
-      const baseScale = this.nodeBaseScale.get(nodeId) ?? 1;
-      const isHovered = mesh === this.hoveredNode;
-
-      let targetScale = baseScale;
-
-      mesh.scale.setScalar(
-        THREE.MathUtils.lerp(
-          mesh.scale.x,
-          targetScale,
-          this.config.nodeHoverTransitionSpeed
-        )
-      );
-    });
-  };
-
-  private updateEdgeFlows(): void {
-    if (!this.config.edgeFlowEnabled) {
-      return;
-    }
-
-    const elapsed = this.timer.getElapsed();
-
-    this.edgeFlows.forEach(flow => {
-      const path = this.edgeFlowPaths.get(flow);
-
-      if (!path) {
-        return;
-      }
-
-      const source = this.nodes.get(path.sourceId);
-      const target = this.nodes.get(path.targetId);
-
-      if (!source || !target) {
-        return;
-      }
-
-      const sourcePosition = source.position;
-      const targetPosition = target.position;
-
-      const flowSpeed =
-        this.layoutMode === 'cluster'
-          ? this.clusterConfig.edgeFlowSpeed
-          : this.config.edgeFlowSpeed;
-
-      const progress =
-        (elapsed * flowSpeed + path.offset) % 1;
-
-      const direction = new THREE.Vector3()
-        .subVectors(targetPosition, sourcePosition);
-
-      const edgeLength = direction.length();
-
-      if (edgeLength === 0) {
-        return;
-      }
-
-      direction.normalize();
-
-      const start = new THREE.Vector3()
-        .lerpVectors(sourcePosition, targetPosition, progress);
-
-      const segmentLength =
-        this.layoutMode === 'cluster'
-          ? this.clusterConfig.edgeFlowSegmentLength
-          : this.config.edgeFlowSegmentLength;
-
-      const end = start
-        .clone()
-        .addScaledVector(direction, segmentLength);
-
-      const positionAttribute = flow.geometry.getAttribute(
-        'position'
-      ) as THREE.BufferAttribute;
-
-      positionAttribute.setXYZ(
-        0,
-        start.x,
-        start.y,
-        start.z
-      );
-
-      positionAttribute.setXYZ(
-        1,
-        end.x,
-        end.y,
-        end.z
-      );
-
-      positionAttribute.needsUpdate = true;
-    });
-  };
-
-  private updateConnectedEdges(): void {
-    this.edgeConnections.forEach((connection, line) => {
-      const source = this.nodes.get(connection.sourceId);
-      const target = this.nodes.get(connection.targetId);
-
-      if (!source || !target) {
-        return;
-      }
-
-      const positions = line.geometry.getAttribute(
-        'position'
-      ) as THREE.BufferAttribute;
-
-      positions.setXYZ(
-        0,
-        source.position.x,
-        source.position.y,
-        source.position.z
-      );
-
-      positions.setXYZ(
-        1,
-        target.position.x,
-        target.position.y,
-        target.position.z
-      );
-
-      positions.needsUpdate = true;
-    });
-  };
-
-  private updateNodeShadow(nodeId: string): void {
-    const node = this.nodes.get(nodeId);
-    const shadow = this.nodeShadows.get(nodeId);
-
-    if (!node || !shadow) {
-      return;
-    }
-
-    shadow.position.copy(node.position);
-  };
-
-  private applyLiveClusterPhysics(
-    draggedNodeId: string,
-    movement: THREE.Vector3
-  ): void {
-    if (
-      this.layoutMode !== 'cluster' ||
-      !this.clusterConfig.livePhysicsEnabled ||
-      movement.lengthSq() === 0 ||
-      !this.draggedNode
-    ) {
-      return;
-    }
-
-    const distanceById = new Map<string, number>();
-    const queue: string[] = [draggedNodeId];
-
-    distanceById.set(draggedNodeId, 0);
-
-    while (queue.length > 0) {
-      const currentId = queue.shift();
-
-      if (!currentId) {
-        continue;
-      }
-
-      const graphDistance = distanceById.get(currentId) ?? 0;
-
-      if (
-        graphDistance >=
-        this.clusterConfig.livePhysicsMaxDistance
-      ) {
-        continue;
-      }
-
-      this.edgeConnections.forEach(connection => {
-        let neighborId: string | null = null;
-
-        if (connection.sourceId === currentId) {
-          neighborId = connection.targetId;
-        } else if (connection.targetId === currentId) {
-          neighborId = connection.sourceId;
-        }
-
-        if (!neighborId || distanceById.has(neighborId)) {
-          return;
-        }
-
-        distanceById.set(neighborId, graphDistance + 1);
-        queue.push(neighborId);
-      });
-    }
-
-    distanceById.forEach((graphDistance, nodeId) => {
-      if (nodeId === draggedNodeId || graphDistance === 0) {
-        return;
-      }
-
-      const node = this.nodes.get(nodeId);
-
-      if (!node) {
-        return;
-      }
-
-      const falloff = 1 / (graphDistance * graphDistance);
-
-      node.position.add(
-        movement.clone().multiplyScalar(
-          this.clusterConfig.livePhysicsStrength * falloff
-        )
-      );
-
-      this.updateNodeShadow(nodeId);
-    });
-
-    this.edgeConnections.forEach((connection, line) => {
-      const sourceDistance = distanceById.get(connection.sourceId);
-      const targetDistance = distanceById.get(connection.targetId);
-
-      if (
-        sourceDistance === undefined ||
-        targetDistance === undefined
-      ) {
-        return;
-      }
-
-      const source = this.nodes.get(connection.sourceId);
-      const target = this.nodes.get(connection.targetId);
-      const originalLength = this.dragEdgeLengths.get(line);
-
-      if (!source || !target || originalLength === undefined) {
-        return;
-      }
-
-      const difference = target.position
-        .clone()
-        .sub(source.position);
-
-      const currentLength = difference.length();
-
-      if (currentLength === 0) {
-        return;
-      }
-
-      const change = currentLength - originalLength;
-
-      const correction = difference
-        .normalize()
-        .multiplyScalar(
-          change * this.clusterConfig.livePhysicsStrength
-        );
-
-      if (source !== this.draggedNode) {
-        source.position.add(correction.clone().multiplyScalar(0.5));
-        this.updateNodeShadow(connection.sourceId);
-      }
-
-      if (target !== this.draggedNode) {
-        target.position.add(correction.clone().multiplyScalar(-0.5));
-        this.updateNodeShadow(connection.targetId);
-      }
-    });
-  };
-
-  private updateClusterPhysics(): void {
-    const shouldSimulate =
-      this.layoutMode === 'cluster' &&
-      (
-        this.draggedNode !== null ||
-        this.physicsFramesRemaining > 0
-      );
-
-    if (!shouldSimulate) {
-      return;
-    }
-
-    const draggedNodeId = this.draggedNode?.userData['nodeId'] as
-      | string
-      | undefined;
-
-    this.nodes.forEach((nodeA, nodeAId) => {
-      this.nodes.forEach((nodeB, nodeBId) => {
-        if (nodeAId >= nodeBId) {
-          return;
-        }
-
-        const difference = nodeA.position.clone().sub(nodeB.position);
-        const distance = Math.max(difference.length(), 0.01);
-
-        const force = difference
-          .normalize()
-          .multiplyScalar(
-            this.clusterConfig.repulsion / (distance * distance)
-          );
-
-        if (nodeAId !== draggedNodeId) {
-          this.liveVelocities.get(nodeAId)?.add(force);
-        }
-
-        if (nodeBId !== draggedNodeId) {
-          this.liveVelocities.get(nodeBId)?.sub(force);
-        }
-      });
-    });
-
-    this.edgeConnections.forEach(connection => {
-      const source = this.nodes.get(connection.sourceId);
-      const target = this.nodes.get(connection.targetId);
-
-      if (!source || !target) {
-        return;
-      }
-
-      const difference = target.position.clone().sub(source.position);
-      const distance = difference.length();
-
-      if (distance === 0) {
-        return;
-      }
-
-      const direction = difference.normalize();
-
-      const strength =
-        (distance - this.clusterConfig.desiredDistance) *
-        this.clusterConfig.attraction;
-
-      const force = direction.multiplyScalar(strength);
-
-      if (connection.sourceId !== draggedNodeId) {
-        this.liveVelocities.get(connection.sourceId)?.add(force);
-      }
-
-      if (connection.targetId !== draggedNodeId) {
-        this.liveVelocities.get(connection.targetId)?.sub(force);
-      }
-    });
-
-    this.liveVelocities.forEach((velocity, nodeId) => {
-      const node = this.nodes.get(nodeId);
-
-      if (!node || nodeId === draggedNodeId) {
-        return;
-      }
-
-      velocity.add(
-        node.position
-          .clone()
-          .multiplyScalar(-this.clusterConfig.centerForce)
-      );
-
-      velocity.multiplyScalar(this.clusterConfig.damping);
-
-      node.position.add(velocity);
-
-      this.updateNodeShadow(nodeId);
-    });
-
-    this.updateConnectedEdges();
-
-    if (!this.draggedNode && this.physicsFramesRemaining > 0) {
-      this.physicsFramesRemaining--;
-    }
-  };
-
-  private getCarouselConnections(nodeId: string): {
-    predecessors: Node[];
-    successors: Node[];
-  } {
-    const predecessors: Node[] = [];
-    const successors: Node[] = [];
-
-    if (!this.graphData) {
-      return { predecessors, successors };
-    }
-
-    for (const edge of this.graphData.edges) {
-      if (edge.target === nodeId) {
-        const predecessor = this.nodeById.get(edge.source);
-
-        if (predecessor) {
-          predecessors.push(predecessor);
-        }
-      }
-
-      if (edge.source === nodeId) {
-        const successor = this.nodeById.get(edge.target);
-
-        if (successor) {
-          successors.push(successor);
-        }
-      }
-    }
-
-    return {
-      predecessors,
-      successors,
-    };
-  };
-
-  closeCarousel(): void {
-    this.carouselOpen = false;
-    this.carouselCurrent = null;
-    this.carouselPredecessors = [];
-    this.carouselSuccessors = [];
-  };
-
-  selectCarouselNode(node: Node): void {
-    const connections = this.getCarouselConnections(node.id);
-
-    this.carouselCurrent = node;
-    this.carouselPredecessors = connections.predecessors;
-    this.carouselSuccessors = connections.successors;
-  };
-
-  openChallenge(node: Node): void {
-    this.closeCarousel();
-    this.router.navigate(['/challenge', node.id, node.teaches]);
-  };
-
-  private selectNodeById(nodeId: string): void {
-    const node = this.nodeById.get(nodeId);
-
-    if (!node) {
-      return;
-    }
-
-    const connections = this.getCarouselConnections(node.id);
+  }
+
+  // ---------------------------------------------------------------------------
+  // Detail-Karussell
+  // ---------------------------------------------------------------------------
+
+  /** Öffnet das Karussell für einen Knoten und markiert ihn mit dem Ring. */
+  private openCarouselFor(node: Node): void {
+    const connections = this.graphView.getConnections(node.id, this.graphData);
 
     this.zone.run(() => {
       this.selectedNode = node;
@@ -1511,77 +350,35 @@ export class Graph3d implements AfterViewInit, OnChanges, OnDestroy {
       this.carouselOpen = true;
       this.cdr.detectChanges();
     });
-  };
+  }
 
+  /** Wird aufgerufen, wenn von außen (z. B. Suche) ein Knoten gewählt wurde. */
   private selectRequestedNode(): void {
     const id = this.selectedChallengeId;
 
-    if (!id || !this.nodeById.has(id)) {
+    if (!id) {
       return;
     }
 
-    this.selectNodeById(id);
-  };
+    const node = this.graphView.getNode(id);
 
-  ngOnChanges(changes: SimpleChanges): void {
-    if (!this.viewInitialized) {
-      return;
+    if (node) {
+      this.openCarouselFor(node);
     }
+  }
 
-    if (changes['layoutMode'] && !changes['layoutMode'].firstChange) {
-      this.closeCarousel();
-    }
+  closeCarousel(): void {
+    this.carouselOpen = false;
+    this.carouselCurrent = null;
+    this.carouselPredecessors = [];
+    this.carouselSuccessors = [];
+  }
 
-    if (changes['graphData'] && this.graphData) {
-      this.buildGraph(this.graphData);
-    }
+  selectCarouselNode(node: Node): void {
+    const connections = this.graphView.getConnections(node.id, this.graphData);
 
-    if (changes['selectedChallengeId'] && this.selectedChallengeId) {
-      this.selectRequestedNode();
-    }
-  };
-
-  ngOnDestroy(): void {
-    this.hoverReadmeSubscription?.unsubscribe();
-    this.destroyed = true;
-
-    if (typeof cancelAnimationFrame !== 'undefined' && this.animationId) {
-      cancelAnimationFrame(this.animationId);
-    }
-
-    this.resizeObserver?.disconnect();
-    this.controls?.dispose();
-
-    if (isPlatformBrowser(this.platformId)) {
-      const canvas = this.canvasRef.nativeElement;
-
-      canvas.removeEventListener('click', this.onClick);
-      canvas.removeEventListener('pointermove', this.onPointerMove);
-      canvas.removeEventListener('pointerdown', this.onPointerDown);
-      canvas.removeEventListener('pointerleave', this.onPointerLeave);
-
-      window.removeEventListener('pointerup', this.onPointerUp);
-
-      document.body.style.cursor = 'default';
-    }
-
-    this.nodes.forEach(mesh => {
-      mesh.geometry.dispose();
-
-      if (Array.isArray(mesh.material)) {
-        mesh.material.forEach(material => material.dispose());
-      } else {
-        mesh.material.dispose();
-      }
-    });
-
-    this.edges.forEach(edge => edge.geometry.dispose());
-    this.edgeMaterials.forEach(material => material.dispose());
-    this.edgeFlows.forEach(flow => {
-      flow.geometry.dispose();
-      (flow.material as THREE.Material).dispose();
-    });
-
-    this.renderer?.dispose();
-  };
+    this.carouselCurrent = node;
+    this.carouselPredecessors = connections.predecessors;
+    this.carouselSuccessors = connections.successors;
+  }
 }

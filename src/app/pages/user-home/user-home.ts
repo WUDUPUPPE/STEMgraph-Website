@@ -1,7 +1,7 @@
 import { Component, inject } from '@angular/core';
 import { ChallengeExplorer } from '../../components/challenge-explorer/challenge-explorer';
 import { Logo3d } from '../../components/logo-3d/logo-3d';
-import { AuthService } from '../../service/auth.service';
+import { AuthService } from '../../core/services/auth.service';
 
 @Component({
   selector: 'app-user-home',

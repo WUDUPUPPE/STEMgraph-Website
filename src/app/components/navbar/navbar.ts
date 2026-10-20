@@ -1,9 +1,19 @@
 import { isPlatformBrowser } from '@angular/common';
-import { Component, ElementRef, HostListener, inject, PLATFORM_ID, ViewChild } from '@angular/core';
+import {
+  Component,
+  ElementRef,
+  HostListener,
+  PLATFORM_ID,
+  ViewChild,
+  inject,
+} from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
-import { ApiStatusService } from './../../service/api-status.service';
-import { AuthService } from './../../service/auth.service';
+import { ApiStatusService } from '../../core/services/api-status.service';
+import { AuthService } from '../../core/services/auth.service';
 import { Search } from '../search/search';
+
+/** Ab dieser Fensterbreite (px) wird das Desktop-Layout benutzt. */
+const DESKTOP_MIN_WIDTH = 769;
 
 @Component({
   selector: 'app-navbar',
@@ -12,21 +22,31 @@ import { Search } from '../search/search';
   styleUrl: './navbar.css',
 })
 export class Navbar {
-
-  readonly apiStatusService = inject(ApiStatusService);
-  
+  readonly router = inject(Router);
   readonly auth = inject(AuthService);
+  readonly apiStatusService = inject(ApiStatusService);
+  private readonly platformId = inject(PLATFORM_ID);
 
   readonly apiStatus = this.apiStatusService.status;
   readonly apiStatusMessage = this.apiStatusService.apiMessage;
   readonly databaseStatusMessage = this.apiStatusService.databaseMessage;
 
-  private readonly platformId = inject(PLATFORM_ID);
-
   menuOpen = false;
   profileMenuOpen = false;
 
-  constructor(readonly router: Router) {
+  @ViewChild('menuButton')
+  private menuButton?: ElementRef<HTMLElement>;
+
+  @ViewChild('mobileMenu')
+  private mobileMenu?: ElementRef<HTMLElement>;
+
+  @ViewChild('profileMenu')
+  private profileMenu?: ElementRef<HTMLElement>;
+
+  @ViewChild('profileButton')
+  private profileButton?: ElementRef<HTMLElement>;
+
+  constructor() {
     this.apiStatusService.check();
   }
 
@@ -52,50 +72,44 @@ export class Navbar {
     this.router.navigate(['/']);
   }
 
+  /** Auf großen Bildschirmen wird das mobile Menü immer geschlossen. */
   @HostListener('window:resize')
   onWindowResize(): void {
     if (
       isPlatformBrowser(this.platformId) &&
-      window.innerWidth >= 769
+      window.innerWidth >= DESKTOP_MIN_WIDTH
     ) {
       this.menuOpen = false;
     }
   }
 
-  @ViewChild('menuButton')
-  private menuButton?: ElementRef<HTMLElement>;
-
-  @ViewChild('mobileMenu')
-  private mobileMenu?: ElementRef<HTMLElement>;
-
-  @ViewChild('profileMenu')
-  private profileMenu?: ElementRef<HTMLElement>;
-
-  @ViewChild('profileButton')
-  private profileButton?: ElementRef<HTMLElement>;
-
+  /** Klick außerhalb eines offenen Menüs schließt es. */
   @HostListener('document:click', ['$event.target'])
   onDocumentClick(target: EventTarget | null): void {
     if (!(target instanceof Node)) {
       return;
     }
 
-    if (this.menuOpen) {
-      const clickMenu = this.mobileMenu?.nativeElement.contains(target);
-      const clickButton = this.menuButton?.nativeElement.contains(target);
-
-      if (!clickMenu && !clickButton) {
-        this.closeMenu();
-      }
+    if (this.menuOpen && !this.isInside(target, this.mobileMenu, this.menuButton)) {
+      this.closeMenu();
     }
 
-    if (this.profileMenuOpen) {
-      const clickProfileMenu = this.profileMenu?.nativeElement.contains(target);
-      const clickProfileButton = this.profileButton?.nativeElement.contains(target);
-
-      if (!clickProfileMenu && !clickProfileButton) {
-        this.closeProfileMenu();
-      }
+    if (
+      this.profileMenuOpen &&
+      !this.isInside(target, this.profileMenu, this.profileButton)
+    ) {
+      this.closeProfileMenu();
     }
+  }
+
+  private isInside(
+    target: Node,
+    menu?: ElementRef<HTMLElement>,
+    button?: ElementRef<HTMLElement>
+  ): boolean {
+    const clickedMenu = menu?.nativeElement.contains(target);
+    const clickedButton = button?.nativeElement.contains(target);
+
+    return !!clickedMenu || !!clickedButton;
   }
 }

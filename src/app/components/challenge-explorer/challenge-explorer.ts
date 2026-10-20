@@ -1,9 +1,9 @@
-import { Component, inject, Input, OnInit, signal, effect } from '@angular/core';
-import { ChallengeListResponse, GraphResponse } from '../../api/models';
-import { STEMgraphApiService } from '../../service/stemgraph-api.service';
-import { ChallengeGraph } from '../challenge-graph/challenge-graph';
+import { Component, Input, OnInit, effect, inject, signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
-import { GraphSelectionService } from "../../service/graph-selection.service";
+import { ChallengeListResponse, GraphResponse } from '../../api/models';
+import { GraphSelectionService } from '../../core/services/graph-selection.service';
+import { STEMgraphApiService } from '../../core/services/stemgraph-api.service';
+import { ChallengeGraph } from '../challenge-graph/challenge-graph';
 
 type ExplorerView = 'sphere' | 'graph' | 'list';
 
@@ -29,6 +29,7 @@ export class ChallengeExplorer implements OnInit {
 
   protected readonly selectedChallengeId = signal<string | null>(null);
 
+  /** Wechselt zur Graph-Ansicht, sobald in der Suche eine Challenge gewählt wurde. */
   private readonly selectedChallengeEffect = effect(() => {
     const selectedId = this.graphSelection.selectedChallengeId();
 
@@ -36,7 +37,7 @@ export class ChallengeExplorer implements OnInit {
       return;
     }
 
-    this.viewMode.set("graph");
+    this.viewMode.set('graph');
     this.selectedChallengeId.set(selectedId);
 
     if (this.graph() === null) {
@@ -48,7 +49,7 @@ export class ChallengeExplorer implements OnInit {
 
   ngOnInit(): void {
     this.loadGraph();
-  };
+  }
 
   protected showSphere(): void {
     this.viewMode.set('sphere');
@@ -56,7 +57,7 @@ export class ChallengeExplorer implements OnInit {
     if (this.graph() === null) {
       this.loadGraph();
     }
-  };
+  }
 
   protected showGraph(): void {
     this.viewMode.set('graph');
@@ -64,26 +65,26 @@ export class ChallengeExplorer implements OnInit {
     if (this.graph() === null) {
       this.loadGraph();
     }
-  };
+  }
 
   protected showList(): void {
     this.viewMode.set('list');
     this.loadList();
-  };
+  }
 
   protected toggleChallenge(challengeId: string): void {
     this.openedChallengeId.update((currentId) =>
-      currentId === challengeId ? null : challengeId);
-  };
+      currentId === challengeId ? null : challengeId
+    );
+  }
 
   private loadList(): void {
     this.isLoading.set(true);
     this.errorMessage.set(null);
 
-    this.stemgraphApi.MainList().subscribe({
+    this.stemgraphApi.mainList().subscribe({
       next: (response) => {
         this.list.set(response);
-        console.log('Main list:', response);
         this.isLoading.set(false);
       },
       error: (error) => {
@@ -92,16 +93,15 @@ export class ChallengeExplorer implements OnInit {
         this.isLoading.set(false);
       },
     });
-  };
+  }
 
   private loadGraph(): void {
     this.isLoading.set(true);
     this.errorMessage.set(null);
 
-    this.stemgraphApi.MainGraph().subscribe({
+    this.stemgraphApi.mainGraph().subscribe({
       next: (response) => {
         this.graph.set(response);
-        console.log('Maingraph:', response);
         this.isLoading.set(false);
       },
       error: (error) => {
@@ -110,5 +110,5 @@ export class ChallengeExplorer implements OnInit {
         this.isLoading.set(false);
       },
     });
-  };
+  }
 }

@@ -1,5 +1,41 @@
 # GraphWebsite
 
+Angular-Website für STEMgraph (Challenges als Graph, Kugel oder Liste).
+
+## Projektstruktur
+
+```
+src/app/
+  api/            generierter API-Client (ng-openapi-gen, nicht von Hand ändern)
+  core/           Logik ohne Oberfläche
+    constants/    feste Werte (z. B. Test-Accounts)
+    guards/       Routen-Guards (Login / Admin)
+    models/       eigene Typen (User, Suche, API-Status)
+    services/     Auth, API-Zugriff, API-Status, Auswahl, README-Vorschau
+    utils/        kleine Hilfsfunktionen (Markdown-Vorschau)
+  components/     wiederverwendbare Bausteine (Navbar, Suche, Graph, ...)
+    graph-3d/     3D-Graph mit three.js, aufgeteilt in Klassen:
+      config/       Einstellungen (Farben, Größen, Physik)
+      layout/       GraphLayout -> SphereLayout, ClusterLayout
+      scene/        SceneManager, GraphView, ClusterPhysics,
+                    GraphInteraction, SelectionRing
+  layouts/        Seitenrahmen (Navbar + Inhalt)
+  pages/          eine Komponente pro Seite
+```
+
+Die Komponente `Graph3d` verbindet nur Angular mit den 3D-Klassen.
+Die eigentliche Arbeit machen:
+
+| Klasse | Aufgabe |
+| --- | --- |
+| `SceneManager` | Szene, Kamera, Renderer, Licht, Maussteuerung |
+| `GraphView` | Knoten, Kanten und deren Animation |
+| `GraphLayout` (+ `SphereLayout`, `ClusterLayout`) | berechnet die Positionen |
+| `ClusterPhysics` | Physik beim Ziehen und Ausschwingen |
+| `GraphInteraction` | Hover, Klick und Ziehen mit der Maus |
+| `SelectionRing` | Ring um den gewählten Knoten |
+
+
 This project was generated using [Angular CLI](https://github.com/angular/angular-cli) version 22.1.3.
 
 ## Development server

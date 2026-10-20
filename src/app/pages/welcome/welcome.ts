@@ -1,11 +1,10 @@
 import { Component, inject, signal } from '@angular/core';
-import { Router } from '@angular/router';
-import { AuthService } from '../../service/auth.service';
 import { FormsModule } from '@angular/forms';
+import { Router } from '@angular/router';
+import { AuthService } from '../../core/services/auth.service';
 
 @Component({
   selector: 'app-welcome',
-  standalone: true,
   imports: [FormsModule],
   templateUrl: './welcome.html',
   styleUrl: './welcome.css',

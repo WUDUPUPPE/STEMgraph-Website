@@ -1,33 +1,32 @@
 import { isPlatformBrowser } from '@angular/common';
-import { AfterViewInit, Component, ElementRef, inject, Input, NgZone, OnDestroy, PLATFORM_ID, ViewChild } from '@angular/core';
+import {
+  AfterViewInit,
+  Component,
+  ElementRef,
+  Input,
+  NgZone,
+  OnDestroy,
+  PLATFORM_ID,
+  ViewChild,
+  inject,
+} from '@angular/core';
 import * as THREE from 'three';
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
-
-export type Vec3 = [number, number, number];
-
-export interface Logo3dLight {
-  color: number;
-  intensity: number;
-  ground?: number;
-  position?: Vec3;
-}
-
-export interface Logo3dLightConfig {
-  ambient: Logo3dLight;
-  key: Logo3dLight;
-  rimLeft: Logo3dLight;
-  rimRight: Logo3dLight;
-  rimTop: Logo3dLight;
-  exposure: number;
-}
+import {
+  DEFAULT_LOGO_LIGHT_CONFIG,
+  LOGO_MODEL_SIZE,
+  LOGO_SCALE_MAX,
+  LOGO_SCALE_MIN,
+  LOGO_SCALE_WIDTH_DIVISOR,
+  Logo3dLightConfig,
+  PARALLAX_STRENGTH,
+} from './logo-3d.config';
 
 @Component({
   selector: 'app-logo-3d',
-  standalone: true,
   templateUrl: './logo-3d.html',
   styleUrl: './logo-3d.css',
 })
-
 export class Logo3d implements AfterViewInit, OnDestroy {
   private readonly platformId = inject(PLATFORM_ID);
 
@@ -38,14 +37,7 @@ export class Logo3d implements AfterViewInit, OnDestroy {
   @Input() scrollAnimation = true;
   @Input() glbUrl?: string;
 
-  readonly lightConfig: Logo3dLightConfig = {
-    ambient: { color: 0x1a918c, ground: 0x1a918c, intensity: 5 },
-    key: { color: 0xffffff, intensity: 2.5, position: [0.6, -0.2, 0.7] },
-    rimLeft: { color: 0x2ac2bb, intensity: 30, position: [-4, -2, -4] },
-    rimRight: { color: 0x772093, intensity: 40, position: [4, 2, -4] },
-    rimTop: { color: 0xffffff, intensity: 7, position: [0, 4, -3] },
-    exposure: 1.2,
-  };
+  readonly lightConfig: Logo3dLightConfig = DEFAULT_LOGO_LIGHT_CONFIG;
 
   private renderer!: THREE.WebGLRenderer;
   private scene!: THREE.Scene;
@@ -72,7 +64,7 @@ export class Logo3d implements AfterViewInit, OnDestroy {
       this.bindInteraction();
       this.animate();
     });
-  };
+  }
 
   private initScene(): void {
     const canvas = this.canvasRef.nativeElement;
@@ -113,7 +105,7 @@ export class Logo3d implements AfterViewInit, OnDestroy {
       { threshold: 0.01 }
     );
     this.intersectionObserver.observe(canvas);
-  };
+  }
 
   private setupLights(): void {
     const { ambient, key, rimLeft, rimRight, rimTop, exposure } = this.lightConfig;
@@ -129,7 +121,7 @@ export class Logo3d implements AfterViewInit, OnDestroy {
       light.position.set(...config.position!);
       this.scene.add(light);
     });
-  };
+  }
 
   private loadGlb(url: string): void {
     const loader = new GLTFLoader();
@@ -150,7 +142,7 @@ export class Logo3d implements AfterViewInit, OnDestroy {
         const maxAxis = Math.max(size.x, size.y, size.z);
 
         if (maxAxis > 0) {
-          const scale = 4.7 / maxAxis;
+          const scale = LOGO_MODEL_SIZE / maxAxis;
           model.scale.setScalar(scale);
         }
 
@@ -162,7 +154,7 @@ export class Logo3d implements AfterViewInit, OnDestroy {
         console.error('STEMgraph GLB could not be loaded:', error);
       }
     );
-  };
+  }
 
   private bindInteraction(): void {
     if (this.mouseParallax) {
@@ -172,17 +164,17 @@ export class Logo3d implements AfterViewInit, OnDestroy {
     }
 
     window.addEventListener('blur', this.onBlur);
-  };
+  }
 
   private onPointerMove = (event: PointerEvent): void => {
     this.targetX = (event.clientX / window.innerWidth - 0.4) * 2;
     this.targetY = (event.clientY / window.innerHeight - 0.4) * 2;
-  };
+  }
 
   private onBlur = (): void => {
     this.targetX = 0;
     this.targetY = 0;
-  };
+  }
 
   private resize(): void {
     const canvas = this.canvasRef.nativeElement;
@@ -194,7 +186,7 @@ export class Logo3d implements AfterViewInit, OnDestroy {
     this.renderer.setSize(width, height, false);
     this.camera.aspect = width / height;
     this.camera.updateProjectionMatrix();
-  };
+  }
 
   private animate = (): void => {
     this.animationId = requestAnimationFrame(this.animate);
@@ -207,13 +199,13 @@ export class Logo3d implements AfterViewInit, OnDestroy {
     if (this.mouseParallax) {
       this.logo.rotation.x = THREE.MathUtils.lerp(
         this.logo.rotation.x,
-        this.pointerY * 0.04,
+        this.pointerY * PARALLAX_STRENGTH,
         0.06
       );
 
       this.logo.rotation.y = THREE.MathUtils.lerp(
         this.logo.rotation.y,
-        this.pointerX * 0.04,
+        this.pointerX * PARALLAX_STRENGTH,
         0.06
       );
     }
@@ -225,12 +217,10 @@ export class Logo3d implements AfterViewInit, OnDestroy {
         0.04
       );
 
-      const breite = window.innerWidth;
-
       const logoScale = THREE.MathUtils.clamp(
-        breite / 350,
-        0.50,
-        1.10
+        window.innerWidth / LOGO_SCALE_WIDTH_DIVISOR,
+        LOGO_SCALE_MIN,
+        LOGO_SCALE_MAX
       );
 
       this.logo.scale.setScalar(
@@ -243,7 +233,7 @@ export class Logo3d implements AfterViewInit, OnDestroy {
     }
 
     this.renderer.render(this.scene, this.camera);
-  };
+  }
 
   ngOnDestroy(): void {
     if (typeof cancelAnimationFrame !== 'undefined' && this.animationId) {
@@ -271,5 +261,5 @@ export class Logo3d implements AfterViewInit, OnDestroy {
     });
 
     this.renderer?.dispose();
-  };
+  }
 }
