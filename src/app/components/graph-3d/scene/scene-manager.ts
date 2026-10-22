@@ -9,14 +9,14 @@ export interface SceneManagerOptions {
 
 /**
  * Kümmert sich um alles, was zur "Bühne" gehört:
- * Szene, Kamera, Renderer, Licht, Maussteuerung und Größenanpassung.
+ * Szene, Kamera, Renderer, Licht, Maussteuerung und Größenanpassung
  */
 export class SceneManager {
   readonly scene = new THREE.Scene();
   readonly camera = new THREE.PerspectiveCamera(50, 1, 0.1, 100);
   readonly renderer: THREE.WebGLRenderer;
 
-  /** In dieser Gruppe liegen alle Objekte des Graphen (Knoten, Kanten, ...). */
+  // In dieser Gruppe liegen alle Objekte des Graphen (Knoten, Kanten, ...)
   readonly graphGroup = new THREE.Group();
 
   private controls?: OrbitControls;
@@ -84,7 +84,7 @@ export class SceneManager {
     return controls;
   }
 
-  /** Stellt ein, wie weit rein- und rausgezoomt werden darf. */
+  // Stellt ein, wie weit rein- und rausgezoomt werden darf
   setZoomLimits(minDistance: number, maxDistance: number): void {
     if (!this.controls) {
       return;
@@ -95,7 +95,7 @@ export class SceneManager {
     this.controls.update();
   }
 
-  /** Schaltet die Kamerasteuerung an/aus (z. B. während ein Knoten gezogen wird). */
+  // Schaltet die Kamerasteuerung an/aus (z. B. während ein Knoten gezogen wird)
   setControlsEnabled(enabled: boolean): void {
     if (this.controls) {
       this.controls.enabled = enabled;

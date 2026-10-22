@@ -12,6 +12,8 @@ import { STEMgraphApiService } from '../../core/services/stemgraph-api.service';
   templateUrl: './challenge-detail.html',
   styleUrl: './challenge-detail.css',
 })
+
+// Detailansicht für eine Challenge
 export class ChallengeDetail implements OnInit {
   private readonly route = inject(ActivatedRoute);
   private readonly location = inject(Location);
@@ -48,6 +50,7 @@ export class ChallengeDetail implements OnInit {
     });
   }
 
+  // Gibt die URL für ein Asset zurück, das zu dieser Challenge gehört
   getAssetUrl(fileName: string): string {
     return `/api/challenges/${this.challengeId}/assets/${encodeURIComponent(fileName)}`;
   }

@@ -1,32 +1,16 @@
 import { isPlatformBrowser } from '@angular/common';
-import {
-  AfterViewInit,
-  Component,
-  ElementRef,
-  Input,
-  NgZone,
-  OnDestroy,
-  PLATFORM_ID,
-  ViewChild,
-  inject,
-} from '@angular/core';
+import { AfterViewInit, Component, ElementRef, Input, NgZone, OnDestroy, PLATFORM_ID, ViewChild, inject } from '@angular/core';
 import * as THREE from 'three';
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
-import {
-  DEFAULT_LOGO_LIGHT_CONFIG,
-  LOGO_MODEL_SIZE,
-  LOGO_SCALE_MAX,
-  LOGO_SCALE_MIN,
-  LOGO_SCALE_WIDTH_DIVISOR,
-  Logo3dLightConfig,
-  PARALLAX_STRENGTH,
-} from './logo-3d.config';
+import { DEFAULT_LOGO_LIGHT_CONFIG, LOGO_MODEL_SIZE, LOGO_SCALE_MAX, LOGO_SCALE_MIN, LOGO_SCALE_WIDTH_DIVISOR, Logo3dLightConfig, PARALLAX_STRENGTH } from './logo-3d.config';
 
 @Component({
   selector: 'app-logo-3d',
   templateUrl: './logo-3d.html',
   styleUrl: './logo-3d.css',
 })
+
+// Zeigt das STEMgraph-Logo als 3D-Modell an, das sich mit der Maus bewegen kann und auf Scrollen reagiert
 export class Logo3d implements AfterViewInit, OnDestroy {
   private readonly platformId = inject(PLATFORM_ID);
 
@@ -66,6 +50,7 @@ export class Logo3d implements AfterViewInit, OnDestroy {
     });
   }
 
+  // Initialisiert die Szene, Kamera, Renderer und Lichtquellen
   private initScene(): void {
     const canvas = this.canvasRef.nativeElement;
 
@@ -107,6 +92,7 @@ export class Logo3d implements AfterViewInit, OnDestroy {
     this.intersectionObserver.observe(canvas);
   }
 
+  // Richtet die Lichtquellen in der Szene ein, basierend auf der Konfiguration
   private setupLights(): void {
     const { ambient, key, rimLeft, rimRight, rimTop, exposure } = this.lightConfig;
 
@@ -123,6 +109,7 @@ export class Logo3d implements AfterViewInit, OnDestroy {
     });
   }
 
+  // Lädt das 3D-Modell im GLB-Format und fügt es der Szene hinzu
   private loadGlb(url: string): void {
     const loader = new GLTFLoader();
 
@@ -156,6 +143,7 @@ export class Logo3d implements AfterViewInit, OnDestroy {
     );
   }
 
+  // Bindet die Mausbewegung und das Fensterfokus-Ereignis, um die Parallax- und Sichtbarkeitslogik zu steuern
   private bindInteraction(): void {
     if (this.mouseParallax) {
       window.addEventListener('pointermove', this.onPointerMove, {
@@ -166,16 +154,19 @@ export class Logo3d implements AfterViewInit, OnDestroy {
     window.addEventListener('blur', this.onBlur);
   }
 
+  // Aktualisiert die Zielposition basierend auf der Mausbewegung, um die Parallax-Effekte zu steuern
   private onPointerMove = (event: PointerEvent): void => {
     this.targetX = (event.clientX / window.innerWidth - 0.4) * 2;
     this.targetY = (event.clientY / window.innerHeight - 0.4) * 2;
   }
 
+  // Setzt die Zielposition zurück, wenn das Fenster den Fokus verliert, um unerwünschte Bewegungen zu vermeiden
   private onBlur = (): void => {
     this.targetX = 0;
     this.targetY = 0;
   }
 
+  // Passt die Größe des Renderers und das Seitenverhältnis der Kamera an, wenn sich die Größe des Canvas ändert
   private resize(): void {
     const canvas = this.canvasRef.nativeElement;
     const rect = canvas.getBoundingClientRect();
@@ -188,6 +179,7 @@ export class Logo3d implements AfterViewInit, OnDestroy {
     this.camera.updateProjectionMatrix();
   }
 
+  // Animationsschleife, die kontinuierlich die Szene rendert und die Parallax- und Scrollanimationen aktualisiert
   private animate = (): void => {
     this.animationId = requestAnimationFrame(this.animate);
 
@@ -235,6 +227,7 @@ export class Logo3d implements AfterViewInit, OnDestroy {
     this.renderer.render(this.scene, this.camera);
   }
 
+  // Bereinigt Ressourcen und entfernt Event-Listener, wenn die Komponente zerstört wird
   ngOnDestroy(): void {
     if (typeof cancelAnimationFrame !== 'undefined' && this.animationId) {
       cancelAnimationFrame(this.animationId);

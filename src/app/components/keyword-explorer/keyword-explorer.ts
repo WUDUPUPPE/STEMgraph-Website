@@ -7,7 +7,7 @@ import { Graph3d } from '../graph-3d/graph-3d';
 
 type KeywordView = 'sphere' | 'list';
 
-/** Zeigt alle Keywords als 3D-Kugel oder als Liste. */
+// Zeigt alle Keywords als 3D-Kugel oder als Liste
 @Component({
   selector: 'app-keyword-explorer',
   imports: [Graph3d],
@@ -19,10 +19,10 @@ export class KeywordExplorer implements OnInit {
   private readonly stemgraphApi = inject(STEMgraphApiService);
   private readonly keywordGraphMapper = inject(KeywordGraphMapper);
 
-  /** Das Keyword, das in der Kugel ausgewählt sein soll (z. B. durch die Suche). */
+  // Das Keyword, das in der Kugel ausgewählt sein soll (z. B. durch die Suche)
   @Input() selectedKeyword: string | null = null;
 
-  /** Wird ausgelöst, wenn ein Keyword angeklickt wurde (Kugel oder Liste). */
+  // Wird ausgelöst, wenn ein Keyword angeklickt wurde (Kugel oder Liste
   @Output() keywordSelected = new EventEmitter<string>();
 
   protected readonly viewMode = signal<KeywordView>('sphere');
@@ -30,7 +30,7 @@ export class KeywordExplorer implements OnInit {
   protected readonly errorMessage = signal<string | null>(null);
   protected readonly graph = signal<GraphResponse | null>(null);
 
-  /** Alle Keywords von A bis Z für die Listenansicht. */
+  // Alle Keywords von A bis Z für die Listenansicht
   protected readonly keywords = computed(() =>
     (this.graph()?.nodes ?? [])
       .map((node) => node.id)

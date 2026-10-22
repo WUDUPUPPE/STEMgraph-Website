@@ -12,11 +12,12 @@ import { Logo3d } from '../../components/logo-3d/logo-3d';
   templateUrl: './keywords.html',
 })
 
+// Seite, die alle Keywords anzeigt und die Suche ermöglicht. Außerdem kann hier ein Keyword ausgewählt werden, um die Challenges zu diesem Keyword anzuzeigen
 export class Keywords {
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
 
-  /** Das aktuell ausgewählte Keyword (aus der Suche oder per Klick im Graphen). */
+  // Das aktuell ausgewählte Keyword (aus der Suche oder per Klick im Graphen
   protected readonly selectedKeyword = signal<string | null>(null);
 
   constructor() {
@@ -30,7 +31,7 @@ export class Keywords {
     this.selectedKeyword.set(keyword);
   }
 
-  /** Overlay geschlossen: Auswahl löschen und ?kw= aus der URL entfernen. */
+  // Overlay geschlossen: Auswahl löschen und ?kw= aus der URL entfernen
   protected onPanelClosed(): void {
     this.selectedKeyword.set(null);
     this.router.navigate(['/keywords']);

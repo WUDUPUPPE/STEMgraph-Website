@@ -55,10 +55,10 @@ export class Graph3d implements AfterViewInit, OnChanges, OnDestroy {
   @Input() isAdmin = false;
   @Input() nodeKind: GraphNodeKind = 'challenge';
 
-  /** ID des Knotens, der von außen (z. B. durch die Suche) ausgewählt werden soll. */
+  // ID des Knotens, der von außen (z. B. durch die Suche) ausgewählt werden soll
   @Input() selectedNodeId: string | null = null;
 
-  /** Wird ausgelöst, wenn der Benutzer im Keyword-Graph einen Knoten anklickt. */
+  // Wird ausgelöst, wenn der Benutzer im Keyword-Graph einen Knoten anklickt
   @Output() nodeSelected = new EventEmitter<Node>();
 
   readonly config: Graph3dConfig = { ...DEFAULT_GRAPH_CONFIG };
@@ -107,7 +107,7 @@ export class Graph3d implements AfterViewInit, OnChanges, OnDestroy {
     }
 
     // three.js läuft außerhalb von Angular, damit nicht bei jedem Frame
-    // die Change Detection startet.
+    // die Change Detection startet
     this.zone.runOutsideAngular(() => {
       this.createSceneObjects();
       this.syncInputs();
@@ -159,9 +159,7 @@ export class Graph3d implements AfterViewInit, OnChanges, OnDestroy {
     this.sceneManager?.dispose();
   }
 
-  // ---------------------------------------------------------------------------
-  // Aufbau
-  // ---------------------------------------------------------------------------
+  // Aufbau -----
 
   private createSceneObjects(): void {
     const canvas = this.canvasRef.nativeElement;
@@ -197,7 +195,7 @@ export class Graph3d implements AfterViewInit, OnChanges, OnDestroy {
     );
   }
 
-  /** Gibt die aktuellen Input-Werte an die 3D-Klassen weiter. */
+  // Gibt die aktuellen Input-Werte an die 3D-Klassen weiter
   private syncInputs(): void {
     this.graphView.layoutMode = this.layoutMode;
     this.graphView.colorByKeyword = this.nodeKind === 'keyword';
@@ -224,9 +222,7 @@ export class Graph3d implements AfterViewInit, OnChanges, OnDestroy {
     );
   }
 
-  // ---------------------------------------------------------------------------
-  // Animation
-  // ---------------------------------------------------------------------------
+  // Animation -----
 
   private animate = (): void => {
     if (this.destroyed) {
@@ -250,9 +246,7 @@ export class Graph3d implements AfterViewInit, OnChanges, OnDestroy {
     this.sceneManager.render();
   };
 
-  // ---------------------------------------------------------------------------
-  // Tooltip beim Hover
-  // ---------------------------------------------------------------------------
+  // Tooltip beim Hover -----
 
   private updateHoverTooltip(node: Node | null, event?: PointerEvent): void {
     if (!node || !event) {
@@ -330,11 +324,9 @@ export class Graph3d implements AfterViewInit, OnChanges, OnDestroy {
       });
   }
 
-  // ---------------------------------------------------------------------------
-  // Detail-Karussell
-  // ---------------------------------------------------------------------------
+  // Detail-Karussell -----
 
-  /** Klick auf einen Knoten: Challenges öffnen das Karussell, Keywords werden nur ausgewählt. */
+  // Klick auf einen Knoten: Challenges öffnen das Karussell, Keywords werden nur ausgewählt
   private onNodeClicked(node: Node): void {
     if (this.nodeKind === 'keyword') {
       this.selectKeywordNode(node, true);
@@ -343,7 +335,7 @@ export class Graph3d implements AfterViewInit, OnChanges, OnDestroy {
     }
   }
 
-  /** Markiert einen Keyword-Knoten mit dem Ring (ohne Karussell). */
+  // Markiert einen Keyword-Knoten mit dem Ring (ohne Karussell)
   private selectKeywordNode(node: Node, notifyParent: boolean): void {
     this.zone.run(() => {
       this.selectedNode = node;
@@ -356,7 +348,7 @@ export class Graph3d implements AfterViewInit, OnChanges, OnDestroy {
     });
   }
 
-  /** Öffnet das Karussell für einen Knoten und markiert ihn mit dem Ring. */
+  // Öffnet das Karussell für einen Knoten und markiert ihn mit dem Ring
   private openCarouselFor(node: Node): void {
     const connections = this.graphView.getConnections(node.id, this.graphData);
 
@@ -370,7 +362,7 @@ export class Graph3d implements AfterViewInit, OnChanges, OnDestroy {
     });
   }
 
-  /** Wird aufgerufen, wenn von außen (z. B. Suche) ein Knoten gewählt wurde. */
+  // Wird aufgerufen, wenn von außen (z. B. Suche) ein Knoten gewählt wurde
   private selectRequestedNode(): void {
     const id = this.selectedNodeId;
 

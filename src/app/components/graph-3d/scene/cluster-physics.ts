@@ -20,7 +20,7 @@ export class ClusterPhysics {
     private readonly config: GraphClusterConfig
   ) { }
 
-  /** Legt für jeden Knoten eine neue Geschwindigkeit an (nach dem Graph-Aufbau). */
+  // Legt für jeden Knoten eine neue Geschwindigkeit an (nach dem Graph-Aufbau)
   reset(): void {
     this.velocities.clear();
 
@@ -29,7 +29,7 @@ export class ClusterPhysics {
     });
   }
 
-  /** Merkt sich die Kantenlängen beim Start des Ziehens. */
+  // Merkt sich die Kantenlängen beim Start des Ziehens.
   startDrag(): void {
     this.dragEdgeLengths.clear();
 
@@ -48,13 +48,13 @@ export class ClusterPhysics {
     });
   }
 
-  /** Nach dem Loslassen läuft die Physik noch ein paar Frames weiter. */
+  // Nach dem Loslassen läuft die Physik noch ein paar Frames weiter
   endDrag(): void {
     this.framesRemaining = this.config.physicsFramesRemaining;
     this.dragEdgeLengths.clear();
   }
 
-  /** Nachbarn bewegen sich mit, je weiter entfernt, desto weniger. */
+  // Nachbarn bewegen sich mit, je weiter entfernt, desto weniger.
   applyDragMovement(draggedNode: THREE.Mesh, movement: THREE.Vector3): void {
     if (
       this.layoutMode !== 'cluster' ||
@@ -71,7 +71,7 @@ export class ClusterPhysics {
     this.correctEdgeLengths(draggedNode, distanceById);
   }
 
-  /** Breitensuche: wie viele Kanten ist jeder Knoten vom gezogenen Knoten entfernt? */
+  // Breitensuche: wie viele Kanten ist jeder Knoten vom gezogenen Knoten entfernt?
   private findGraphDistances(startId: string): Map<string, number> {
     const distanceById = new Map<string, number>();
     const queue: string[] = [startId];
@@ -138,7 +138,7 @@ export class ClusterPhysics {
     });
   }
 
-  /** Hält die Kanten ungefähr so lang wie beim Start des Ziehens. */
+  // Hält die Kanten ungefähr so lang wie beim Start des Ziehens
   private correctEdgeLengths(
     draggedNode: THREE.Mesh,
     distanceById: Map<string, number>
@@ -184,7 +184,7 @@ export class ClusterPhysics {
     });
   }
 
-  /** Ein Simulationsschritt, wird in jedem Frame aufgerufen. */
+  // Ein Simulationsschritt, wird in jedem Frame aufgerufen
   update(draggedNode: THREE.Mesh | null): void {
     const shouldSimulate =
       this.layoutMode === 'cluster' &&
@@ -207,7 +207,7 @@ export class ClusterPhysics {
     }
   }
 
-  /** Jedes Knotenpaar stößt sich ab. */
+  // Jedes Knotenpaar stößt sich ab, außerdem zieht eine schwache Kraft zur Mitte.
   private applyNodeRepulsion(draggedNodeId: string | undefined): void {
     this.view.nodes.forEach((nodeA, nodeAId) => {
       this.view.nodes.forEach((nodeB, nodeBId) => {
@@ -233,7 +233,7 @@ export class ClusterPhysics {
     });
   }
 
-  /** Verbundene Knoten ziehen sich an. */
+  // Verbundene Knoten ziehen sich an
   private applyEdgeAttraction(draggedNodeId: string | undefined): void {
     this.view.edgeConnections.forEach(connection => {
       const source = this.view.nodes.get(connection.sourceId);
@@ -267,7 +267,7 @@ export class ClusterPhysics {
     });
   }
 
-  /** Zentrumskraft + Dämpfung anwenden und die Knoten verschieben. */
+  // Zentrumskraft + Dämpfung anwenden und die Knoten verschieben
   private moveNodes(draggedNodeId: string | undefined): void {
     this.velocities.forEach((velocity, nodeId) => {
       const node = this.view.nodes.get(nodeId);

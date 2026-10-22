@@ -4,9 +4,9 @@ import { ChallengeListResponse, GraphResponse, KeywordGraphResponse, Node } from
 /**
  * Wandelt die Antwort der Keyword-API in das Format um, das der 3D-Graph kennt
  * (GraphResponse). Ein Keyword wird dabei zu einem Knoten, dessen id und teaches
- * das Keyword selbst sind.
+ * das Keyword selbst sind
  *
- * Die Keywords werden nur als Kugel angezeigt, deshalb gibt es keine Kanten.
+ * Die Keywords werden nur als Kugel angezeigt, deshalb gibt es keine Kanten
  */
 @Injectable({
   providedIn: 'root',
@@ -21,7 +21,7 @@ export class KeywordGraphMapper {
 
   /**
    * Ersatz, falls /keywords/graph nicht funktioniert:
-   * holt die Keywords aus der Challenge-Liste (/list).
+   * holt die Keywords aus der Challenge-Liste (/list)
    */
   fromChallengeList(challenges: ChallengeListResponse[]): GraphResponse {
     const keywords: string[] = [];
@@ -33,7 +33,7 @@ export class KeywordGraphMapper {
     return this.toSphere(keywords);
   }
 
-  /** Jedes Keyword wird genau ein Knoten (doppelte werden ignoriert). */
+  // Jedes Keyword wird genau ein Knoten (doppelte werden ignoriert)
   private toSphere(keywords: string[]): GraphResponse {
     const nodes = new Map<string, Node>();
 

@@ -5,6 +5,8 @@ import { STEMgraphApiService } from './stemgraph-api.service';
 @Injectable({
   providedIn: 'root',
 })
+
+// Service, der den Status der API und der Datenbank überprüft und den Status als Signal bereitstellt
 export class ApiStatusService {
   private readonly stemgraphApi = inject(STEMgraphApiService);
 
@@ -30,6 +32,7 @@ export class ApiStatusService {
     });
   }
 
+  // Prüft den Status der Datenbank und aktualisiert die Signale entsprechend
   private checkDatabase(): void {
     this.stemgraphApi.databasecheck().subscribe({
       next: (response) => {

@@ -9,6 +9,8 @@ import { AuthService } from '../../core/services/auth.service';
   templateUrl: './welcome.html',
   styleUrl: './welcome.css',
 })
+
+// Die Willkommensseite, die den Login und die Registrierung ermöglicht
 export class Welcome {
   readonly auth = inject(AuthService);
   private readonly router = inject(Router);

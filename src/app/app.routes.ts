@@ -2,6 +2,7 @@ import { Routes } from '@angular/router';
 import { MainLayout } from './layouts/main-layout/main-layout';
 import { authGuard, adminGuard } from './core/guards/auth.guards';
 
+// Sie definieren, welche Komponenten für welche Pfade geladen werden sollen. Außerdem werden hier die Authentifizierungs- und Autorisierungs-Guards verwendet, um den Zugriff auf bestimmte Seiten zu beschränken
 export const routes: Routes = [
   {
     path: '',

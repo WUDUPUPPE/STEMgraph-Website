@@ -6,7 +6,7 @@ import { ChallengeSuggestion, SearchType } from '../../core/models/search.model'
 import { GraphSelectionService } from '../../core/services/graph-selection.service';
 import { STEMgraphApiService } from '../../core/services/stemgraph-api.service';
 
-/** So viele Vorschläge werden maximal unter dem Suchfeld angezeigt. */
+// So viele Vorschläge werden maximal unter dem Suchfeld angezeigt
 const MAX_SUGGESTIONS = 8;
 
 @Component({
@@ -15,6 +15,8 @@ const MAX_SUGGESTIONS = 8;
   templateUrl: './search.html',
   styleUrl: './search.css',
 })
+
+// Zeigt ein Suchfeld an, das Challenges und Keywords durchsuchen kann, mit Autovervollständigung
 export class Search implements OnInit {
   private readonly router = inject(Router);
   private readonly api = inject(STEMgraphApiService);
@@ -28,6 +30,7 @@ export class Search implements OnInit {
   private challenges: ChallengeSuggestion[] = [];
   private keywords: string[] = [];
 
+  // Lädt die Liste der Challenges und Keywords, um die Autovervollständigung zu ermöglichen
   ngOnInit(): void {
     forkJoin({
       challenges: this.api.mainList(),
@@ -42,7 +45,7 @@ export class Search implements OnInit {
       },
     });
   }
-
+// Aktualisiert die Vorschläge basierend auf dem aktuellen Suchbegriff und dem ausgewählten Suchtyp
   updateSuggestions(): void {
     const query = this.searchTerm.trim().toLowerCase();
 
@@ -64,6 +67,7 @@ export class Search implements OnInit {
       .map((challenge) => challenge.teaches);
   }
 
+  // Wählt einen Vorschlag aus der Liste aus und öffnet die entsprechende Challenge oder das Keyword
   selectSuggestion(suggestion: string): void {
     this.searchTerm = suggestion;
     this.suggestions = [];
@@ -81,6 +85,7 @@ export class Search implements OnInit {
     }
   }
 
+  // Führt die Suche aus, basierend auf dem aktuellen Suchbegriff und dem ausgewählten Suchtyp
   submitSearch(): void {
     const query = this.searchTerm.trim();
 
@@ -103,7 +108,7 @@ export class Search implements OnInit {
     this.suggestions = [];
   }
 
-  /** Gibt false zurück, wenn die Challenge nicht gefunden wurde. */
+  // Gibt false zurück, wenn die Challenge nicht gefunden wurde
   private searchChallenge(query: string): boolean {
     const challenge = this.findChallenge(query);
 
@@ -117,7 +122,7 @@ export class Search implements OnInit {
     return true;
   }
 
-  /** Öffnet die Keyword-Seite, dort wird das Keyword im Graphen ausgewählt. */
+  // Öffnet die Keyword-Seite, dort wird das Keyword im Graphen ausgewählt
   private openKeyword(keyword: string): void {
     this.router.navigate(['/keywords'], { queryParams: { kw: keyword } });
   }

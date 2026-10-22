@@ -7,6 +7,7 @@ import { Injectable, signal } from '@angular/core';
 @Injectable({
   providedIn: 'root',
 })
+
 export class GraphSelectionService {
   readonly selectedChallengeId = signal<string | null>(null);
 

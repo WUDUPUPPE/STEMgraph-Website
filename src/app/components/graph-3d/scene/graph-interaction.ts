@@ -5,20 +5,18 @@ import { ClusterPhysics } from './cluster-physics';
 import { GraphView } from './graph-view';
 import { SceneManager } from './scene-manager';
 
-/** Die Komponente gibt diese Funktionen mit, um auf Mausereignisse zu reagieren. */
+// Die Komponente gibt diese Funktionen mit, um auf Mausereignisse zu reagieren
 export interface GraphInteractionHandlers {
-  /** Maus über einem Knoten (node + event) oder nicht mehr (null). */
   onHover: (node: Node | null, event?: PointerEvent) => void;
-  /** Klick auf einen Knoten. */
   onNodeClick: (node: Node) => void;
 }
 
 /**
  * Verarbeitet die Maus auf dem Canvas: Hover, Klick und
- * das Ziehen von Knoten (nur im Cluster-Modus).
+ * das Ziehen von Knoten (nur im Cluster-Modus)
  */
 export class GraphInteraction {
-  /** Werden von außen gesetzt (Inputs der Komponente). */
+  // Werden von außen gesetzt (Inputs der Komponente)
   interactive = true;
   layoutMode: GraphLayoutMode = 'sphere';
 
@@ -26,7 +24,7 @@ export class GraphInteraction {
   private readonly mouse = new THREE.Vector2();
 
   private hoveredNode: THREE.Mesh | null = null;
-  /** Der Knoten, der gerade gezogen wird (oder null). */
+  // Der Knoten, der gerade gezogen wird (oder null)
   draggedNode: THREE.Mesh | null = null;
 
   private readonly dragPlane = new THREE.Plane();
@@ -61,7 +59,7 @@ export class GraphInteraction {
     document.body.style.cursor = 'default';
   }
 
-  /** Rechnet die Mausposition in Werte von -1 bis 1 um und richtet den Strahl aus. */
+  // Rechnet die Mausposition in Werte von -1 bis 1 um und richtet den Strahl aus
   private updateRaycaster(event: PointerEvent): void {
     const rect = this.canvas.getBoundingClientRect();
 
@@ -110,7 +108,7 @@ export class GraphInteraction {
     }
   };
 
-  /** Setzt den gezogenen Knoten unter die Maus und lässt die Nachbarn folgen. */
+  // Setzt den gezogenen Knoten unter die Maus und lässt die Nachbarn folgen
   private dragNode(draggedNode: THREE.Mesh): void {
     if (!this.raycaster.ray.intersectPlane(this.dragPlane, this.dragIntersection)) {
       return;
@@ -144,7 +142,7 @@ export class GraphInteraction {
     this.draggedNode = this.hoveredNode;
     this.physics.startDrag();
 
-    // Die Ebene, in der der Knoten gezogen wird, steht senkrecht zur Kamera.
+    // Die Ebene, in der der Knoten gezogen wird, steht senkrecht zur Kamera
     const cameraDirection = new THREE.Vector3();
     this.sceneManager.camera.getWorldDirection(cameraDirection);
 

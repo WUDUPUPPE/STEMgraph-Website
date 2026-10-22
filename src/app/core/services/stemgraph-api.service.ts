@@ -1,17 +1,7 @@
 import { Injectable, inject } from '@angular/core';
 import { from } from 'rxjs';
 import { Api } from '../../api/api';
-import {
-  databasecheckDatabasecheckGet,
-  downloadAssetChallengesIdAssetsFileNameGet,
-  getChallengeContentChallengesIdContentGet,
-  getChallengesByKeywordListKeywordsChallengesListGet,
-  getGraphGraphGet,
-  getKeywordsGraphKeywordsGraphGet,
-  getKeywordsListKeywordsListGet,
-  getListListGet,
-  healthcheckHealthcheckGet,
-} from '../../api/functions';
+import { databasecheckDatabasecheckGet, downloadAssetChallengesIdAssetsFileNameGet, getChallengeContentChallengesIdContentGet, getChallengesByKeywordListKeywordsChallengesListGet, getGraphGraphGet, getKeywordsGraphKeywordsGraphGet, getKeywordsListKeywordsListGet, getListListGet, healthcheckHealthcheckGet } from '../../api/functions';
 
 /**
  * Dünne Schicht über dem generierten API-Client (api/).
@@ -21,6 +11,8 @@ import {
 @Injectable({
   providedIn: 'root',
 })
+
+// Service, der die generierten API-Funktionen kapselt und als Observable zurückgibt
 export class STEMgraphApiService {
   private readonly api = inject(Api);
 
@@ -48,7 +40,7 @@ export class STEMgraphApiService {
     return from(this.api.invoke(getKeywordsListKeywordsListGet));
   }
 
-  /** Alle Challenges, die ein bestimmtes Keyword haben. */
+  // Alle Challenges, die ein bestimmtes Keyword haben
   keywordChallengesList(keyword: string) {
     return from(
       this.api.invoke(getChallengesByKeywordListKeywordsChallengesListGet, {
@@ -57,12 +49,14 @@ export class STEMgraphApiService {
     );
   }
 
+  // Lädt den Inhalt einer Challenge (README.md) vom Server
   challengeContent(id: string) {
     return from(
       this.api.invoke(getChallengeContentChallengesIdContentGet, { id }),
     );
   }
 
+  // Lädt eine Asset-Datei einer Challenge vom Server
   downloadAsset(id: string, fileName: string) {
     return from(
       this.api.invoke(downloadAssetChallengesIdAssetsFileNameGet, {

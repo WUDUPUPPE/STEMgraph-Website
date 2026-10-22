@@ -9,6 +9,7 @@ import { AuthService } from '../../core/services/auth.service';
   templateUrl: './admin-home.html',
   styleUrl: './admin-home.css',
 })
+
 export class AdminHome {
   readonly auth = inject(AuthService);
 }

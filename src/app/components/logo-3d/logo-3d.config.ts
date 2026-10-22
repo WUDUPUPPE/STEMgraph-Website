@@ -25,13 +25,13 @@ export const DEFAULT_LOGO_LIGHT_CONFIG: Logo3dLightConfig = {
   exposure: 1.2,
 };
 
-/** Größte Kante des geladenen Modells wird auf diese Länge skaliert. */
+// Größte Kante des geladenen Modells wird auf diese Länge skaliert
 export const LOGO_MODEL_SIZE = 4.7;
 
-/** Wie stark sich das Logo mit der Maus dreht. */
+// Wie stark sich das Logo mit der Maus dreht
 export const PARALLAX_STRENGTH = 0.04;
 
-/** Verhältnis Fensterbreite zu Logo-Größe, begrenzt auf min/max. */
+// Verhältnis Fensterbreite zu Logo-Größe, begrenzt auf min/max
 export const LOGO_SCALE_WIDTH_DIVISOR = 350;
 export const LOGO_SCALE_MIN = 0.5;
 export const LOGO_SCALE_MAX = 1.1;

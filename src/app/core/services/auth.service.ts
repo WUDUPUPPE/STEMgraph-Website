@@ -4,6 +4,8 @@ import { AUTH_STORAGE_KEY, TEST_ACCOUNTS } from '../constants/auth.constants';
 import { AppUser } from '../models/auth.model';
 
 @Injectable({ providedIn: 'root' })
+
+// Service, der die Authentifizierung des Benutzers verwaltet und den aktuellen Benutzerstatus als Signal bereitstellt
 export class AuthService {
   private readonly platformId = inject(PLATFORM_ID);
   private readonly isBrowser = isPlatformBrowser(this.platformId);
@@ -45,6 +47,7 @@ export class AuthService {
     return this.user()?.role === 'admin';
   }
 
+  // Lädt den aktuellen Benutzer aus dem lokalen Speicher, falls vorhanden
   private loadUser(): AppUser | null {
     if (!this.isBrowser) {
       return null;

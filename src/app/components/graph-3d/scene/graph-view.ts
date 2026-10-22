@@ -23,10 +23,10 @@ export interface NodeConnections {
  * und kann sie aufbauen, animieren und wieder aufräumen.
  */
 export class GraphView {
-  /** Wird von außen gesetzt, weil Kanten je nach Modus anders aussehen. */
-  layoutMode: GraphLayoutMode = 'sphere';
+  // Wird von außen gesetzt, weil Kanten je nach Modus anders aussehen
+  layoutMode: GraphLayoutMode = 'cluster';
 
-  /** Bei Keywords bekommt jeder Knoten seine eigene Farbe (wird von außen gesetzt). */
+  //Bei Keywords bekommt jeder Knoten seine eigene Farbe (wird von außen gesetzt)
   colorByKeyword = false;
 
   readonly nodes = new Map<string, THREE.Mesh>();
@@ -47,10 +47,7 @@ export class GraphView {
     private readonly clusterConfig: GraphClusterConfig
   ) { }
 
-  // ---------------------------------------------------------------------------
-  // Aufbau
-  // ---------------------------------------------------------------------------
-
+  // Aufbau -----
   build(data: GraphResponse, layout: GraphLayout): void {
     this.clear();
 
@@ -87,7 +84,7 @@ export class GraphView {
     });
   }
 
-  /** Entfernt alle alten Objekte, damit der Graph neu aufgebaut werden kann. */
+  // Entfernt alle alten Objekte, damit der Graph neu aufgebaut werden kann
   private clear(): void {
     while (this.graphGroup.children.length > 0) {
       const child = this.graphGroup.children[0];
@@ -118,7 +115,7 @@ export class GraphView {
     this.edgeConnections.clear();
   }
 
-  /** Zählt pro Knoten, wie viele Kanten er hat (bestimmt die Knotengröße). */
+  // Zählt pro Knoten, wie viele Kanten er hat (bestimmt die Knotengröße)
   private countDegrees(data: GraphResponse): Map<string, number> {
     const degreeById = new Map<string, number>();
 
@@ -167,7 +164,7 @@ export class GraphView {
     this.nodeBaseScale.set(node.id, 1);
   }
 
-  /** Normale Farbe eines Knotens: bei Keywords eine eigene Farbe, sonst die Standardfarbe. */
+  // Normale Farbe eines Knotens: bei Keywords eine eigene Farbe, sonst die Standardfarbe
   private getNodeColor(node: Node): THREE.Color {
     if (!this.colorByKeyword) {
       return new THREE.Color(this.config.nodeColor);
@@ -181,7 +178,7 @@ export class GraphView {
     );
   }
 
-  /** Der "Schatten" ist eine etwas größere Kugel, die von innen sichtbar ist. */
+  // Der "Schatten" ist eine etwas größere Kugel, die von innen sichtbar ist
   private addNodeShadow(nodeId: string, nodeRadius: number, position: THREE.Vector3): void {
     const geometry = new THREE.SphereGeometry(
       nodeRadius * this.config.nodeShadowScale,
@@ -231,7 +228,7 @@ export class GraphView {
     this.edgeConnections.set(line, { sourceId, targetId });
   }
 
-  /** Kleine leuchtende Striche, die an der Kante entlang wandern. */
+  // Kleine leuchtende Striche, die an der Kante entlang wandern
   private addEdgeFlows(
     sourceId: string,
     targetId: string,
@@ -275,10 +272,7 @@ export class GraphView {
     return this.layoutMode === 'cluster';
   }
 
-  // ---------------------------------------------------------------------------
-  // Abfragen
-  // ---------------------------------------------------------------------------
-
+  // Abfragen -----
   hasNode(nodeId: string): boolean {
     return this.nodeById.has(nodeId);
   }
@@ -287,7 +281,7 @@ export class GraphView {
     return this.nodeById.get(nodeId);
   }
 
-  /** Vorgänger (Kanten, die auf den Knoten zeigen) und Nachfolger eines Knotens. */
+  // Vorgänger (Kanten, die auf den Knoten zeigen) und Nachfolger eines Knotens
   getConnections(nodeId: string, graphData: GraphResponse | null | undefined): NodeConnections {
     const predecessors: Node[] = [];
     const successors: Node[] = [];
@@ -317,11 +311,9 @@ export class GraphView {
     return { predecessors, successors };
   }
 
-  // ---------------------------------------------------------------------------
-  // Aktualisieren
-  // ---------------------------------------------------------------------------
+  // Aktualisieren -----
 
-  /** Färbt einen Knoten ein bzw. zurück und setzt seine Zielgröße. */
+  // Färbt einen Knoten ein bzw. zurück und setzt seine Zielgröße
   setHoverState(mesh: THREE.Mesh | null, isHovered: boolean): void {
     if (!mesh) {
       return;
@@ -342,7 +334,7 @@ export class GraphView {
     this.nodeBaseScale.set(nodeId, isHovered ? this.config.nodeHoverScale : 1);
   }
 
-  /** Lässt jeden Knoten sanft auf seine Zielgröße wachsen/schrumpfen. */
+  // Lässt jeden Knoten sanft auf seine Zielgröße wachsen/schrumpfen
   updateNodeAnimation(): void {
     this.nodes.forEach((mesh, nodeId) => {
       const targetScale = this.nodeBaseScale.get(nodeId) ?? 1;
@@ -357,7 +349,7 @@ export class GraphView {
     });
   }
 
-  /** Bewegt die Flow-Striche entlang ihrer Kante. */
+  // Bewegt die Flow-Striche entlang ihrer Kante
   updateEdgeFlows(elapsed: number): void {
     if (!this.config.edgeFlowEnabled) {
       return;
@@ -416,7 +408,7 @@ export class GraphView {
     });
   }
 
-  /** Zieht die Kanten den (bewegten) Knoten hinterher. */
+  // Zieht die Kanten den (bewegten) Knoten hinterher
   updateConnectedEdges(): void {
     this.edgeConnections.forEach((connection, line) => {
       const source = this.nodes.get(connection.sourceId);
@@ -436,7 +428,7 @@ export class GraphView {
     });
   }
 
-  /** Setzt den Schatten wieder auf die Position seines Knotens. */
+  // Setzt den Schatten wieder auf die Position seines Knotens
   updateNodeShadow(nodeId: string): void {
     const node = this.nodes.get(nodeId);
     const shadow = this.nodeShadows.get(nodeId);
@@ -448,9 +440,7 @@ export class GraphView {
     shadow.position.copy(node.position);
   }
 
-  // ---------------------------------------------------------------------------
-  // Aufräumen
-  // ---------------------------------------------------------------------------
+  // Aufräumen -----
 
   dispose(): void {
     this.nodes.forEach(mesh => {

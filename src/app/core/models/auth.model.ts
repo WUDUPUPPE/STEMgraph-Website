@@ -5,7 +5,7 @@ export interface AppUser {
   role: Role;
 }
 
-/** Demo-Account mit Passwort (nur für die Testanmeldung, kein echtes Backend). */
+// Demo-Account mit Passwort (nur für die Testanmeldung, kein echtes Backend)
 export interface TestAccount extends AppUser {
   password: string;
 }

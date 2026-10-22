@@ -1,7 +1,7 @@
 import * as THREE from 'three';
 import { Graph3dConfig } from '../config/graph-3d.config';
 
-/** Pulsierender Ring um den aktuell ausgewählten Knoten. */
+// Pulsierender Ring um den aktuell ausgewählten Knoten
 export class SelectionRing {
   private ring: THREE.Mesh | null = null;
 
@@ -12,8 +12,8 @@ export class SelectionRing {
   ) { }
 
   /**
-   * Muss in jedem Frame aufgerufen werden.
-   * Ohne ausgewählten Knoten wird der Ring entfernt.
+   * Muss in jedem Frame aufgerufen werden, um den Ring zu aktualisieren
+   * Ohne ausgewählten Knoten wird der Ring entfernt
    */
   update(
     selectedNodeId: string | null,

@@ -5,7 +5,7 @@ import { ChallengeByKeywordListItem } from '../../api/models';
 import { STEMgraphApiService } from '../../core/services/stemgraph-api.service';
 import { KeywordBackground, KeywordColor } from '../../core/utils/keyword-color.util';
 
-/** Listet alle Challenges auf, die das ausgewählte Keyword haben (mittig als Overlay). */
+// Listet alle Challenges auf, die das ausgewählte Keyword haben (mittig als Overlay)
 @Component({
   selector: 'app-keyword-challenges',
   imports: [RouterLink],
@@ -19,7 +19,7 @@ export class KeywordChallenges implements OnChanges, OnDestroy {
 
   @Input() keyword: string | null = null;
 
-  /** Wird ausgelöst, wenn das Overlay geschlossen wird (X, Klick daneben oder Escape). */
+  // Wird ausgelöst, wenn das Overlay geschlossen wird (X, Klick daneben oder Escape)
   @Output() closed = new EventEmitter<void>();
 
   // jedes Keyword bekommt seine eigene Farbe
