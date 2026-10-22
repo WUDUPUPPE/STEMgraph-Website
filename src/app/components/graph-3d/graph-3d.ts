@@ -1,35 +1,13 @@
 import { isPlatformBrowser } from '@angular/common';
-import {
-  AfterViewInit,
-  ChangeDetectorRef,
-  Component,
-  ElementRef,
-  EventEmitter,
-  Input,
-  NgZone,
-  OnChanges,
-  OnDestroy,
-  Output,
-  PLATFORM_ID,
-  SimpleChanges,
-  ViewChild,
-  inject,
-  signal,
-} from '@angular/core';
+import { AfterViewInit, ChangeDetectorRef, Component, ElementRef, EventEmitter, Input, NgZone, OnChanges, OnDestroy, Output, PLATFORM_ID, SimpleChanges, ViewChild, inject, signal } from '@angular/core';
 import { Subscription } from 'rxjs';
 import { Timer } from 'three';
 import { GraphResponse, Node } from '../../api/models';
 import { AuthService } from '../../core/services/auth.service';
 import { ReadmePreviewService } from '../../core/services/readme-preview.service';
 import { NodeDetailCarousel } from '../node-detail-carousel/node-detail-carousel';
-import {
-  DEFAULT_CLUSTER_CONFIG,
-  DEFAULT_GRAPH_CONFIG,
-  Graph3dConfig,
-  GraphClusterConfig,
-  GraphLayoutMode,
-  GraphNodeKind,
-} from './config/graph-3d.config';
+import { KeywordBackground, KeywordColor } from '../../core/utils/keyword-color';
+import { DEFAULT_CLUSTER_CONFIG, DEFAULT_GRAPH_CONFIG, Graph3dConfig, GraphClusterConfig, GraphLayoutMode, GraphNodeKind } from './config/graph-3d.config';
 import { ClusterLayout } from './layout/cluster-layout';
 import { GraphLayout } from './layout/graph-layout';
 import { SphereLayout } from './layout/sphere-layout';
@@ -50,6 +28,7 @@ import { SelectionRing } from './scene/selection-ring';
  *  - GraphInteraction  Maus (Hover, Klick, Ziehen)
  *  - SelectionRing     Ring um den ausgewählten Knoten
  */
+
 @Component({
   selector: 'app-graph-3d',
   standalone: true,
@@ -57,6 +36,7 @@ import { SelectionRing } from './scene/selection-ring';
   templateUrl: './graph-3d.html',
   styleUrl: './graph-3d.css',
 })
+
 export class Graph3d implements AfterViewInit, OnChanges, OnDestroy {
   private readonly platformId = inject(PLATFORM_ID);
   private readonly zone = inject(NgZone);
@@ -92,6 +72,10 @@ export class Graph3d implements AfterViewInit, OnChanges, OnDestroy {
     node: null as Node | null,
   };
   readonly hoverReadme = signal('');
+
+  // jedes Keyword bekommt seine eigene Farbe (für die Chips im Tooltip)
+  readonly KeywordColor = KeywordColor;
+  readonly KeywordBackground = KeywordBackground;
   readonly hoverReadmeLoading = signal(false);
 
   private hoverReadmeSubscription?: Subscription;
@@ -216,6 +200,7 @@ export class Graph3d implements AfterViewInit, OnChanges, OnDestroy {
   /** Gibt die aktuellen Input-Werte an die 3D-Klassen weiter. */
   private syncInputs(): void {
     this.graphView.layoutMode = this.layoutMode;
+    this.graphView.colorByKeyword = this.nodeKind === 'keyword';
     this.physics.layoutMode = this.layoutMode;
     this.interaction.layoutMode = this.layoutMode;
     this.interaction.interactive = this.interactive;

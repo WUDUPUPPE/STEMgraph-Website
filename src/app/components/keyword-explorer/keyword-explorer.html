@@ -1,31 +1,47 @@
 <section class="keyword-explorer">
   <header class="explorer-header">
     <div class="view-switcher" aria-label="Set view">
-      <button type="button" [class.active]="viewMode() === 'graph'" (click)="showGraph()">
-        Graph
-      </button>
-
       <button type="button" [class.active]="viewMode() === 'sphere'" (click)="showSphere()">
         Sphere
+      </button>
+
+      <button type="button" [class.active]="viewMode() === 'list'" (click)="showList()">
+        List
       </button>
     </div>
   </header>
 
-  <section class="graph-view">
-    @if (isLoading()) {
-    <p>Loading Keywords …</p>
-    } @else if (errorMessage(); as error) {
-    <p class="error-message">{{ error }}</p>
-    } @else if (graph(); as graphData) {
-      @if (viewMode() === 'graph') {
-      <app-graph-3d [graphData]="graphData" [nodeKind]="'keyword'" [layoutMode]="'cluster'"
-        [selectedNodeId]="selectedKeyword" (nodeSelected)="onNodeSelected($event)" />
-      } @else {
+  @if (isLoading()) {
+  <p>Loading Keywords …</p>
+  } @else if (errorMessage(); as error) {
+  <p class="error-message">{{ error }}</p>
+  } @else if (graph(); as graphData) {
+
+    @if (viewMode() === 'sphere') {
+    <section class="graph-view">
       <app-graph-3d [graphData]="graphData" [nodeKind]="'keyword'" [layoutMode]="'sphere'"
         [selectedNodeId]="selectedKeyword" (nodeSelected)="onNodeSelected($event)" />
-      }
-    } @else {
-    <p>Keywords could not be loaded.</p>
+    </section>
     }
-  </section>
+
+    @if (viewMode() === 'list') {
+    <section class="list-view">
+      <div class="keyword-list">
+        @for (keyword of keywords(); track keyword) {
+        <button type="button" class="keyword-row" [class.is-selected]="keyword === selectedKeyword"
+          [style.--kw-color]="keywordColor(keyword)" [style.--kw-background]="keywordBackground(keyword)"
+          (click)="selectKeyword(keyword)">
+          <span class="keyword-dot" aria-hidden="true"></span>
+          {{ keyword }}
+        </button>
+        } @empty {
+        <p>No keywords found.</p>
+        }
+      </div>
+    </section>
+    }
+
+  } @else {
+  <p>Keywords could not be loaded.</p>
+  }
 </section>

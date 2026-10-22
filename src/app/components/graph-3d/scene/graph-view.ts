@@ -1,11 +1,8 @@
 import * as THREE from 'three';
 import { GraphResponse, Node } from '../../../api/models';
-import {
-  Graph3dConfig,
-  GraphClusterConfig,
-  GraphLayoutMode,
-} from '../config/graph-3d.config';
+import { Graph3dConfig, GraphClusterConfig, GraphLayoutMode } from '../config/graph-3d.config';
 import { GraphLayout } from '../layout/graph-layout';
+import { Keyword_Lightness, Keyword_Saturation, KeywordHue } from '../../core/utils/keyword-color';
 
 export interface EdgeConnection {
   sourceId: string;
@@ -28,6 +25,9 @@ export interface NodeConnections {
 export class GraphView {
   /** Wird von außen gesetzt, weil Kanten je nach Modus anders aussehen. */
   layoutMode: GraphLayoutMode = 'sphere';
+
+  /** Bei Keywords bekommt jeder Knoten seine eigene Farbe (wird von außen gesetzt). */
+  colorByKeyword = false;
 
   readonly nodes = new Map<string, THREE.Mesh>();
   readonly edgeConnections = new Map<THREE.Line, EdgeConnection>();
@@ -144,7 +144,7 @@ export class GraphView {
     );
 
     const material = new THREE.MeshPhysicalMaterial({
-      color: this.config.nodeColor,
+      color: this.getNodeColor(node),
       metalness: this.config.nodeMetalness,
       roughness: this.config.nodeRoughness,
       clearcoat: this.config.nodeClearcoat,
@@ -165,6 +165,20 @@ export class GraphView {
     this.graphGroup.add(mesh);
     this.nodes.set(node.id, mesh);
     this.nodeBaseScale.set(node.id, 1);
+  }
+
+  /** Normale Farbe eines Knotens: bei Keywords eine eigene Farbe, sonst die Standardfarbe. */
+  private getNodeColor(node: Node): THREE.Color {
+    if (!this.colorByKeyword) {
+      return new THREE.Color(this.config.nodeColor);
+    }
+
+    // im Keyword-Graph ist die id des Knotens das Keyword selbst
+    return new THREE.Color().setHSL(
+      KeywordHue(node.id) / 360,
+      Keyword_Saturation,
+      Keyword_Lightness
+    );
   }
 
   /** Der "Schatten" ist eine etwas größere Kugel, die von innen sichtbar ist. */
@@ -314,7 +328,14 @@ export class GraphView {
     }
 
     const material = mesh.material as THREE.MeshPhysicalMaterial;
-    material.color.setHex(isHovered ? this.config.nodeHoverColor : this.config.nodeColor);
+    const node = mesh.userData['nodeData'] as Node;
+
+    if (isHovered) {
+      material.color.setHex(this.config.nodeHoverColor);
+    } else {
+      material.color.copy(this.getNodeColor(node));
+    }
+
     material.emissive.setHex(isHovered ? this.config.nodeHoverEmissive : 0x000000);
 
     const nodeId = mesh.userData['nodeId'] as string;

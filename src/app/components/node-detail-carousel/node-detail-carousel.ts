@@ -1,18 +1,9 @@
-import {
-  Component,
-  EventEmitter,
-  Input,
-  OnChanges,
-  OnDestroy,
-  Output,
-  SimpleChanges,
-  inject,
-  signal,
-} from '@angular/core';
+import { Component,  EventEmitter, Input, OnChanges, OnDestroy, Output, SimpleChanges, inject, signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { Subscription } from 'rxjs';
 import { Node } from '../../api/models';
 import { ReadmePreviewService } from '../../core/services/readme-preview.service';
+import { KeywordBackground, KeywordColor } from '../../core/utils/keyword-color';
 
 @Component({
   selector: 'app-node-detail-carousel',
@@ -20,6 +11,7 @@ import { ReadmePreviewService } from '../../core/services/readme-preview.service
   templateUrl: './node-detail-carousel.html',
   styleUrl: './node-detail-carousel.css',
 })
+
 export class NodeDetailCarousel implements OnChanges, OnDestroy {
   private readonly readmePreviews = inject(ReadmePreviewService);
   private contentSubscription?: Subscription;
@@ -28,6 +20,10 @@ export class NodeDetailCarousel implements OnChanges, OnDestroy {
   @Input() predecessors: Node[] = [];
   @Input() successors: Node[] = [];
   @Input() isAdmin = false;
+
+  // jedes Keyword bekommt seine eigene Farbe
+  protected readonly KeywordColor = KeywordColor;
+  protected readonly KeywordBackground = KeywordBackground;
 
   @Output() closed = new EventEmitter<void>();
   @Output() nodeSelected = new EventEmitter<Node>();

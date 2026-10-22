@@ -1,36 +1,28 @@
-import {
-  Component,
-  EventEmitter,
-  Input,
-  OnChanges,
-  OnInit,
-  Output,
-  SimpleChanges,
-  inject,
-  signal,
-} from '@angular/core';
+import { Component, EventEmitter, Input,  OnInit, Output, computed, inject, signal } from '@angular/core';
 import { GraphResponse, Node } from '../../api/models';
 import { KeywordGraphMapper } from '../../core/mappers/keyword-graph.mapper';
 import { STEMgraphApiService } from '../../core/services/stemgraph-api.service';
+import { KeywordBackground, KeywordColor } from '../../core/utils/keyword-color';
 import { Graph3d } from '../graph-3d/graph-3d';
 
-type KeywordView = 'sphere' | 'graph';
+type KeywordView = 'sphere' | 'list';
 
-/** Zeigt alle Keywords als 3D-Graph (Kugel oder Cluster), wie bei den Challenges. */
+/** Zeigt alle Keywords als 3D-Kugel oder als Liste. */
 @Component({
   selector: 'app-keyword-explorer',
   imports: [Graph3d],
   templateUrl: './keyword-explorer.html',
   styleUrl: './keyword-explorer.css',
 })
-export class KeywordExplorer implements OnInit, OnChanges {
+
+export class KeywordExplorer implements OnInit {
   private readonly stemgraphApi = inject(STEMgraphApiService);
   private readonly keywordGraphMapper = inject(KeywordGraphMapper);
 
-  /** Das Keyword, das im Graphen ausgewählt sein soll (z. B. durch die Suche). */
+  /** Das Keyword, das in der Kugel ausgewählt sein soll (z. B. durch die Suche). */
   @Input() selectedKeyword: string | null = null;
 
-  /** Wird ausgelöst, wenn im Graphen ein Keyword angeklickt wurde. */
+  /** Wird ausgelöst, wenn ein Keyword angeklickt wurde (Kugel oder Liste). */
   @Output() keywordSelected = new EventEmitter<string>();
 
   protected readonly viewMode = signal<KeywordView>('sphere');
@@ -38,33 +30,35 @@ export class KeywordExplorer implements OnInit, OnChanges {
   protected readonly errorMessage = signal<string | null>(null);
   protected readonly graph = signal<GraphResponse | null>(null);
 
-  /** Das zuletzt angeklickte Keyword, um Klick und Suche zu unterscheiden. */
-  private lastClickedKeyword: string | null = null;
+  /** Alle Keywords von A bis Z für die Listenansicht. */
+  protected readonly keywords = computed(() =>
+    (this.graph()?.nodes ?? [])
+      .map((node) => node.id)
+      .sort((a, b) => a.localeCompare(b)),
+  );
+
+  // jedes Keyword bekommt seine eigene Farbe
+  protected readonly KeywordColor = KeywordColor;
+  protected readonly KeywordBackground = KeywordBackground;
 
   ngOnInit(): void {
     this.loadGraph();
-  }
-
-  ngOnChanges(changes: SimpleChanges): void {
-    const change = changes['selectedKeyword'];
-
-    // Kommt die Auswahl aus der Suche (nicht aus einem Klick), zeigen wir den Graph-Modus.
-    if (change && this.selectedKeyword && this.selectedKeyword !== this.lastClickedKeyword) {
-      this.viewMode.set('graph');
-    }
   }
 
   protected showSphere(): void {
     this.viewMode.set('sphere');
   }
 
-  protected showGraph(): void {
-    this.viewMode.set('graph');
+  protected showList(): void {
+    this.viewMode.set('list');
   }
 
   protected onNodeSelected(node: Node): void {
-    this.lastClickedKeyword = node.id;
     this.keywordSelected.emit(node.id);
+  }
+
+  protected selectKeyword(keyword: string): void {
+    this.keywordSelected.emit(keyword);
   }
 
   private loadGraph(): void {
@@ -77,8 +71,22 @@ export class KeywordExplorer implements OnInit, OnChanges {
         this.isLoading.set(false);
       },
       error: (error) => {
-        console.error('Keyword graph could not be loaded:', error);
-        this.errorMessage.set('Keyword graph could not be loaded');
+        // /keywords/graph liefert gerade einen Fehler -> Keywords aus /list holen
+        console.error('Keyword graph could not be loaded, using /list instead:', error);
+        this.loadGraphFromChallengeList();
+      },
+    });
+  }
+
+  private loadGraphFromChallengeList(): void {
+    this.stemgraphApi.mainList().subscribe({
+      next: (challenges) => {
+        this.graph.set(this.keywordGraphMapper.fromChallengeList(challenges));
+        this.isLoading.set(false);
+      },
+      error: (error) => {
+        console.error('Challenge list could not be loaded:', error);
+        this.errorMessage.set('Keywords could not be loaded');
         this.isLoading.set(false);
       },
     });

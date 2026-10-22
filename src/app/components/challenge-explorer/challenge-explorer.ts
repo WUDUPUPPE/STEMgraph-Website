@@ -3,6 +3,7 @@ import { RouterLink } from '@angular/router';
 import { ChallengeListResponse, GraphResponse } from '../../api/models';
 import { GraphSelectionService } from '../../core/services/graph-selection.service';
 import { STEMgraphApiService } from '../../core/services/stemgraph-api.service';
+import { KeywordBackground, KeywordColor } from '../../core/utils/keyword-color';
 import { ChallengeGraph } from '../challenge-graph/challenge-graph';
 
 type ExplorerView = 'sphere' | 'graph' | 'list';
@@ -13,6 +14,7 @@ type ExplorerView = 'sphere' | 'graph' | 'list';
   templateUrl: './challenge-explorer.html',
   styleUrl: './challenge-explorer.css',
 })
+
 export class ChallengeExplorer implements OnInit {
   private readonly stemgraphApi = inject(STEMgraphApiService);
   private readonly graphSelection = inject(GraphSelectionService);
@@ -28,6 +30,10 @@ export class ChallengeExplorer implements OnInit {
   protected readonly graph = signal<GraphResponse | null>(null);
 
   protected readonly selectedChallengeId = signal<string | null>(null);
+
+  // jedes Keyword bekommt seine eigene Farbe
+  protected readonly KeywordColor = KeywordColor;
+  protected readonly KeywordBackground = KeywordBackground;
 
   /** Wechselt zur Graph-Ansicht, sobald in der Suche eine Challenge gewählt wurde. */
   private readonly selectedChallengeEffect = effect(() => {

@@ -1,6 +1,6 @@
 import { Component, inject, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { KeywordChallenges } from '../../components/keyword-challenges/keyword-challenges';
 import { KeywordExplorer } from '../../components/keyword-explorer/keyword-explorer';
 import { Logo3d } from '../../components/logo-3d/logo-3d';
@@ -11,8 +11,10 @@ import { Logo3d } from '../../components/logo-3d/logo-3d';
   styleUrl: './keywords.css',
   templateUrl: './keywords.html',
 })
+
 export class Keywords {
   private readonly route = inject(ActivatedRoute);
+  private readonly router = inject(Router);
 
   /** Das aktuell ausgewählte Keyword (aus der Suche oder per Klick im Graphen). */
   protected readonly selectedKeyword = signal<string | null>(null);
@@ -26,5 +28,11 @@ export class Keywords {
 
   protected onKeywordSelected(keyword: string): void {
     this.selectedKeyword.set(keyword);
+  }
+
+  /** Overlay geschlossen: Auswahl löschen und ?kw= aus der URL entfernen. */
+  protected onPanelClosed(): void {
+    this.selectedKeyword.set(null);
+    this.router.navigate(['/keywords']);
   }
 }

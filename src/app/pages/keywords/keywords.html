@@ -5,6 +5,6 @@
   <app-keyword-explorer [selectedKeyword]="selectedKeyword()" (keywordSelected)="onKeywordSelected($event)">
   </app-keyword-explorer>
 
-  <app-keyword-challenges class="keyword-panel" [keyword]="selectedKeyword()">
+  <app-keyword-challenges [keyword]="selectedKeyword()" (closed)="onPanelClosed()">
   </app-keyword-challenges>
 </section>

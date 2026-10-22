@@ -1,23 +1,43 @@
 @if (keyword) {
-<aside class="keyword-challenges" aria-label="Challenges of the selected keyword">
-  <h2 class="keyword-title">{{ keyword }}</h2>
+<div class="keyword-backdrop" (click)="close()">
+  <aside class="keyword-challenges" aria-label="Challenges of the selected keyword"
+    [style.--kw-color]="keywordColor(keyword)" (click)="$event.stopPropagation()">
 
-  @if (isLoading()) {
-  <p class="hint">Loading challenges ...</p>
-  } @else if (hasError()) {
-  <p class="hint error">Challenges could not be loaded.</p>
-  } @else if (challenges().length === 0) {
-  <p class="hint">No challenges found for this keyword.</p>
-  } @else {
-  <ul class="challenge-list">
-    @for (challenge of challenges(); track challenge.id) {
-    <li>
-      <a class="challenge-link" [routerLink]="['/challenge', challenge.id, challenge.teaches]">
-        {{ challenge.teaches || challenge.id }}
-      </a>
-    </li>
+    <header class="keyword-header">
+      <h2 class="keyword-title">
+        <span class="keyword-dot" aria-hidden="true"></span>
+        {{ keyword }}
+      </h2>
+
+      <button type="button" class="close-button" aria-label="Close" (click)="close()">✕</button>
+    </header>
+
+    @if (isLoading()) {
+    <p class="hint">Loading challenges ...</p>
+    } @else if (hasError()) {
+    <p class="hint error">Challenges could not be loaded.</p>
+    } @else if (challenges().length === 0) {
+    <p class="hint">No challenges found for this keyword.</p>
+    } @else {
+    <ul class="challenge-list">
+      @for (challenge of challenges(); track challenge.id) {
+      <li>
+        <a class="challenge-link" [routerLink]="['/challenge', challenge.id, challenge.teaches]">
+          {{ challenge.teaches || challenge.id }}
+        </a>
+
+        @if (challenge.keywords?.length) {
+        <div class="keyword-list">
+          @for (otherKeyword of challenge.keywords; track otherKeyword) {
+          <span class="keyword" [style.color]="keywordColor(otherKeyword)"
+            [style.background]="keywordBackground(otherKeyword)">{{ otherKeyword }}</span>
+          }
+        </div>
+        }
+      </li>
+      }
+    </ul>
     }
-  </ul>
-  }
-</aside>
+  </aside>
+</div>
 }

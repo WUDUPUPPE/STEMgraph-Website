@@ -54,6 +54,51 @@ button.active {
   color: #c60000;
 }
 
+/* Listenansicht: alle Keywords untereinander, jedes in seiner eigenen Farbe */
+.keyword-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  margin: 1rem clamp(16px, 4vw, 48px);
+}
+
+/* --kw-color und --kw-background werden im HTML pro Keyword gesetzt */
+.keyword-list .keyword-row {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  width: 100%;
+  padding: 0.35rem 1rem;
+  border: 1px solid #24b8b124;
+  border-left: 4px solid var(--kw-color);
+  border-radius: 0.65rem;
+  box-shadow: none;
+  background: #10555242;
+  color: var(--kw-color);
+  text-shadow: none;
+  text-align: left;
+  font-size: 0.9rem;
+  font-family: 'Fugaz One', sans-serif;
+  transition:
+    border-color 0.4s ease,
+    background 0.4s ease;
+}
+
+.keyword-list .keyword-row:hover,
+.keyword-list .keyword-row:focus-visible,
+.keyword-list .keyword-row.is-selected {
+  border-color: var(--kw-color);
+  background: var(--kw-background);
+}
+
+.keyword-dot {
+  flex-shrink: 0;
+  width: 0.6rem;
+  height: 0.6rem;
+  border-radius: 50%;
+  background: var(--kw-color);
+}
+
 .error-message {
   display: flex;
   justify-content: center;

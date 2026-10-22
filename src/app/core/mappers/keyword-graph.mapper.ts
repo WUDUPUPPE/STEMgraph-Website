@@ -1,83 +1,48 @@
 import { Injectable } from '@angular/core';
-import { Edge, GraphResponse, KeywordGraphResponse, Node } from '../../api/models';
-
-/** So können die Kanten der Keyword-API aussehen (je nachdem, was das Backend liefert). */
-interface RawKeywordEdge {
-  id?: string;
-  keywords?: string;
-  source?: string;
-  target?: string;
-}
+import { ChallengeListResponse, GraphResponse, KeywordGraphResponse, Node } from '../../api/models';
 
 /**
  * Wandelt die Antwort der Keyword-API in das Format um, das der 3D-Graph kennt
  * (GraphResponse). Ein Keyword wird dabei zu einem Knoten, dessen id und teaches
  * das Keyword selbst sind.
+ *
+ * Die Keywords werden nur als Kugel angezeigt, deshalb gibt es keine Kanten.
  */
 @Injectable({
   providedIn: 'root',
 })
+
 export class KeywordGraphMapper {
   toGraphResponse(response: KeywordGraphResponse): GraphResponse {
-    const nodes = new Map<string, Node>();
+    const keywords = (response.nodes ?? []).map((node) => node.keywords);
 
-    (response.nodes ?? []).forEach((node) => this.addNode(nodes, node.keywords));
-
-    const edges = this.buildEdges(response.edges ?? [], nodes);
-
-    return { nodes: Array.from(nodes.values()), edges };
-  }
-
-  private addNode(nodes: Map<string, Node>, keyword: string): void {
-    if (!nodes.has(keyword)) {
-      nodes.set(keyword, { id: keyword, teaches: keyword, keywords: [] });
-    }
+    return this.toSphere(keywords);
   }
 
   /**
-   * Fall 1: Die Kante hat source und target -> direkt übernehmen.
-   * Fall 2: Die Kante besteht aus (Challenge-ID, Keyword) -> alle Keywords mit
-   *         derselben Challenge-ID werden miteinander verbunden.
+   * Ersatz, falls /keywords/graph nicht funktioniert:
+   * holt die Keywords aus der Challenge-Liste (/list).
    */
-  private buildEdges(rawEdges: unknown[], nodes: Map<string, Node>): Edge[] {
-    const edges: Edge[] = [];
-    const knownPairs = new Set<string>();
-    const keywordsByChallenge = new Map<string, string[]>();
+  fromChallengeList(challenges: ChallengeListResponse[]): GraphResponse {
+    const keywords: string[] = [];
 
-    const addEdge = (a: string, b: string): void => {
-      const key = [a, b].sort().join('|');
+    challenges.forEach((challenge) => {
+      (challenge.keywords ?? []).forEach((keyword) => keywords.push(keyword));
+    });
 
-      if (a === b || knownPairs.has(key)) {
-        return;
-      }
+    return this.toSphere(keywords);
+  }
 
-      knownPairs.add(key);
-      this.addNode(nodes, a);
-      this.addNode(nodes, b);
-      edges.push({ source: a, target: b });
-    };
+  /** Jedes Keyword wird genau ein Knoten (doppelte werden ignoriert). */
+  private toSphere(keywords: string[]): GraphResponse {
+    const nodes = new Map<string, Node>();
 
-    (rawEdges as RawKeywordEdge[]).forEach((edge) => {
-      if (edge.source && edge.target) {
-        addEdge(edge.source, edge.target);
-        return;
-      }
-
-      if (edge.id && edge.keywords) {
-        const group = keywordsByChallenge.get(edge.id) ?? [];
-        group.push(edge.keywords);
-        keywordsByChallenge.set(edge.id, group);
+    keywords.forEach((keyword) => {
+      if (!nodes.has(keyword)) {
+        nodes.set(keyword, { id: keyword, teaches: keyword, keywords: [] });
       }
     });
 
-    keywordsByChallenge.forEach((group) => {
-      for (let i = 0; i < group.length; i++) {
-        for (let j = i + 1; j < group.length; j++) {
-          addEdge(group[i], group[j]);
-        }
-      }
-    });
-
-    return edges;
+    return { nodes: Array.from(nodes.values()), edges: [] };
   }
 }
