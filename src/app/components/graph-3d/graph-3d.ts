@@ -6,7 +6,7 @@ import { GraphResponse, Node } from '../../api/models';
 import { AuthService } from '../../core/services/auth.service';
 import { ReadmePreviewService } from '../../core/services/readme-preview.service';
 import { NodeDetailCarousel } from '../node-detail-carousel/node-detail-carousel';
-import { KeywordBackground, KeywordColor } from '../../core/utils/keyword-color';
+import { KeywordBackground, KeywordColor } from '../../core/utils/keyword-color.util';
 import { DEFAULT_CLUSTER_CONFIG, DEFAULT_GRAPH_CONFIG, Graph3dConfig, GraphClusterConfig, GraphLayoutMode, GraphNodeKind } from './config/graph-3d.config';
 import { ClusterLayout } from './layout/cluster-layout';
 import { GraphLayout } from './layout/graph-layout';

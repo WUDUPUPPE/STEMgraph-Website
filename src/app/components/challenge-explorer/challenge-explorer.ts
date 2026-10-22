@@ -3,7 +3,7 @@ import { RouterLink } from '@angular/router';
 import { ChallengeListResponse, GraphResponse } from '../../api/models';
 import { GraphSelectionService } from '../../core/services/graph-selection.service';
 import { STEMgraphApiService } from '../../core/services/stemgraph-api.service';
-import { KeywordBackground, KeywordColor } from '../../core/utils/keyword-color';
+import { KeywordBackground, KeywordColor } from  '../../core/utils/keyword-color.util';
 import { ChallengeGraph } from '../challenge-graph/challenge-graph';
 
 type ExplorerView = 'sphere' | 'graph' | 'list';

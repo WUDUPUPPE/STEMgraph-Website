@@ -1,7 +1,7 @@
 @if (keyword) {
 <div class="keyword-backdrop" (click)="close()">
   <aside class="keyword-challenges" aria-label="Challenges of the selected keyword"
-    [style.--kw-color]="keywordColor(keyword)" (click)="$event.stopPropagation()">
+    [style.--kw-color]="KeywordColor(keyword)" (click)="$event.stopPropagation()">
 
     <header class="keyword-header">
       <h2 class="keyword-title">
@@ -29,8 +29,8 @@
         @if (challenge.keywords?.length) {
         <div class="keyword-list">
           @for (otherKeyword of challenge.keywords; track otherKeyword) {
-          <span class="keyword" [style.color]="keywordColor(otherKeyword)"
-            [style.background]="keywordBackground(otherKeyword)">{{ otherKeyword }}</span>
+          <span class="keyword" [style.color]="KeywordColor(otherKeyword)"
+            [style.background]="KeywordBackground(otherKeyword)">{{ otherKeyword }}</span>
           }
         </div>
         }

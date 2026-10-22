@@ -2,7 +2,7 @@ import { Component, EventEmitter, Input,  OnInit, Output, computed, inject, sign
 import { GraphResponse, Node } from '../../api/models';
 import { KeywordGraphMapper } from '../../core/mappers/keyword-graph.mapper';
 import { STEMgraphApiService } from '../../core/services/stemgraph-api.service';
-import { KeywordBackground, KeywordColor } from '../../core/utils/keyword-color';
+import { KeywordBackground, KeywordColor } from '../../core/utils/keyword-color.util';
 import { Graph3d } from '../graph-3d/graph-3d';
 
 type KeywordView = 'sphere' | 'list';

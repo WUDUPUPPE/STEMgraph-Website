@@ -72,8 +72,8 @@
           @if (challenge.keywords?.length) {
           <div class="keyword-list">
             @for (keyword of challenge.keywords; track keyword) {
-            <span class="keyword" [style.color]="keywordColor(keyword)"
-              [style.background]="keywordBackground(keyword)">{{ keyword }}</span>
+            <span class="keyword" [style.color]="KeywordColor(keyword)"
+              [style.background]="KeywordBackground(keyword)">{{ keyword }}</span>
             }
           </div>
           }

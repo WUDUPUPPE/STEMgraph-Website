@@ -29,7 +29,7 @@
       <div class="keyword-list">
         @for (keyword of keywords(); track keyword) {
         <button type="button" class="keyword-row" [class.is-selected]="keyword === selectedKeyword"
-          [style.--kw-color]="keywordColor(keyword)" [style.--kw-background]="keywordBackground(keyword)"
+          [style.--kw-color]="KeywordColor(keyword)" [style.--kw-background]="KeywordBackground(keyword)"
           (click)="selectKeyword(keyword)">
           <span class="keyword-dot" aria-hidden="true"></span>
           {{ keyword }}

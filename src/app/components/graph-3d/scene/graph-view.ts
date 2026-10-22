@@ -2,7 +2,7 @@ import * as THREE from 'three';
 import { GraphResponse, Node } from '../../../api/models';
 import { Graph3dConfig, GraphClusterConfig, GraphLayoutMode } from '../config/graph-3d.config';
 import { GraphLayout } from '../layout/graph-layout';
-import { Keyword_Lightness, Keyword_Saturation, KeywordHue } from '../../core/utils/keyword-color';
+import { Keyword_Lightness, Keyword_Saturation, KeywordHue } from '../../../core/utils/keyword-color.util';
 
 export interface EdgeConnection {
   sourceId: string;

@@ -20,7 +20,7 @@
           @if (node.keywords?.length) {
           <div class="keywords">
             @for (keyword of node.keywords; track keyword) {
-            <span [style.color]="keywordColor(keyword)" [style.background]="keywordBackground(keyword)">{{ keyword }}</span>
+            <span [style.color]="KeywordColor(keyword)" [style.background]="KeywordBackground(keyword)">{{ keyword }}</span>
             }
           </div>
           }
@@ -37,7 +37,7 @@
         @if (current.keywords?.length) {
         <div class="keywords">
           @for (keyword of current.keywords; track keyword) {
-          <span [style.color]="keywordColor(keyword)" [style.background]="keywordBackground(keyword)">{{ keyword }}</span>
+          <span [style.color]="KeywordColor(keyword)" [style.background]="KeywordBackground(keyword)">{{ keyword }}</span>
           }
         </div>
         }
@@ -91,7 +91,7 @@
           @if (node.keywords?.length) {
           <div class="keywords">
             @for (keyword of node.keywords; track keyword) {
-            <span [style.color]="keywordColor(keyword)" [style.background]="keywordBackground(keyword)">{{ keyword }}</span>
+            <span [style.color]="KeywordColor(keyword)" [style.background]="KeywordBackground(keyword)">{{ keyword }}</span>
             }
           </div>
           }

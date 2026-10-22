@@ -3,7 +3,7 @@ import { RouterLink } from '@angular/router';
 import { Subscription } from 'rxjs';
 import { ChallengeByKeywordListItem } from '../../api/models';
 import { STEMgraphApiService } from '../../core/services/stemgraph-api.service';
-import { KeywordBackground, KeywordColor } from '../../core/utils/keyword-color';
+import { KeywordBackground, KeywordColor } from '../../core/utils/keyword-color.util';
 
 /** Listet alle Challenges auf, die das ausgewählte Keyword haben (mittig als Overlay). */
 @Component({

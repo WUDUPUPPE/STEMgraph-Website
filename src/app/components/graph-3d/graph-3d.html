@@ -19,8 +19,8 @@
       @if (node.keywords?.length) {
       <div class="node-tooltip-keywords">
         @for (keyword of node.keywords; track keyword) {
-        <span class="node-tooltip-keyword" [style.color]="keywordColor(keyword)"
-          [style.background]="keywordBackground(keyword)">{{ keyword }}</span>
+        <span class="node-tooltip-keyword" [style.color]="KeywordColor(keyword)"
+          [style.background]="KeywordBackground(keyword)">{{ keyword }}</span>
         }
       </div>
       }

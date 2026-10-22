@@ -3,7 +3,7 @@ import { RouterLink } from '@angular/router';
 import { Subscription } from 'rxjs';
 import { Node } from '../../api/models';
 import { ReadmePreviewService } from '../../core/services/readme-preview.service';
-import { KeywordBackground, KeywordColor } from '../../core/utils/keyword-color';
+import { KeywordBackground, KeywordColor } from '../../core/utils/keyword-color.util';
 
 @Component({
   selector: 'app-node-detail-carousel',

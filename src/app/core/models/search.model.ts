@@ -1,4 +1,4 @@
-// Weitere Suchtypen (Challenges by Keyword, Dependencies, Subgraph)
+// Weitere Suchtypen (Dependencies, Subgraph)
 // sind noch nicht umgesetzt, die Seiten dafür fehlen.
 export type SearchType = 'challenges' | 'keywords';
 
