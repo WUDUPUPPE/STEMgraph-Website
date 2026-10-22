@@ -8,7 +8,7 @@ import { GraphView } from './graph-view';
  * - danach schwingt der Graph noch eine Weile aus (update)
  */
 export class ClusterPhysics {
-  /** Wird von außen gesetzt, die Physik läuft nur im Modus "cluster". */
+  // Wird von außen gesetzt, die Physik läuft nur im Modus "cluster"
   layoutMode: GraphLayoutMode = 'sphere';
 
   private readonly velocities = new Map<string, THREE.Vector3>();
