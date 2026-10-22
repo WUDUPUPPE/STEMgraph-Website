@@ -12,7 +12,7 @@ import { Graph3d } from '../graph-3d/graph-3d';
 export class ChallengeGraph {
   readonly graph = input<GraphResponse | null>(null);
 
-  @Input() layoutMode: GraphLayoutMode = 'sphere';
+  @Input() layoutMode: GraphLayoutMode = 'cluster';
   @Input() isAdmin = false;
   @Input() selectedNodeId: string | null = null;
 }

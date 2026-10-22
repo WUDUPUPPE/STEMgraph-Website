@@ -3,7 +3,7 @@ import { GraphResponse } from '../../../api/models';
 import { Graph3dConfig } from '../config/graph-3d.config';
 import { GraphLayout } from './graph-layout';
 
-/** Verteilt alle Knoten gleichmäßig auf einer Kugeloberfläche. */
+// Verteilt alle Knoten gleichmäßig auf einer Kugeloberfläche
 export class SphereLayout extends GraphLayout {
   constructor(private readonly config: Graph3dConfig) {
     super();

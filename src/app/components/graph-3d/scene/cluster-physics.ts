@@ -8,7 +8,7 @@ import { GraphView } from './graph-view';
  * - danach schwingt der Graph noch eine Weile aus (update)
  */
 export class ClusterPhysics {
-  /** Wird von außen gesetzt, die Physik läuft nur im Modus "cluster". */
+  // Wird von außen gesetzt, die Physik läuft nur im Modus "cluster"
   layoutMode: GraphLayoutMode = 'sphere';
 
   private readonly velocities = new Map<string, THREE.Vector3>();
@@ -20,7 +20,7 @@ export class ClusterPhysics {
     private readonly config: GraphClusterConfig
   ) { }
 
-  /** Legt für jeden Knoten eine neue Geschwindigkeit an (nach dem Graph-Aufbau). */
+  // Legt für jeden Knoten eine neue Geschwindigkeit an (nach dem Graph-Aufbau)
   reset(): void {
     this.velocities.clear();
 

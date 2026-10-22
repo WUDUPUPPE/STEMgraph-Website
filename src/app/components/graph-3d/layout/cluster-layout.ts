@@ -5,7 +5,7 @@ import { GraphLayout } from './graph-layout';
 
 /**
  * Kräftebasiertes Layout: Knoten stoßen sich ab, verbundene Knoten
- * ziehen sich an. Die Simulation läuft einmal vorab (iterations Schritte).
+ * ziehen sich an. Die Simulation läuft einmal vorab (iterations Schritte)
  */
 export class ClusterLayout extends GraphLayout {
   constructor(private readonly config: GraphClusterConfig) {
@@ -27,7 +27,7 @@ export class ClusterLayout extends GraphLayout {
     return positions;
   }
 
-  /** Startposition: zufällig in einem kleinen Würfel um den Mittelpunkt. */
+  // Startposition: zufällig in einem kleinen Würfel um den Mittelpunkt
   private placeNodesRandomly(
     data: GraphResponse,
     positions: Map<string, THREE.Vector3>,
@@ -49,7 +49,7 @@ export class ClusterLayout extends GraphLayout {
     });
   }
 
-  /** Alle Knoten stoßen sich ab, außerdem zieht eine schwache Kraft zur Mitte. */
+  // Alle Knoten stoßen sich ab, außerdem zieht eine schwache Kraft zur Mitte
   private applyRepulsionAndCenterForce(
     data: GraphResponse,
     positions: Map<string, THREE.Vector3>,
@@ -90,7 +90,7 @@ export class ClusterLayout extends GraphLayout {
     });
   }
 
-  /** Verbundene Knoten werden Richtung "desiredDistance" gezogen. */
+  // Verbundene Knoten werden Richtung "desiredDistance" gezogen
   private applyEdgeAttraction(
     data: GraphResponse,
     positions: Map<string, THREE.Vector3>,
@@ -128,7 +128,7 @@ export class ClusterLayout extends GraphLayout {
     });
   }
 
-  /** Geschwindigkeit dämpfen und Knoten verschieben. */
+  // Geschwindigkeit dämpfen und Knoten verschieben
   private movePositions(
     data: GraphResponse,
     positions: Map<string, THREE.Vector3>,

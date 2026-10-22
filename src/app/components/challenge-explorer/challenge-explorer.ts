@@ -31,11 +31,11 @@ export class ChallengeExplorer implements OnInit {
 
   protected readonly selectedChallengeId = signal<string | null>(null);
 
-  // jedes Keyword bekommt seine eigene Farbe
+  // Jedes Keyword bekommt seine eigene Farbe
   protected readonly KeywordColor = KeywordColor;
   protected readonly KeywordBackground = KeywordBackground;
 
-  /** Wechselt zur Graph-Ansicht, sobald in der Suche eine Challenge gewählt wurde. */
+  // Wechselt zur Graph-Ansicht, sobald in der Suche eine Challenge gewählt wurde
   private readonly selectedChallengeEffect = effect(() => {
     const selectedId = this.graphSelection.selectedChallengeId();
 
