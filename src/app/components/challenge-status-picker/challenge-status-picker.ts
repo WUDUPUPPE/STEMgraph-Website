@@ -6,13 +6,15 @@ import { ChallengeProgressService } from '../../core/services/challenge-progress
 
 /**
  * Kleine Auswahl oben rechts in einer Challenge:
- * Done (grün), Todo (gelb), Repeat (rot) oder kein Status.
+ * Done (grün), Todo (gelb), Repeat (rot) oder kein Status
  */
 @Component({
   selector: 'app-challenge-status-picker',
   templateUrl: './challenge-status-picker.html',
   styleUrl: './challenge-status-picker.css',
 })
+
+// Die ChallengeStatusPicker-Komponente ermöglicht es dem Benutzer, den Status einer Challenge auszuwählen oder zu ändern. Sie zeigt die verfügbaren Statusoptionen an und verwaltet den aktuellen Status der Challenge basierend auf der Challenge-ID
 export class ChallengeStatusPicker {
   private readonly progress = inject(ChallengeProgressService);
   readonly auth = inject(AuthService);
@@ -27,7 +29,7 @@ export class ChallengeStatusPicker {
 
   @Input() teaches: string | null = null;
 
-  /** Aktueller Status der Challenge (oder null, wenn keiner gesetzt ist). */
+  // Aktueller Status der Challenge (oder null, wenn keiner gesetzt ist)
   readonly currentStatus = computed(() => {
     const id = this.challengeIdSignal();
 

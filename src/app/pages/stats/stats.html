@@ -1,0 +1,97 @@
+<main class="stats-page">
+  <app-logo-3d [glbUrl]="'/STEMgraph_website.glb'" [mouseParallax]="true">
+  </app-logo-3d>
+
+  <header class="stats-header">
+    <h1 class="stats-title">Stats</h1>
+    <p class="stats-user">{{ auth.user()?.username }}</p>
+  </header>
+
+  <!-- Übersicht: eine Karte pro Status -->
+  <section class="stats-cards" aria-label="Overview">
+    @for (option of statusOptions; track option.status) {
+      <button
+        type="button"
+        class="stats-card"
+        [class.is-active]="filter() === option.status"
+        [style.--status-color]="option.cssColor"
+        (click)="setFilter(option.status)"
+      >
+        <span class="stats-card__count">{{ getCount(option.status) }}</span>
+        <span class="stats-card__label">
+          <span class="status-dot" aria-hidden="true"></span>
+          {{ option.label }}
+        </span>
+        <span class="stats-card__description">{{ option.description }}</span>
+      </button>
+    }
+
+    <div class="stats-card stats-card--neutral">
+      <span class="stats-card__count">{{ notMarkedCount() ?? '–' }}</span>
+      <span class="stats-card__label">Not marked</span>
+      <span class="stats-card__description">
+        of {{ totalChallenges() ?? '–' }} challenges
+      </span>
+    </div>
+  </section>
+
+  <!-- Fortschrittsbalken -->
+  <section class="stats-progress" aria-label="Progress">
+    <div class="stats-progress__header">
+      <h2>Progress</h2>
+      <span class="stats-progress__percent">{{ donePercent() }}% done</span>
+    </div>
+
+    <div class="progress-bar">
+      <span class="progress-bar__part" [style.width.%]="donePercent()" [style.--status-color]="getStatusOption('done').cssColor"></span>
+      <span class="progress-bar__part" [style.width.%]="todoPercent()" [style.--status-color]="getStatusOption('todo').cssColor"></span>
+      <span class="progress-bar__part" [style.width.%]="hardPercent()" [style.--status-color]="getStatusOption('hard').cssColor"></span>
+    </div>
+  </section>
+
+  <!-- Liste der markierten Challenges -->
+  <section class="stats-list-panel">
+    <div class="stats-filter" role="group" aria-label="Filter">
+      <button type="button" [class.active]="filter() === 'all'" (click)="setFilter('all')">
+        All
+      </button>
+
+      @for (option of statusOptions; track option.status) {
+        <button type="button" [class.active]="filter() === option.status" (click)="setFilter(option.status)">
+          {{ option.label }}
+        </button>
+      }
+    </div>
+
+    @if (filteredEntries().length === 0) {
+      <p class="stats-empty">
+        No challenges here yet. Open a challenge and set its status in the top right corner.
+      </p>
+    }
+
+    <ul class="stats-list">
+      @for (entry of filteredEntries(); track entry.id) {
+        <li class="stats-item" [style.--status-color]="getStatusOption(entry.status).cssColor">
+          <span class="status-dot" aria-hidden="true"></span>
+
+          <div class="stats-item__text">
+            <span class="stats-item__title">{{ entry.teaches || entry.id }}</span>
+            <small class="stats-item__info">
+              {{ getStatusOption(entry.status).label }} · {{ entry.updatedAt | date: 'dd.MM.yyyy HH:mm' }}
+            </small>
+          </div>
+
+          <div class="stats-item__actions">
+            <a class="open-button" [routerLink]="['/challenge', entry.id, entry.teaches || entry.id]">
+              Open
+            </a>
+
+            <button type="button" class="remove-button" title="Remove status" (click)="removeStatus(entry)">
+              ✕
+            </button>
+          </div>
+        </li>
+      }
+    </ul>
+  </section>
+</main>

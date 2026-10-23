@@ -7,7 +7,7 @@ export type GraphLayoutMode = 'sphere' | 'cluster';
  */
 export type GraphNodeKind = 'challenge' | 'keyword';
 
-/** Darstellung und Verhalten des Graphen (Knoten, Kanten, Kamera). */
+// Darstellung und Verhalten des Graphen (Knoten, Kanten, Kamera)
 export interface Graph3dConfig {
   nodeBaseRadius: number;
   nodeDegreeScale: number;
@@ -30,7 +30,7 @@ export interface Graph3dConfig {
   nodeShadowColor: number;
   nodeShadowOpacity: number;
 
-  /** Leuchtender Schatten je nach Challenge-Status (fertig / todo / schwer). */
+  // Leuchtender Schatten je nach Challenge-Status (fertig / todo / schwer)
   statusGlowEnabled: boolean;
   statusGlowScale: number;
   statusGlowOpacity: number;
@@ -62,7 +62,7 @@ export interface Graph3dConfig {
   maxZoom: number;
 }
 
-/** Einstellungen, die nur für den "cluster"-Modus gelten (Physik, Zoom, Kanten). */
+// Einstellungen, die nur für den "cluster"-Modus gelten (Physik, Zoom, Kanten)
 export interface GraphClusterConfig {
   nodeSpacing: number;
   desiredDistance: number;

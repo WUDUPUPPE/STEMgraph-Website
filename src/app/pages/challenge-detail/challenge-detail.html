@@ -9,13 +9,21 @@
   </button>
 
   <header class="challenge-header">
-    <h1 class="detail-title">
-      {{ challengeTeaches }}
-    </h1>
+    <div class="challenge-heading">
+      <h1 class="detail-title">
+        {{ challengeTeaches }}
+      </h1>
 
-    <h2 class="detail-id">
-      ID: {{ challengeId }}
-    </h2>
+      <h2 class="detail-id">
+        ID: {{ challengeId }}
+      </h2>
+    </div>
+
+    <app-challenge-status-picker
+      class="challenge-status"
+      [challengeId]="challengeId"
+      [teaches]="challengeTeaches">
+    </app-challenge-status-picker>
   </header>
 
   @if (loading) {

@@ -1,0 +1,244 @@
+<main class="admin-page">
+  <app-logo-3d [glbUrl]="'/STEMgraph_website.glb'" [mouseParallax]="true">
+  </app-logo-3d>
+
+  <header class="admin-header">
+    <h1 class="admin-title">Admin Tools</h1>
+    <p class="admin-subtitle">Challenge import, scheduler and update status</p>
+  </header>
+
+  <!-- API-Key: wird für alle Admin-Endpoints gebraucht -->
+  <section class="admin-panel api-key-panel">
+    @if (adminApi.hasApiKey()) {
+      <div class="api-key-set">
+        <span class="api-key-led" aria-hidden="true"></span>
+        <span>API key is set for this session</span>
+        <button type="button" class="link-button" (click)="clearApiKey()">Change</button>
+      </div>
+    } @else {
+      <form class="api-key-form" (ngSubmit)="saveApiKey()">
+        <label for="api-key">API key</label>
+        <input
+          id="api-key"
+          name="apiKey"
+          type="password"
+          autocomplete="off"
+          placeholder="x-api-key"
+          [(ngModel)]="apiKeyInput"
+        />
+        <button type="submit" class="action-button" [disabled]="!apiKeyInput.trim()">Save</button>
+      </form>
+      <p class="hint">The key is only kept until you close the browser tab.</p>
+    }
+  </section>
+
+  <!-- Tabs -->
+  <nav class="admin-tabs" aria-label="Admin tools">
+    @for (tab of tabs; track tab.id) {
+      <button type="button" [class.active]="activeTab() === tab.id" (click)="selectTab(tab.id)">
+        {{ tab.label }}
+      </button>
+    }
+  </nav>
+
+  @if (!adminApi.hasApiKey()) {
+    <p class="admin-panel hint">Enter the API key to use the admin tools.</p>
+  } @else {
+
+    <!-- Scheduler -->
+    @if (activeTab() === 'scheduler') {
+      <section class="admin-panel">
+        <div class="panel-header">
+          <h2>Scheduler Update</h2>
+          <button type="button" class="link-button" (click)="loadSchedule()" [disabled]="scheduleLoading()">
+            Reload
+          </button>
+        </div>
+
+        @if (scheduleLoading()) {
+          <div class="loading-row">
+            <div class="loading-spinner"></div>
+            <span>Loading schedule ...</span>
+          </div>
+        } @else {
+          <form class="schedule-form" (ngSubmit)="saveSchedule()">
+            <label class="toggle">
+              <input type="checkbox" name="enabled" [(ngModel)]="scheduleEnabled" />
+              <span class="toggle__track" aria-hidden="true"></span>
+              <span>Automatic update {{ scheduleEnabled ? 'enabled' : 'disabled' }}</span>
+            </label>
+
+            <div class="field">
+              <label for="interval">Interval (minutes)</label>
+              <input
+                id="interval"
+                name="interval"
+                type="number"
+                [min]="minMinutes"
+                [max]="maxMinutes"
+                step="1"
+                [(ngModel)]="scheduleMinutes"
+                [disabled]="!scheduleEnabled"
+              />
+              <small class="hint">
+                Every {{ formatInterval(scheduleMinutes) }} · allowed {{ minMinutes }} – {{ maxMinutes }} minutes
+              </small>
+            </div>
+
+            <div class="presets">
+              @for (preset of presets; track preset.minutes) {
+                <button
+                  type="button"
+                  class="preset-button"
+                  [class.active]="scheduleMinutes === preset.minutes"
+                  [disabled]="!scheduleEnabled"
+                  (click)="usePreset(preset.minutes)"
+                >
+                  {{ preset.label }}
+                </button>
+              }
+            </div>
+
+            <button type="submit" class="action-button" [disabled]="scheduleSaving() || !isScheduleValid()">
+              {{ scheduleSaving() ? 'Saving ...' : 'Save schedule' }}
+            </button>
+          </form>
+        }
+
+        @if (scheduleMessage(); as message) {
+          <p class="message message--success">{{ message }}</p>
+        }
+
+        @if (scheduleError(); as error) {
+          <p class="message message--error">{{ error }}</p>
+        }
+      </section>
+    }
+
+    <!-- Instant Update -->
+    @if (activeTab() === 'update') {
+      <section class="admin-panel">
+        <div class="panel-header">
+          <h2>Instant Update</h2>
+        </div>
+
+        <p class="panel-text">
+          Starts the challenge import right now (fetch from the repositories and export to the database).
+        </p>
+
+        <button
+          type="button"
+          class="action-button action-button--big"
+          [disabled]="updateStarting() || isPolling()"
+          (click)="startInstantUpdate()"
+        >
+          @if (updateStarting()) {
+            Starting ...
+          } @else if (isPolling()) {
+            Update is running ...
+          } @else {
+            Start update now
+          }
+        </button>
+
+        @if (updateMessage(); as message) {
+          <p class="message message--success">{{ message }}</p>
+        }
+
+        @if (updateError(); as error) {
+          <p class="message message--error">{{ error }}</p>
+        }
+
+        @if (status(); as currentStatus) {
+          <div class="mini-status">
+            <span [class]="'badge ' + getStatusClass(currentStatus.status)">
+              {{ currentStatus.status }}
+            </span>
+            @if (currentStatus.message) {
+              <span>{{ currentStatus.message }}</span>
+            }
+          </div>
+        }
+      </section>
+    }
+
+    <!-- Update-Status -->
+    @if (activeTab() === 'status') {
+      <section class="admin-panel">
+        <div class="panel-header">
+          <h2>Update Status</h2>
+          <button type="button" class="link-button" (click)="loadStatus()" [disabled]="statusLoading()">
+            Refresh
+          </button>
+        </div>
+
+        @if (statusLoading() && !status()) {
+          <div class="loading-row">
+            <div class="loading-spinner"></div>
+            <span>Loading status ...</span>
+          </div>
+        }
+
+        @if (statusError(); as error) {
+          <p class="message message--error">{{ error }}</p>
+        }
+
+        @if (status(); as currentStatus) {
+          <div class="status-summary">
+            <span [class]="'badge ' + getStatusClass(currentStatus.status)">
+              {{ currentStatus.status }}
+            </span>
+
+            @if (isPolling()) {
+              <span class="hint">auto refresh ...</span>
+            }
+
+            @if (lastChecked(); as checked) {
+              <span class="hint">last check {{ checked.toLocaleTimeString() }}</span>
+            }
+          </div>
+
+          @if (currentStatus.message) {
+            <p class="panel-text">{{ currentStatus.message }}</p>
+          }
+
+          <div class="stats-grid">
+            <div class="stats-box">
+              <h3>Fetch stats</h3>
+
+              @if (fetchStatsRows().length > 0) {
+                <table>
+                  @for (row of fetchStatsRows(); track row.key) {
+                    <tr>
+                      <th>{{ row.key }}</th>
+                      <td>{{ row.value }}</td>
+                    </tr>
+                  }
+                </table>
+              } @else {
+                <p class="hint">No data</p>
+              }
+            </div>
+
+            <div class="stats-box">
+              <h3>Export stats</h3>
+
+              @if (exportStatsRows().length > 0) {
+                <table>
+                  @for (row of exportStatsRows(); track row.key) {
+                    <tr>
+                      <th>{{ row.key }}</th>
+                      <td>{{ row.value }}</td>
+                    </tr>
+                  }
+                </table>
+              } @else {
+                <p class="hint">No data</p>
+              }
+            </div>
+          </div>
+        }
+      </section>
+    }
+  }
+</main>

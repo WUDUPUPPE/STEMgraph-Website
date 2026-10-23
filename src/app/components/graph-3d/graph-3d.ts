@@ -21,7 +21,7 @@ import { SceneManager } from './scene/scene-manager';
 import { SelectionRing } from './scene/selection-ring';
 
 /**
- * Zeigt den Challenge-Graphen in 3D (three.js).
+ * Zeigt den Challenge-Graphen in 3D (three.js)
  *
  * Die Komponente ist nur noch der "Kleber" zwischen Angular und den
  * 3D-Klassen im Ordner scene/ und layout/:
@@ -41,6 +41,7 @@ import { SelectionRing } from './scene/selection-ring';
   styleUrl: './graph-3d.css',
 })
 
+// Die Graph3d-Komponente zeigt den Challenge-Graphen in 3D an. Sie fungiert als Bindeglied zwischen Angular und den 3D-Klassen im Ordner scene/ und layout/, die für die Darstellung, Animation und Interaktion des Graphen verantwortlich sind
 export class Graph3d implements AfterViewInit, OnChanges, OnDestroy {
   private readonly platformId = inject(PLATFORM_ID);
   private readonly zone = inject(NgZone);
@@ -60,10 +61,10 @@ export class Graph3d implements AfterViewInit, OnChanges, OnDestroy {
   @Input() isAdmin = false;
   @Input() nodeKind: GraphNodeKind = 'challenge';
 
-  /** ID des Knotens, der von außen (z. B. durch die Suche) ausgewählt werden soll. */
+  // ID des Knotens, der von außen (z. B. durch die Suche) ausgewählt werden soll
   @Input() selectedNodeId: string | null = null;
 
-  /** Wird ausgelöst, wenn der Benutzer im Keyword-Graph einen Knoten anklickt. */
+  // Wird ausgelöst, wenn der Benutzer im Keyword-Graph einen Knoten anklickt
   @Output() nodeSelected = new EventEmitter<Node>();
 
   readonly config: Graph3dConfig = { ...DEFAULT_GRAPH_CONFIG };

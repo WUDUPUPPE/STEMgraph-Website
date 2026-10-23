@@ -1,0 +1,277 @@
+.stats-page {
+  width: min(1100px, calc(100% - 32px));
+  margin: 0 auto;
+  padding: 32px 0 80px;
+  color: #f1f1f6;
+}
+
+/* --Kopfzeile-- */
+.stats-header {
+  margin-bottom: 28px;
+}
+
+.stats-title {
+  margin: 0;
+  color: #ffffff;
+  font-size: clamp(1.4rem, 2.4vw, 3rem);
+  text-shadow: 0 0 4px #9f0003, 0 0 6px #ea003e;
+}
+
+.stats-user {
+  margin: 8px 0 0;
+  color: #24b8b1aa;
+  font-size: 0.85rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08rem;
+}
+
+/* --Panels (gleicher Look wie die Challenge-Seite)-- */
+.stats-progress,
+.stats-list-panel {
+  margin-top: 24px;
+  padding: clamp(16px, 3vw, 28px);
+  border: 2px solid #540f95;
+  border-radius: 20px;
+  background: linear-gradient(145deg, #092625aa, #0217158f);
+  box-shadow:
+    0 0 24px #24b8b174,
+    inset 0 0 10px #24b8b15f;
+}
+
+/* --Karten-- */
+.stats-cards {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 14px;
+}
+
+.stats-card {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 6px;
+  padding: 18px;
+
+  border: 1px solid color-mix(in srgb, var(--status-color, #24b8b1) 35%, transparent);
+  border-radius: 14px;
+  background: #03191faf;
+  box-shadow: 0 0 14px color-mix(in srgb, var(--status-color, #24b8b1) 18%, transparent);
+
+  color: #ede3e2;
+  text-align: left;
+  font: inherit;
+  cursor: pointer;
+
+  transition:
+    background 0.2s ease,
+    box-shadow 0.2s ease,
+    border-color 0.2s ease;
+}
+
+.stats-card:hover,
+.stats-card.is-active {
+  background: color-mix(in srgb, var(--status-color) 10%, #03191faf);
+  border-color: color-mix(in srgb, var(--status-color) 60%, transparent);
+  box-shadow: 0 0 20px color-mix(in srgb, var(--status-color) 30%, transparent);
+}
+
+.stats-card--neutral {
+  --status-color: #24b8b1;
+  cursor: default;
+}
+
+.stats-card__count {
+  font-family: 'Fugaz One', sans-serif;
+  font-size: clamp(1.6rem, 3vw, 2.4rem);
+  color: var(--status-color, #ffffff);
+  text-shadow: 0 0 8px color-mix(in srgb, var(--status-color, #24b8b1) 45%, transparent);
+}
+
+.stats-card__label {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  font-family: 'Fugaz One', sans-serif;
+  font-size: 0.9rem;
+}
+
+.stats-card__description {
+  color: #9ca3af;
+  font-size: 0.75rem;
+}
+
+.status-dot {
+  flex-shrink: 0;
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background: var(--status-color);
+  box-shadow: 0 0 8px var(--status-color);
+}
+
+/* --Fortschrittsbalken-- */
+.stats-progress__header {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  margin-bottom: 14px;
+}
+
+.stats-progress__header h2,
+.stats-list-panel h2 {
+  margin: 0;
+  font-size: clamp(1rem, 1.4vw, 1.6rem);
+  text-shadow: 0 0 4px #000000, 0 0 5px #a9a9a9;
+}
+
+.stats-progress__percent {
+  color: #1ed260;
+  font-family: 'Fugaz One', sans-serif;
+}
+
+.progress-bar {
+  display: flex;
+  width: 100%;
+  height: 14px;
+  overflow: hidden;
+  border: 1px solid #24b8b135;
+  border-radius: 999px;
+  background: #0d0a16;
+}
+
+.progress-bar__part {
+  height: 100%;
+  background: color-mix(in srgb, var(--status-color) 75%, transparent);
+  box-shadow: 0 0 10px var(--status-color);
+  transition: width 0.4s ease;
+}
+
+/* --Filter-- */
+.stats-filter {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-bottom: 18px;
+}
+
+.stats-filter button {
+  padding: 4px 14px;
+  border: 2px solid #24b8b124;
+  box-shadow: inset 0 0 6px #24b8b174;
+  border-radius: 0.5rem;
+  background: transparent;
+  color: #c60000;
+  text-shadow: 0 0 3px #9f0003, 0 0 4px #ea003e;
+  cursor: pointer;
+}
+
+.stats-filter button.active,
+.stats-filter button:hover {
+  background: #16726d42;
+}
+
+/* --Liste-- */
+.stats-empty {
+  margin: 0;
+  color: #b6aad5;
+}
+
+.stats-list {
+  display: grid;
+  gap: 10px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.stats-item {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 10px 12px;
+
+  border: 1px solid #540f95;
+  border-left: 3px solid var(--status-color);
+  border-radius: 8px;
+  background: #171326;
+}
+
+.stats-item__text {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.stats-item__title {
+  color: #ffffff;
+  font-family: 'Fugaz One', sans-serif;
+  font-size: 0.9rem;
+  overflow-wrap: anywhere;
+}
+
+.stats-item__info {
+  margin-top: 4px;
+  color: #b6aad5;
+}
+
+.stats-item__actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.open-button {
+  text-shadow: 0 0 3px #9f0003, 0 0 4px #ea003e;
+  text-decoration: none;
+  border: 1px solid #6a2ea2;
+  border-radius: 0.5rem;
+  background: #310b54bb;
+  color: white;
+  padding: 0.25rem 0.8rem;
+  font-family: 'Fugaz One', sans-serif;
+}
+
+.open-button:hover {
+  background: #5e2297;
+}
+
+.remove-button {
+  display: grid;
+  place-items: center;
+  width: 30px;
+  height: 30px;
+  padding: 0;
+  border: 0;
+  border-radius: 8px;
+  background: transparent;
+  color: #7d8f8d;
+  cursor: pointer;
+}
+
+.remove-button:hover {
+  background: #16726d40;
+  color: #f87171;
+}
+
+@media (max-width: 800px) {
+  .stats-cards {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 650px) {
+  .stats-page {
+    width: min(100% - 20px, 1100px);
+    padding-top: 20px;
+  }
+
+  .stats-item {
+    flex-wrap: wrap;
+  }
+
+  .stats-item__actions {
+    width: 100%;
+    justify-content: flex-end;
+  }
+}

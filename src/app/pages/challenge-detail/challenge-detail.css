@@ -30,7 +30,21 @@ button.active.hover {
 }
 
 .challenge-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 20px;
   margin-bottom: 32px;
+}
+
+.challenge-heading {
+  min-width: 0;
+}
+
+/* Status-Auswahl oben rechts */
+.challenge-status {
+  flex-shrink: 0;
+  margin-left: auto;
 }
 
 .detail-title {
@@ -283,5 +297,13 @@ button.active.hover {
 
   .asset-download {
     text-align: center;
+  }
+
+  .challenge-header {
+    flex-direction: column;
+  }
+
+  .challenge-status {
+    margin-left: 0;
   }
 }

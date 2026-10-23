@@ -3,17 +3,16 @@ import { ChangeDetectorRef, Component, OnInit, inject } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { MarkdownComponent } from 'ngx-markdown';
 import { ChallengeContentResponse } from '../../api/models';
+import { ChallengeStatusPicker } from '../../components/challenge-status-picker/challenge-status-picker';
 import { Logo3d } from '../../components/logo-3d/logo-3d';
 import { STEMgraphApiService } from '../../core/services/stemgraph-api.service';
 
 @Component({
   selector: 'app-challenge-detail',
-  imports: [Logo3d, MarkdownComponent],
+  imports: [Logo3d, MarkdownComponent, ChallengeStatusPicker],
   templateUrl: './challenge-detail.html',
   styleUrl: './challenge-detail.css',
 })
-
-// Detailansicht für eine Challenge
 export class ChallengeDetail implements OnInit {
   private readonly route = inject(ActivatedRoute);
   private readonly location = inject(Location);
@@ -50,7 +49,6 @@ export class ChallengeDetail implements OnInit {
     });
   }
 
-  // Gibt die URL für ein Asset zurück, das zu dieser Challenge gehört
   getAssetUrl(fileName: string): string {
     return `/api/challenges/${this.challengeId}/assets/${encodeURIComponent(fileName)}`;
   }

@@ -3,16 +3,16 @@ import { Graph3dConfig } from '../config/graph-3d.config';
 
 /**
  * Leuchtender Schatten hinter einem Knoten, je nach Status der Challenge
- * (fertig = grün, todo = gelb, schwer = rot).
+ * (fertig = grün, todo = gelb, schwer/wiederholen = rot)
  *
  * Der Knoten selbst behält seine normale Farbe. Hinter ihm liegt ein
- * Sprite mit einem weichen, runden Farbverlauf, der immer zur Kamera zeigt.
+ * Sprite mit einem weichen, runden Farbverlauf, der immer zur Kamera zeigt
  */
 export class NodeStatusGlow {
-  /** Ein Sprite pro Knoten, der einen Status hat (Key = Knoten-ID). */
+  // Ein Sprite pro Knoten, der einen Status hat (Key = Knoten-ID)
   private readonly glows = new Map<string, THREE.Sprite>();
 
-  /** Pro Farbe wird die Textur nur einmal erzeugt. */
+  // Pro Farbe wird die Textur nur einmal erzeugt
   private readonly textures = new Map<number, THREE.CanvasTexture>();
 
   constructor(
@@ -39,7 +39,7 @@ export class NodeStatusGlow {
     });
   }
 
-  /** Muss in jedem Frame aufgerufen werden (Position, Größe, leichtes Pulsieren). */
+  // Muss in jedem Frame aufgerufen werden (Position, Größe, leichtes Pulsieren)
   update(elapsed: number): void {
     const pulse =
       1 +
@@ -95,7 +95,7 @@ export class NodeStatusGlow {
     this.glows.clear();
   }
 
-  /** Erzeugt einen runden Farbverlauf: innen farbig, außen durchsichtig. */
+  // Erzeugt einen runden Farbverlauf: innen farbig, außen durchsichtig
   private getTexture(color: number): THREE.CanvasTexture {
     const cached = this.textures.get(color);
 
