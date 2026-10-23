@@ -1,6 +1,8 @@
 import { Component, Input, OnInit, effect, inject, signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { ChallengeListResponse, GraphResponse } from '../../api/models';
+import { getStatusOption } from '../../core/constants/challenge-progress.constants';
+import { ChallengeProgressService } from '../../core/services/challenge-progress.service';
 import { GraphSelectionService } from '../../core/services/graph-selection.service';
 import { STEMgraphApiService } from '../../core/services/stemgraph-api.service';
 import { KeywordBackground, KeywordColor } from  '../../core/utils/keyword-color.util';
@@ -18,6 +20,8 @@ type ExplorerView = 'sphere' | 'graph' | 'list';
 export class ChallengeExplorer implements OnInit {
   private readonly stemgraphApi = inject(STEMgraphApiService);
   private readonly graphSelection = inject(GraphSelectionService);
+  protected readonly progress = inject(ChallengeProgressService);
+  protected readonly getStatusOption = getStatusOption;
 
   @Input() isAdmin = false;
 

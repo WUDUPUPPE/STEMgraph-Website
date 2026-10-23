@@ -1,0 +1,30 @@
+@if (auth.user()) {
+  <div class="status-picker" role="group" aria-label="Set challenge status">
+    @for (option of statusOptions; track option.status) {
+      <button
+        type="button"
+        class="status-button"
+        [class.is-active]="currentStatus() === option.status"
+        [style.--status-color]="option.cssColor"
+        [attr.aria-pressed]="currentStatus() === option.status"
+        [title]="option.description"
+        (click)="selectStatus(option.status)"
+      >
+        <span class="status-dot" aria-hidden="true"></span>
+        {{ option.label }}
+      </button>
+    }
+
+    @if (currentStatus()) {
+      <button
+        type="button"
+        class="status-clear"
+        title="Remove status"
+        aria-label="Remove status"
+        (click)="clearStatus()"
+      >
+        ✕
+      </button>
+    }
+  </div>
+}

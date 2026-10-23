@@ -204,6 +204,16 @@
   text-transform: uppercase;
 }
 
+.profile-section {
+  margin: 8px 0 2px;
+  padding-top: 8px;
+  border-top: 1px solid #24b8b125;
+  color: #24b8b1aa;
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08rem;
+}
+
 .profile-menu button {
   padding: 8px 10px;
   border: 0;
@@ -328,6 +338,10 @@
 
   .mobile-profile .profile-role {
     margin-bottom: 0;
+  }
+
+  .mobile-profile button:hover:not(:disabled) {
+    background: #16726d40;
   }
 
   .mobile-profile__actions {

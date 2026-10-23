@@ -8,11 +8,13 @@ import {
   inject,
 } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
+import { AdminTab } from '../../core/constants/admin.constants';
+import { ChallengeStatus } from '../../core/models/challenge-progress.model';
 import { ApiStatusService } from '../../core/services/api-status.service';
 import { AuthService } from '../../core/services/auth.service';
 import { Search } from '../search/search';
 
-// Ab dieser Fensterbreite (px) wird das Desktop-Layout benutzt
+/** Ab dieser Fensterbreite (px) wird das Desktop-Layout benutzt. */
 const DESKTOP_MIN_WIDTH = 769;
 
 @Component({
@@ -21,8 +23,6 @@ const DESKTOP_MIN_WIDTH = 769;
   templateUrl: './navbar.html',
   styleUrl: './navbar.css',
 })
-
-// Zeigt die Navigationsleiste oben auf der Seite an, mit Logo, Suche, Links und Profilmenü
 export class Navbar {
   readonly router = inject(Router);
   readonly auth = inject(AuthService);
@@ -68,13 +68,30 @@ export class Navbar {
     this.profileMenuOpen = false;
   }
 
+  /** Öffnet die Stats-Seite, optional schon nach einem Status gefiltert (z. B. Todo). */
+  openStats(status: ChallengeStatus | null): void {
+    this.closeAllMenus();
+    this.router.navigate(['/stats'], { queryParams: { status } });
+  }
+
+  /** Öffnet einen Admin-Endpoint (nur für Admins sichtbar, Route ist zusätzlich mit adminGuard geschützt). */
+  openAdminTool(tab: AdminTab): void {
+    this.closeAllMenus();
+    this.router.navigate(['/admin/tools'], { queryParams: { tab } });
+  }
+
+  private closeAllMenus(): void {
+    this.profileMenuOpen = false;
+    this.menuOpen = false;
+  }
+
   logout(): void {
     this.auth.logout();
     this.profileMenuOpen = false;
     this.router.navigate(['/']);
   }
 
-  // Auf großen Bildschirmen wird das mobile Menü immer geschlossen
+  /** Auf großen Bildschirmen wird das mobile Menü immer geschlossen. */
   @HostListener('window:resize')
   onWindowResize(): void {
     if (
@@ -85,7 +102,7 @@ export class Navbar {
     }
   }
 
-  // Klick außerhalb eines offenen Menüs schließt es
+  /** Klick außerhalb eines offenen Menüs schließt es. */
   @HostListener('document:click', ['$event.target'])
   onDocumentClick(target: EventTarget | null): void {
     if (!(target instanceof Node)) {
@@ -104,7 +121,6 @@ export class Navbar {
     }
   }
 
-  // Überprüft, ob das angeklickte Element innerhalb des Menüs oder des Buttons liegt
   private isInside(
     target: Node,
     menu?: ElementRef<HTMLElement>,

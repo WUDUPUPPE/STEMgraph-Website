@@ -53,13 +53,14 @@
             <p class="profile-name">{{ user.username }}</p>
             <p class="profile-role">{{ user.role }}</p>
 
-            <button type="button" disabled>Todo</button>
-            <button type="button" disabled>Stats</button>
+            <button type="button" (click)="openStats('todo')">Todo</button>
+            <button type="button" (click)="openStats(null)">Stats</button>
 
             @if (user.role === 'admin') {
-              <button type="button" disabled>Scheduler Update</button>
-              <button type="button" disabled>Instant Update</button>
-              <button type="button" disabled>Status</button>
+              <p class="profile-section">Admin</p>
+              <button type="button" (click)="openAdminTool('scheduler')">Scheduler Update</button>
+              <button type="button" (click)="openAdminTool('update')">Instant Update</button>
+              <button type="button" (click)="openAdminTool('status')">Status</button>
             }
 
             <button type="button" (click)="logout()">Logout</button>
@@ -90,13 +91,14 @@
       </div>
 
       <div class="mobile-profile__actions">
-        <button type="button" disabled>Todo</button>
-        <button type="button" disabled>Stats</button>
+        <button type="button" (click)="openStats('todo')">Todo</button>
+        <button type="button" (click)="openStats(null)">Stats</button>
 
         @if (user.role === 'admin') {
-          <button type="button" disabled>Scheduler Update</button>
-          <button type="button" disabled>Instant Update</button>
-          <button type="button" disabled>Status</button>
+          <p class="profile-section">Admin</p>
+          <button type="button" (click)="openAdminTool('scheduler')">Scheduler Update</button>
+          <button type="button" (click)="openAdminTool('update')">Instant Update</button>
+          <button type="button" (click)="openAdminTool('status')">Status</button>
         }
 
         <nav aria-label="Mobile navigation">

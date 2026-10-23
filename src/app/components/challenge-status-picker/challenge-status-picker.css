@@ -1,0 +1,91 @@
+.status-picker {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px;
+
+  border: 1px solid #24b8b135;
+  border-radius: 12px;
+  background: #03191faf;
+  box-shadow: 0 10px 30px #00000059;
+  backdrop-filter: blur(4px);
+}
+
+.status-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 6px 12px;
+
+  border: 1px solid transparent;
+  border-radius: 8px;
+  background: transparent;
+  color: #ede3e2;
+
+  font-family: 'Fugaz One', sans-serif;
+  font-size: 0.8rem;
+  letter-spacing: 0.03rem;
+  cursor: pointer;
+
+  transition:
+    background 0.2s ease,
+    border-color 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+.status-button:hover {
+  background: #16726d40;
+}
+
+.status-dot {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background: var(--status-color);
+  opacity: 0.55;
+  transition: opacity 0.2s ease, box-shadow 0.2s ease;
+}
+
+/* Aktiver Status: leichter Schein in der Status-Farbe, nicht zu knallig */
+.status-button.is-active {
+  border-color: color-mix(in srgb, var(--status-color) 55%, transparent);
+  background: color-mix(in srgb, var(--status-color) 12%, transparent);
+  box-shadow: 0 0 10px color-mix(in srgb, var(--status-color) 30%, transparent);
+}
+
+.status-button.is-active .status-dot {
+  opacity: 1;
+  box-shadow: 0 0 8px var(--status-color);
+}
+
+.status-clear {
+  display: grid;
+  place-items: center;
+  width: 28px;
+  height: 28px;
+  padding: 0;
+
+  border: 0;
+  border-radius: 8px;
+  background: transparent;
+  color: #7d8f8d;
+
+  font-size: 0.8rem;
+  cursor: pointer;
+}
+
+.status-clear:hover {
+  background: #16726d40;
+  color: #f87171;
+}
+
+@media (max-width: 650px) {
+  .status-picker {
+    flex-wrap: wrap;
+  }
+
+  .status-button {
+    padding: 6px 9px;
+    font-size: 0.72rem;
+  }
+}

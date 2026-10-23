@@ -1,9 +1,11 @@
 import { isPlatformBrowser } from '@angular/common';
-import { AfterViewInit, ChangeDetectorRef, Component, ElementRef, EventEmitter, Input, NgZone, OnChanges, OnDestroy, Output, PLATFORM_ID, SimpleChanges, ViewChild, inject, signal } from '@angular/core';
+import { AfterViewInit, ChangeDetectorRef, Component, ElementRef, EventEmitter, Input, NgZone, OnChanges, OnDestroy, Output, PLATFORM_ID, SimpleChanges, ViewChild, effect, inject, signal } from '@angular/core';
 import { Subscription } from 'rxjs';
 import { Timer } from 'three';
 import { GraphResponse, Node } from '../../api/models';
+import { getStatusOption } from '../../core/constants/challenge-progress.constants';
 import { AuthService } from '../../core/services/auth.service';
+import { ChallengeProgressService } from '../../core/services/challenge-progress.service';
 import { ReadmePreviewService } from '../../core/services/readme-preview.service';
 import { NodeDetailCarousel } from '../node-detail-carousel/node-detail-carousel';
 import { KeywordBackground, KeywordColor } from '../../core/utils/keyword-color.util';
@@ -14,6 +16,7 @@ import { SphereLayout } from './layout/sphere-layout';
 import { ClusterPhysics } from './scene/cluster-physics';
 import { GraphInteraction } from './scene/graph-interaction';
 import { GraphView } from './scene/graph-view';
+import { NodeStatusGlow } from './scene/node-status-glow';
 import { SceneManager } from './scene/scene-manager';
 import { SelectionRing } from './scene/selection-ring';
 
@@ -27,6 +30,7 @@ import { SelectionRing } from './scene/selection-ring';
  *  - ClusterPhysics    Physik im Cluster-Modus
  *  - GraphInteraction  Maus (Hover, Klick, Ziehen)
  *  - SelectionRing     Ring um den ausgewählten Knoten
+ *  - NodeStatusGlow    leuchtender Schatten je nach Challenge-Status
  */
 
 @Component({
@@ -42,6 +46,7 @@ export class Graph3d implements AfterViewInit, OnChanges, OnDestroy {
   private readonly zone = inject(NgZone);
   private readonly cdr = inject(ChangeDetectorRef);
   private readonly readmePreviews = inject(ReadmePreviewService);
+  private readonly progress = inject(ChallengeProgressService);
 
   readonly auth = inject(AuthService);
 
@@ -55,10 +60,10 @@ export class Graph3d implements AfterViewInit, OnChanges, OnDestroy {
   @Input() isAdmin = false;
   @Input() nodeKind: GraphNodeKind = 'challenge';
 
-  // ID des Knotens, der von außen (z. B. durch die Suche) ausgewählt werden soll
+  /** ID des Knotens, der von außen (z. B. durch die Suche) ausgewählt werden soll. */
   @Input() selectedNodeId: string | null = null;
 
-  // Wird ausgelöst, wenn der Benutzer im Keyword-Graph einen Knoten anklickt
+  /** Wird ausgelöst, wenn der Benutzer im Keyword-Graph einen Knoten anklickt. */
   @Output() nodeSelected = new EventEmitter<Node>();
 
   readonly config: Graph3dConfig = { ...DEFAULT_GRAPH_CONFIG };
@@ -95,11 +100,21 @@ export class Graph3d implements AfterViewInit, OnChanges, OnDestroy {
   private physics!: ClusterPhysics;
   private interaction!: GraphInteraction;
   private selectionRing!: SelectionRing;
+  private statusGlow!: NodeStatusGlow;
 
   private readonly timer = new Timer();
   private animationId = 0;
   private destroyed = false;
   private viewInitialized = false;
+
+  // Sobald der Benutzer einen Status ändert, werden die Glows neu gesetzt.
+  private readonly progressEffect = effect(() => {
+    this.progress.entries();
+
+    if (this.viewInitialized) {
+      this.applyStatusGlows();
+    }
+  });
 
   ngAfterViewInit(): void {
     if (!isPlatformBrowser(this.platformId)) {
@@ -107,7 +122,7 @@ export class Graph3d implements AfterViewInit, OnChanges, OnDestroy {
     }
 
     // three.js läuft außerhalb von Angular, damit nicht bei jedem Frame
-    // die Change Detection startet
+    // die Change Detection startet.
     this.zone.runOutsideAngular(() => {
       this.createSceneObjects();
       this.syncInputs();
@@ -155,11 +170,14 @@ export class Graph3d implements AfterViewInit, OnChanges, OnDestroy {
       this.interaction?.unbind();
     }
 
+    this.statusGlow?.dispose();
     this.graphView?.dispose();
     this.sceneManager?.dispose();
   }
 
-  // Aufbau -----
+  // ---------------------------------------------------------------------------
+  // Aufbau
+  // ---------------------------------------------------------------------------
 
   private createSceneObjects(): void {
     const canvas = this.canvasRef.nativeElement;
@@ -183,6 +201,12 @@ export class Graph3d implements AfterViewInit, OnChanges, OnDestroy {
       this.config
     );
 
+    this.statusGlow = new NodeStatusGlow(
+      this.sceneManager.graphGroup,
+      this.graphView.nodes,
+      this.config
+    );
+
     this.interaction = new GraphInteraction(
       canvas,
       this.sceneManager,
@@ -195,7 +219,7 @@ export class Graph3d implements AfterViewInit, OnChanges, OnDestroy {
     );
   }
 
-  // Gibt die aktuellen Input-Werte an die 3D-Klassen weiter
+  /** Gibt die aktuellen Input-Werte an die 3D-Klassen weiter. */
   private syncInputs(): void {
     this.graphView.layoutMode = this.layoutMode;
     this.graphView.colorByKeyword = this.nodeKind === 'keyword';
@@ -213,6 +237,7 @@ export class Graph3d implements AfterViewInit, OnChanges, OnDestroy {
   private buildGraph(data: GraphResponse): void {
     this.graphView.build(data, this.createLayout());
     this.physics.reset();
+    this.applyStatusGlows();
 
     const isCluster = this.layoutMode === 'cluster';
 
@@ -222,7 +247,23 @@ export class Graph3d implements AfterViewInit, OnChanges, OnDestroy {
     );
   }
 
-  // Animation -----
+  /** Gibt jedem Knoten mit Status (fertig / todo / schwer) seinen farbigen Glow. */
+  private applyStatusGlows(): void {
+    const colorById = new Map<string, number>();
+
+    // Keywords haben keinen Status, nur Challenges
+    if (this.nodeKind === 'challenge') {
+      this.progress.entries().forEach((entry) => {
+        colorById.set(entry.id, getStatusOption(entry.status).glowColor);
+      });
+    }
+
+    this.statusGlow.setColors(colorById);
+  }
+
+  // ---------------------------------------------------------------------------
+  // Animation
+  // ---------------------------------------------------------------------------
 
   private animate = (): void => {
     if (this.destroyed) {
@@ -236,6 +277,7 @@ export class Graph3d implements AfterViewInit, OnChanges, OnDestroy {
 
     this.graphView.updateNodeAnimation();
     this.graphView.updateEdgeFlows(elapsed);
+    this.statusGlow.update(elapsed);
     this.selectionRing.update(
       this.selectedNode?.id ?? null,
       elapsed,
@@ -246,7 +288,9 @@ export class Graph3d implements AfterViewInit, OnChanges, OnDestroy {
     this.sceneManager.render();
   };
 
-  // Tooltip beim Hover -----
+  // ---------------------------------------------------------------------------
+  // Tooltip beim Hover
+  // ---------------------------------------------------------------------------
 
   private updateHoverTooltip(node: Node | null, event?: PointerEvent): void {
     if (!node || !event) {
@@ -324,9 +368,11 @@ export class Graph3d implements AfterViewInit, OnChanges, OnDestroy {
       });
   }
 
-  // Detail-Karussell -----
+  // ---------------------------------------------------------------------------
+  // Detail-Karussell
+  // ---------------------------------------------------------------------------
 
-  // Klick auf einen Knoten: Challenges öffnen das Karussell, Keywords werden nur ausgewählt
+  /** Klick auf einen Knoten: Challenges öffnen das Karussell, Keywords werden nur ausgewählt. */
   private onNodeClicked(node: Node): void {
     if (this.nodeKind === 'keyword') {
       this.selectKeywordNode(node, true);
@@ -335,7 +381,7 @@ export class Graph3d implements AfterViewInit, OnChanges, OnDestroy {
     }
   }
 
-  // Markiert einen Keyword-Knoten mit dem Ring (ohne Karussell)
+  /** Markiert einen Keyword-Knoten mit dem Ring (ohne Karussell). */
   private selectKeywordNode(node: Node, notifyParent: boolean): void {
     this.zone.run(() => {
       this.selectedNode = node;
@@ -348,7 +394,7 @@ export class Graph3d implements AfterViewInit, OnChanges, OnDestroy {
     });
   }
 
-  // Öffnet das Karussell für einen Knoten und markiert ihn mit dem Ring
+  /** Öffnet das Karussell für einen Knoten und markiert ihn mit dem Ring. */
   private openCarouselFor(node: Node): void {
     const connections = this.graphView.getConnections(node.id, this.graphData);
 
@@ -362,7 +408,7 @@ export class Graph3d implements AfterViewInit, OnChanges, OnDestroy {
     });
   }
 
-  // Wird aufgerufen, wenn von außen (z. B. Suche) ein Knoten gewählt wurde
+  /** Wird aufgerufen, wenn von außen (z. B. Suche) ein Knoten gewählt wurde. */
   private selectRequestedNode(): void {
     const id = this.selectedNodeId;
 

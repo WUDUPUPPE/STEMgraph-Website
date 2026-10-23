@@ -21,6 +21,18 @@ export const routes: Routes = [
           import('./pages/admin-home/admin-home').then(m => m.AdminHome),
       },
       {
+        path: 'admin/tools',
+        canActivate: [adminGuard],
+        loadComponent: () =>
+          import('./pages/admin-tools/admin-tools').then(m => m.AdminTools),
+      },
+      {
+        path: 'stats',
+        canActivate: [authGuard],
+        loadComponent: () =>
+          import('./pages/stats/stats').then(m => m.Stats),
+      },
+      {
         path: 'user',
         canActivate: [authGuard],
         loadComponent: () =>

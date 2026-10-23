@@ -91,6 +91,18 @@ button.active {
   font-family: 'Fugaz One', sans-serif;
 }
 
+/* Punkt in der Status-Farbe (fertig / todo / schwer) */
+.status-dot {
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  margin-right: 8px;
+  border-radius: 50%;
+  vertical-align: middle;
+  background: var(--status-color);
+  box-shadow: 0 0 6px var(--status-color);
+}
+
 .challenge-details {
   padding: 0 1rem 1rem;
 }
