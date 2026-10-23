@@ -36,6 +36,12 @@ Die eigentliche Arbeit machen:
 | `ClusterPhysics` | Physik beim Ziehen und Ausschwingen |
 | `GraphInteraction` | Hover, Klick und Ziehen mit der Maus |
 | `SelectionRing` | Ring um den gewählten Knoten |
+| `NodeStatusGlow` | leuchtender Schatten je nach Challenge-Status (fertig / todo / schwer) |
+
+Weitere Seiten:
+
+- `pages/stats` – Übersicht, welche Challenges fertig (grün), todo (gelb) oder schwer (rot) sind
+- `pages/admin-tools` – Admin-Endpoints (Scheduler, Instant Update, Update-Status), nur für Admins
 
 
 This project was generated using [Angular CLI](https://github.com/angular/angular-cli) version 22.1.3.
@@ -46,7 +52,7 @@ To start a local development server, run:
 
 ```bash
 npm start
-maybe ng serve
+ng serve
 ```
 
 Once the server is running, open your browser and navigate to `http://localhost:4200/`. The application will automatically reload whenever you modify any of the source files.
