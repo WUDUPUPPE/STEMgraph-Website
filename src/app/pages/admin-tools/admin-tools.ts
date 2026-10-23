@@ -5,7 +5,14 @@ import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { UpdateStatusResponse } from '../../api/models';
 import { Logo3d } from '../../components/logo-3d/logo-3d';
-import { AdminTab, SCHEDULE_MAX_MINUTES, SCHEDULE_MIN_MINUTES, SCHEDULE_PRESETS, UPDATE_STATUS_POLL_INTERVAL } from '../../core/constants/admin.constants';
+import {
+  AdminTab,
+  MAX_POLLS_WITHOUT_RUNNING,
+  SCHEDULE_MAX_MINUTES,
+  SCHEDULE_MIN_MINUTES,
+  SCHEDULE_PRESETS,
+  UPDATE_STATUS_POLL_INTERVAL,
+} from '../../core/constants/admin.constants';
 import { AdminApiService } from '../../core/services/admin-api.service';
 
 // Eine Zeile aus fetch_stats / export_stats für die Tabelle
@@ -26,6 +33,7 @@ interface StatRow {
   templateUrl: './admin-tools.html',
   styleUrl: './admin-tools.css',
 })
+
 export class AdminTools implements OnDestroy {
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
@@ -71,6 +79,8 @@ export class AdminTools implements OnDestroy {
   readonly exportStatsRows = computed(() => this.toRows(this.status()?.export_stats));
 
   private pollTimer: ReturnType<typeof setInterval> | null = null;
+  private pollCount = 0;
+  private sawRunning = false;
 
   constructor() {
     // Die Buttons im Profil öffnen /admin/tools?tab=...
@@ -125,7 +135,7 @@ export class AdminTools implements OnDestroy {
   }
 
   // Scheduler -----
-
+ 
   loadSchedule(): void {
     this.scheduleLoading.set(true);
     this.scheduleError.set(null);
@@ -249,8 +259,8 @@ export class AdminTools implements OnDestroy {
         this.lastChecked.set(new Date());
         this.statusLoading.set(false);
 
-        if (this.isPolling() && !this.isRunning(response.status)) {
-          this.stopPolling();
+        if (this.isPolling()) {
+          this.checkPollingEnd(response.status);
         }
       },
       error: (error) => {
@@ -261,39 +271,52 @@ export class AdminTools implements OnDestroy {
     });
   }
 
-  // Farbe des Status-Badges: läuft = gelb, fertig = grün, Fehler = rot
+  /**
+   * Farbe des Status-Badges. Die Werte kommen so aus task_scheduler.py:
+   * running = gelb, ok = grün, failed = rot, not_started = grau.
+   */
   getStatusClass(status: string | undefined): string {
-    const value = (status ?? '').toLowerCase();
-
-    if (this.isRunning(value)) {
-      return 'badge--running';
+    switch (status) {
+      case 'running':
+        return 'badge--running';
+      case 'ok':
+        return 'badge--success';
+      case 'failed':
+        return 'badge--error';
+      default:
+        return 'badge--idle';
     }
-
-    if (value.includes('error') || value.includes('fail')) {
-      return 'badge--error';
-    }
-
-    if (
-      value.includes('success') ||
-      value.includes('done') ||
-      value.includes('complete') ||
-      value.includes('finish')
-    ) {
-      return 'badge--success';
-    }
-
-    return 'badge--idle';
   }
 
   private isRunning(status: string): boolean {
-    const value = status.toLowerCase();
+    return status === 'running';
+  }
 
-    return value.includes('run') || value.includes('start') || value.includes('pending');
+  /**
+   * Entscheidet, ob das Abfragen aufhören kann.
+   * Das Update startet im Backend erst kurz nach dem POST. Die erste Antwort kann
+   * also noch der alte Status sein (z. B. "ok"). Darum wird erst gestoppt, wenn
+   * das Update einmal "running" war und jetzt fertig ist – oder wenn es nach
+   * einigen Abfragen nie "running" wurde.
+   */
+  private checkPollingEnd(status: string): void {
+    this.pollCount++;
+
+    if (this.isRunning(status)) {
+      this.sawRunning = true;
+      return;
+    }
+
+    if (this.sawRunning || this.pollCount >= MAX_POLLS_WITHOUT_RUNNING) {
+      this.stopPolling();
+    }
   }
 
   private startPolling(): void {
     this.stopPolling();
     this.isPolling.set(true);
+    this.pollCount = 0;
+    this.sawRunning = false;
 
     this.pollTimer = setInterval(() => this.loadStatus(), UPDATE_STATUS_POLL_INTERVAL);
   }

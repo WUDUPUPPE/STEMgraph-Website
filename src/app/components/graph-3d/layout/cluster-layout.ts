@@ -49,11 +49,7 @@ export class ClusterLayout extends GraphLayout {
     });
   }
 
-<<<<<<< HEAD
-  // Alle Knoten stoßen sich ab, außerdem zieht eine schwache Kraft zur Mitte.
-=======
   // Alle Knoten stoßen sich ab, außerdem zieht eine schwache Kraft zur Mitte
->>>>>>> 1fe3a0879dca740934d59bdd18f8fa5336623d63
   private applyRepulsionAndCenterForce(
     data: GraphResponse,
     positions: Map<string, THREE.Vector3>,
@@ -94,11 +90,7 @@ export class ClusterLayout extends GraphLayout {
     });
   }
 
-<<<<<<< HEAD
-  // Verbundene Knoten werden Richtung "desiredDistance" gezogen.
-=======
   // Verbundene Knoten werden Richtung "desiredDistance" gezogen
->>>>>>> 1fe3a0879dca740934d59bdd18f8fa5336623d63
   private applyEdgeAttraction(
     data: GraphResponse,
     positions: Map<string, THREE.Vector3>,

@@ -7,6 +7,9 @@ export const SCHEDULE_MAX_MINUTES = 10080;
 // So oft (ms) wird der Update-Status abgefragt, solange ein Update läuft
 export const UPDATE_STATUS_POLL_INTERVAL = 3000;
 
+// Wird das Update nach so vielen Abfragen nie "running", wird aufgehört (z. B. sofort fehlgeschlagen)
+export const MAX_POLLS_WITHOUT_RUNNING = 5;
+
 // Schnellauswahl für das Intervall im Scheduler
 export const SCHEDULE_PRESETS = [
   { label: '1 h', minutes: 60 },
